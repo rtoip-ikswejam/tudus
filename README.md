@@ -4,13 +4,14 @@ A small, offline-first daily task planner you install on your phone. No account,
 
 It is built around one idea: **do today's tasks, then look back at how it went.**
 
-> The interface is currently in Polish. English UI is planned.
+> The interface is available in **Polish and English**. The language follows your phone by default and can be changed in Settings. Your own data (task titles, list names, reasons) is never translated.
 
 ## Features
 
 - **Three views per list:** *Do zrobienia* (backlog), *Dzisiaj* (today's plan), *Zrobione* (done), plus *Statystyki*.
 - **Separate lists (areas):** e.g. Private and Work, each with its own tasks, history and statistics, and its own colour. Add more in Settings.
 - **Tasks** have a short title, an optional long description (expands on tap), an optional time, an *important* flag and optional repetition (daily or chosen weekdays).
+- **Scheduled tasks:** a one-off task can have a date from which it moves to *Dzisiaj* (Today) by itself. Until then the date is shown on the task in the backlog. It is not a deadline: nothing is highlighted or overdue.
 - **Daily counters:** a task such as "Drink water" with a target of 8 becomes one card with a +1 button and a progress bar.
 - **Priorities by order:** move tasks up/down or to the top of today's list. Important tasks enter the list below the other important ones.
 - **Failures with reasons:** mark a task as failed and pick a reason from your own list (sorted by how often you use each). See your most common reasons in *Statystyki*.
@@ -67,11 +68,16 @@ Upload the new files over the old ones (same names) and commit. Next time you op
 | `index.html` | The whole app (HTML, CSS, JavaScript) |
 | `sw.js` | Service worker: offline cache, update handling |
 | `manifest.json` | Install metadata (name, icons) |
+| `lang/pl.js`, `lang/en.js` | Interface texts, one file per language (keep the `lang` folder) |
 | `icon-180.png`, `icon-192.png`, `icon-512.png` | App icons |
 
 ## Versioning
 
-The version is set in two places that must always match: the `V` constant in `index.html` and the cache name in `sw.js`. Data has its own schema version (stored in the backup file) so that older backups can be migrated. Tag each release on GitHub (`v1.3.3`, ...).
+The version is set in two places that must always match: the `V` constant in `index.html` and the cache name in `sw.js`. Data has its own schema version (stored in the backup file) so that older backups can be migrated. Tag each release on GitHub (`v1.4.0`, ...).
+
+## Languages
+
+Interface texts live in `lang/pl.js` and `lang/en.js`: each file maps a Polish source text to the text shown in that language. The app uses one language at a time; the choice is stored on the device and is not part of the backup file. To add a language, copy `lang/en.js` to `lang/xx.js`, translate the values, add a `<script src="lang/xx.js">` line next to the others in `index.html`, add the file to the list in `sw.js` and add an option to the language selector (`id=lg`) in the settings view.
 
 ## Local development
 
