@@ -48,7 +48,7 @@ body{--bg:var(--base)}@supports(background:color-mix(in srgb,red,blue)){body{--b
 <main id="main"></main><div id="bar"></div><div id="upd">Dostępna nowa wersja <button class="sm" data-a="upd">Odśwież</button></div>
 <dialog id="dlg"></dialog>
 <script>
-const V='1.3.2',SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
+const V='1.3.3',SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
 const DN={1:'pn',2:'wt',3:'śr',4:'cz',5:'pt',6:'sb',0:'nd'};
 let tab='prog',sort=false,open=null,pos={},pendingSW=null;
 const pad=n=>String(n).padStart(2,'0'),ds=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),today=()=>ds(new Date());
@@ -139,7 +139,7 @@ function form(x){const n=!x;x=x||{t:'',d:'',time:'',rep:{k:'none',days:[]},imp:f
   if(n){Object.assign(x,f,{id:uid(),st:'todo'});S.tasks.push(x);if(tab==='prog')toDay(x)}else{const oa=x.area;Object.assign(x,f);if(x.area!==oa&&x.st==='prog')put(x)}
   $('dlg').close();save();render()}}
 /* --- akcje --- */
-const mv=(x,d)=>{const l=prog(x.area),i=l.indexOf(x),j=i+d;if(j<0||j>=l.length)return;l.splice(i,1);l.splice(j,0,x);l.forEach((y,k)=>y.ord=k)};
+const mv=(x,d)=>{const l=prog(x.area),i=l.indexOf(x),j=Math.max(0,Math.min(l.length-1,i+d));if(j===i)return;l.splice(i,1);l.splice(j,0,x);l.forEach((y,k)=>y.ord=k)};
 const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=null;sort=false;save();render();scrollTo(0,0)},
  aa:()=>{const v=$('an2').value.trim();if(!v)return;S.areas.push({id:uid(),name:v,color:PAL.find(c=>!S.areas.some(a=>a.color===c))||PAL[0]});save();render()},
  ren:(x,el)=>{const a=S.areas.find(q=>q.id===el.dataset.id);sheet(`<h3>Nazwa listy</h3><input id=an value="${esc(a.name)}"><div class=row><button class=sm id=ax>Anuluj</button><button class="sm pri" id=as>Zapisz</button></div>`);$('dlg').onclick=null;$('ax').onclick=()=>$('dlg').close();$('as').onclick=()=>{const v=$('an').value.trim();if(v){a.name=v;save();$('dlg').close();render()}}},
