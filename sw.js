@@ -1,5 +1,5 @@
 // Wersja cache musi zgadzać się z V w index.html
-const C='kanban-1.5.1';
+const C='kanban-1.5.2';
 // Pliki niezbędne: bez nich aktualizacja się nie uda (stara wersja zostaje).
 const NEED=['./','index.html'];
 // Pliki pomocnicze: brak któregoś (np. 404 na GitHubie) nie blokuje aktualizacji.
