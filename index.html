@@ -49,7 +49,7 @@ body{--bg:var(--base)}@supports(background:color-mix(in srgb,red,blue)){body{--b
 <dialog id="dlg"></dialog>
 <script src="lang/pl.js"></script><script src="lang/en.js"></script>
 <script>
-const V='1.4.0',SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
+const V='1.4.1',SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
 const LG=window.LANGS||{};
 let LANG=(()=>{try{const l=localStorage.getItem('kanban-lang');if(l&&LG[l])return l}catch(e){}return /^en/i.test(navigator.language||'')?'en':'pl'})();
 const tr=(k,p)=>{let s=(LG[LANG]&&LG[LANG][k])||k;if(p)for(const n in p)s=s.split('{'+n+'}').join(p[n]);return s};
@@ -101,7 +101,7 @@ const cnt=(o,part,r='done')=>{const a=ds(wstart(o)),b=ds(wend(o,part));return S.
 /* --- widoki --- */
 const nowT=()=>{const n=new Date();return pad(n.getHours())+':'+pad(n.getMinutes())};
 const rt=x=>x.rep.k==='daily'?tr('codziennie'):x.rep.k==='days'?[1,2,3,4,5,6,0].filter(d=>x.rep.days.includes(d)).map(d=>DN(d)).join(', '):'';
-const badge=x=>(x.imp?'<b class=st>★</b>':'')+(x.rep.k!=='none'||x.tpl?'<i class=rp>↻'+(rt(x)?' '+rt(x):'')+'</i>':'');
+const badge=x=>{const o=x.tpl?(S.tasks.find(q=>q.id===x.tpl)||x):x;return(x.imp?'<b class=st>★</b>':'')+(x.rep.k!=='none'||x.tpl?'<i class=rp>↻'+(rt(o)?' '+rt(o):'')+'</i>':'')};
 const tm=(x,p)=>x.time?`<span class="tm${p&&x.time<nowT()?' late':''}">${x.time}</span>`:'';
 const b=(a,id,t,c='',at='')=>`<button class="${c}" ${at} data-a="${a}" data-id="${id}">${t}</button>`;
 const desc=(x,acts)=>`<div class=ds>${x.d?esc(x.d).replace(/\n/g,'<br>'):'<em>'+tr('Brak opisu')+'</em>'}<div class=acts>${acts}</div></div>`;
@@ -145,7 +145,7 @@ function form(x){const n=!x;x=x||{t:'',d:'',time:'',rep:{k:'none',days:[]},imp:f
  $('fx').onclick=()=>$('dlg').close();$('dlg').onclick=null;
  $('fs').onclick=()=>{const tt=$('ft').value.trim();if(!tt)return $('ft').focus();const k=$('fr').value,days=[...$('dlg').querySelectorAll('#fdays input:checked')].map(i=>+i.value),rk=k==='days'&&!days.length?'none':k;
   const c=Math.min(99,Math.max(1,Math.floor(+$('fc').value)||1)),f={area:$('fa').value,cnt:c,exp:!$('fe').checked||c>1,t:tt,d:$('fd').value,time:$('fm').value,imp:$('fi2').checked,rep:{k:rk,days},at:rk==='none'?($('fat').value||undefined):undefined};
-  if(n){Object.assign(x,f,{id:uid(),st:'todo'});S.tasks.push(x);if(tab==='prog'&&!f.at)toDay(x)}else{const oa=x.area;Object.assign(x,f);if(x.area!==oa&&x.st==='prog')put(x)}
+  if(n){Object.assign(x,f,{id:uid(),st:'todo'});S.tasks.push(x);if(tab==='prog'&&!f.at)toDay(x)}else{const oa=x.area;if(x.st==='prog'&&!x.tpl&&x.rep.k==='none'&&f.rep.k!=='none'){const tp={...f,id:uid(),st:'todo'};S.tasks.push(tp);Object.assign(x,f,{rep:{k:'none',days:[]},tpl:tp.id,at:undefined})}else Object.assign(x,f);if(x.area!==oa&&x.st==='prog')put(x)}
   sched();$('dlg').close();save();render()}}
 /* --- akcje --- */
 const mv=(x,d)=>{const l=prog(x.area),i=l.indexOf(x),j=Math.max(0,Math.min(l.length-1,i+d));if(j===i)return;l.splice(i,1);l.splice(j,0,x);l.forEach((y,k)=>y.ord=k)};
