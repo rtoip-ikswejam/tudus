@@ -60,13 +60,13 @@ body{--bg:var(--base)}@supports(background:color-mix(in srgb,red,blue)){body{--b
 <dialog id="dlg"></dialog>
 <script src="lang/pl.js"></script><script src="lang/en.js"></script>
 <script>
-const V='1.6.0',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
+const V='1.7.0',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
 const LG=window.LANGS||{};
 let LANG=(()=>{try{const l=localStorage.getItem('kanban-lang');if(l&&LG[l])return l}catch(e){}return /^en/i.test(navigator.language||'')?'en':'pl'})();
 const tr=(k,p)=>{let s=(LG[LANG]&&LG[LANG][k])||k;if(p)for(const n in p)s=s.split('{'+n+'}').join(p[n]);return s};
 const LOC=()=>LANG==='en'?'en-GB':'pl-PL',dm=s=>new Date(s+'T12:00:00').toLocaleDateString(LOC(),{day:'numeric',month:'numeric'});
 const DN=d=>tr(['nd','pn','wt','śr','cz','pt','sb'][d]);
-let tab='prog',sort=false,ssort=null,open=null,pos={},pendingSW=null;
+let tab='prog',sort=false,tsort=false,ssort=null,open=null,pos={},pendingSW=null;
 const pad=n=>String(n).padStart(2,'0'),ds=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),today=()=>ds(new Date());
 const lum=h=>{const c=[1,3,5].map(i=>parseInt(h.substr(i,2),16)/255).map(v=>v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4));return .2126*c[0]+.7152*c[1]+.0722*c[2]};
 const ink=h=>{const L=lum(h);return 1.05/(L+.05)>=(L+.05)/.068?'#ffffff':'#1f2430'};
@@ -74,7 +74,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function load(){try{const s=JSON.parse(localStorage.getItem(K));if(s&&s.tasks)return migrate(s)}catch(e){}
 return migrate({schema:SCHEMA,tasks:[],log:[],last:'',reasons:['brak czasu','brak chęci','zapomniałem','pilniejsza sprawa','źle oszacowany czas','zmęczenie/choroba','inne'].map((n,i)=>({id:'r'+i,name:tr(n)}))})}
-function migrate(s){if(!s.areas||!s.areas.length)s.areas=[{id:'a1',name:tr('Prywatna')},{id:'a2',name:tr('Zawodowa')}];if(!s.areas.some(a=>a.id===s.area))s.area=s.areas[0].id;const d=s.areas[0].id;(s.tasks||[]).forEach(x=>{if(!x.area)x.area=d});(s.log||[]).forEach(x=>{if(!x.area)x.area=d});s.areas.forEach((a,i)=>{if(!a.color)a.color=PAL[i%PAL.length]});if(!s.ro){const m={};(s.log||[]).forEach(l=>{if(l.reason)m[l.reason]=(m[l.reason]||0)+1});(s.reasons=s.reasons||[]).sort((a,b)=>(m[b.id]||0)-(m[a.id]||0)||a.name.localeCompare(b.name,LANG));s.ro=1}s.schema=SCHEMA;return s}
+function migrate(s){if(!s.areas||!s.areas.length)s.areas=[{id:'a1',name:tr('Prywatna')},{id:'a2',name:tr('Zawodowa')}];if(!s.areas.some(a=>a.id===s.area))s.area=s.areas[0].id;const d=s.areas[0].id;(s.tasks||[]).forEach(x=>{if(!x.area)x.area=d});(s.log||[]).forEach(x=>{if(!x.area)x.area=d});s.areas.forEach((a,i)=>{if(!a.color)a.color=PAL[i%PAL.length]});if(!s.ro){const m={};(s.log||[]).forEach(l=>{if(l.reason)m[l.reason]=(m[l.reason]||0)+1});(s.reasons=s.reasons||[]).sort((a,b)=>(m[b.id]||0)-(m[a.id]||0)||a.name.localeCompare(b.name,LANG));s.ro=1}if(!s.pm){(s.areas||[]).forEach(a=>{const l=(s.tasks||[]).filter(x=>x.area===a.id&&!x.tpl&&x.st==='todo').reverse(),z=x=>x.rep&&x.rep.k!=='none'||x.at;[...l.filter(x=>!z(x)),...l.filter(z)].forEach((x,i)=>x.po=i)});s.pm=1}s.schema=SCHEMA;return s}
 let S=load();
 const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){toast(tr('Nie udało się zapisać danych'))}};
 function toastU(m,id,ms=6000){document.querySelectorAll('.toast').forEach(e=>e.remove());const t=document.createElement('div');t.className='toast';t.innerHTML=esc(m)+` <button class=sm data-a=ud data-id="${id}" style="margin-left:8px">${tr('Cofnij')}</button>`;document.body.append(t);setTimeout(()=>t.remove(),ms)}
@@ -89,10 +89,14 @@ function put(t){const l=prog(t.area).filter(x=>x!==t);let i=l.length;
  if(t.imp){i=0;l.forEach((x,j)=>{if(x.imp)i=j+1})}
  else if(t.time){const j=l.findIndex(x=>!x.imp&&x.time&&x.time>t.time);if(j>=0)i=j}
  l.splice(i,0,t);l.forEach((x,j)=>x.ord=j)}
+const kind=x=>x.rep.k!=='none'||x.at?'z':'o';
+const tdl=a=>S.tasks.filter(x=>x.area===a&&!x.tpl&&x.st==='todo').sort((p,q)=>(p.po??0)-(q.po??0));
+function place(t,where){const l=tdl(t.area).filter(x=>x!==t);if(where==='top')l.unshift(t);else l.push(t);l.forEach((x,i)=>x.po=i)}
+const mvt=(x,d)=>{const l=tdl(x.area),i=l.indexOf(x),j=d===-99?0:Math.max(0,Math.min(l.length-1,i+d));if(i<0||j===i)return;l.splice(i,1);l.splice(j,0,x);l.forEach((y,k)=>y.po=k)};
 function toDay(t){if(t.rep.k!=='none'){if(S.tasks.some(x=>x.tpl===t.id&&x.st==='prog'))return toast(tr('To zadanie jest już w Dzisiaj'));
  const i={id:uid(),area:t.area,tpl:t.id,t:t.t,d:t.d,time:t.time,imp:t.imp,cnt:t.cnt||1,exp:t.exp,n:0,rep:{k:'none',days:[]},st:'prog',date:today()};S.tasks.push(i);put(i)}
  else{delete t.at;t.st='prog';t.date=today();t.n=0;put(t)}}
-function fail(x,date){S.log.push({id:uid(),tid:x.id,area:x.area,tpl:x.tpl||null,title:x.t,date,res:'fail',reason:null,dec:'todo',...(x.cnt>1?{n:x.n||0,cnt:x.cnt}:{})});x.st=x.tpl?'closed':'todo'}
+function fail(x,date){S.log.push({id:uid(),tid:x.id,area:x.area,tpl:x.tpl||null,title:x.t,date,res:'fail',reason:null,dec:'todo',...(x.cnt>1?{n:x.n||0,cnt:x.cnt}:{})});x.st=x.tpl?'closed':'todo';if(!x.tpl)place(x,'top')}
 function done(x){const id=uid();S.log.push({id,tid:x.id,area:x.area,tpl:x.tpl||null,title:x.t,date:today(),res:'done',...(x.cnt>1?{n:x.n||0,cnt:x.cnt}:{})});x.st=x.tpl?'closed':'done';return id}
 function sched(){S.tasks.filter(t=>t.st==='todo'&&t.at&&t.at<=today()&&t.rep.k==='none'&&!t.tpl).forEach(t=>{delete t.at;toDay(t)})}
 function roll(){const td=today();
@@ -120,9 +124,11 @@ function vProg(){const l=prog();if(!l.length){const dn=S.log.some(y=>y.res==='do
  return l.map((x,i)=>`<div class=c><div class=r><div class=ti data-a=tg data-id="${x.id}">${badge(x)}${esc(x.t)}${x.cnt>1?` ${x.n||0}/${x.cnt}`:''}${tm(x,1)}${x.date<today()?`<span class=tm>${tr('od {d}',{d:dm(x.date)})}</span>`:''}</div><div class=bt>`+
  (sort?b('up',x.id,'▲<small>'+tr('wyżej')+'</small>','',i?'':'disabled')+b('dn',x.id,'▼<small>'+tr('niżej')+'</small>')+b('top',x.id,'⤒<small>'+tr('na górę')+'</small>'):(x.cnt>1?b('pl',x.id,'+1','ok'):b('ok',x.id,'✓<small>'+tr('zrobione')+'</small>','ok')))+
  `</div></div>${x.cnt>1?`<div style="height:6px;border-radius:3px;background:var(--ln);margin-top:6px"><div style="height:100%;width:${Math.round(100*(x.n||0)/x.cnt)}%;background:var(--ac);border-radius:3px"></div></div>`:''}${open===x.id?desc(x,(x.cnt>1?b('mn',x.id,'−1','sm'):'')+b('fl',x.id,tr('Porażka'),'sm')+b('no',x.id,tr('Odłóż do „Do zrobienia”'),'sm')+b('edit',x.id,tr('Edytuj'),'sm')):''}</div>`).join('')}
-function vTodo(){const q=($('q')||{}).value||'';
- const l=S.tasks.filter(x=>!x.tpl&&x.area===S.area&&(x.st==='todo')&&x.t.toLowerCase().includes(q.toLowerCase())).reverse();
- return`<input id=q placeholder="${tr('Szukaj zadań')}" value="${esc(q)}" data-a=srch style="margin-bottom:10px">`+(l.length?l.map(x=>`<div class=c><div class=r><div class=ti data-a=tg data-id="${x.id}">${badge(x)}${esc(x.t)}${x.cnt>1?`<span class=tm>${tr('×{n} dziennie',{n:x.cnt})}</span>`:''}${tm(x)}${x.at?`<span class=tm>${tr('w Dzisiaj od {d}',{d:dm(x.at)})}</span>`:''}</div>${b('go',x.id,tr('Do dzisiaj'),'sm pri')}</div>${open===x.id?desc(x,b('edit',x.id,tr('Edytuj'),'sm')+b('cx',x.id,tr('Anuluj (do archiwum)'),'sm')):''}</div>`).join(''):'<p class=empty>'+tr('Brak zadań. Dodaj pierwsze przyciskiem +.')+'</p>')}
+function vTodo(){const q=tsort?'':(($('q')||{}).value||'');
+ const l=tdl(S.area).filter(x=>x.t.toLowerCase().includes(q.toLowerCase()));
+ const ch=x=>`${badge(x)}${esc(x.t)}${x.cnt>1?`<span class=tm>${tr('×{n} dziennie',{n:x.cnt})}</span>`:''}${tm(x)}${x.at?`<span class=tm>${tr('w Dzisiaj od {d}',{d:dm(x.at)})}</span>`:''}`;
+ if(tsort)return l.map((x,i)=>`<div class=c><div class=r><div class=ti>${ch(x)}</div><div class=bt>${b('tup',x.id,'▲<small>'+tr('wyżej')+'</small>','',i?'':'disabled')}${b('tdn',x.id,'▼<small>'+tr('niżej')+'</small>','',i<l.length-1?'':'disabled')}${b('ttop',x.id,'⤒<small>'+tr('na górę')+'</small>','',i?'':'disabled')}</div></div></div>`).join('');
+ return`<input id=q placeholder="${tr('Szukaj zadań')}" value="${esc(q)}" data-a=srch style="margin-bottom:10px">`+(l.length?l.map(x=>`<div class=c><div class=r><div class=ti data-a=tg data-id="${x.id}">${ch(x)}</div>${b('go',x.id,tr('Do dzisiaj'),'sm pri')}</div>${open===x.id?desc(x,b('edit',x.id,tr('Edytuj'),'sm')+b('cx',x.id,tr('Anuluj (do archiwum)'),'sm')):''}</div>`).join(''):'<p class=empty>'+tr('Brak zadań. Dodaj pierwsze przyciskiem +.')+'</p>')}
 function vDone(){const c0=cnt(0,1),c1=cnt(1,1),f0=cnt(0,1,'fail'),d=c0-c1,p=c0+f0?Math.round(100*c0/(c0+f0))+'%':'–';
  const w=[];for(let o=7;o>=0;o--)w.push(cnt(o,o===0));const mx=Math.max(1,...w);
  const svg=`<svg viewBox="0 0 320 90" width="100%" role="img" aria-label="${tr('Zrobione zadania w ostatnich 8 tygodniach')}">${w.map((v,i)=>{const h=Math.round(56*v/mx);return`<rect x="${i*40+6}" y="${72-h}" width="28" height="${h}" rx="4" fill="var(--done)" opacity="${i===7?1:.4}"/><text x="${i*40+20}" y="${66-h}" text-anchor="middle" font-size="11" fill="var(--mu)">${v}</text>`}).join('')}<text x="6" y="86" font-size="10" fill="var(--mu)">${tr('8 tygodni temu')}</text><text x="314" y="86" font-size="10" text-anchor="end" fill="var(--mu)">${tr('ten tydzień')}</text></svg>`;
@@ -147,7 +153,7 @@ function vSet(){const p=pend().filter(l=>l.area===S.area),ar=S.tasks.filter(x=>x
 function ab(){$('ab').innerHTML=S.areas.map(a=>{const n=prog(a.id).length;return`<button class="ar${a.id===S.area?' on':''}" data-a=area data-id="${a.id}" style="--c:${a.color};--ct:${ink(a.color)}">${esc(a.name)}<span class=cn>${n}</span></button>`}).join('')}
 function bar(){const e=$('bar');e.className=tab==='prog'||tab==='todo'?'bar':'';
  const q=ph=>`<input id=qi placeholder="${ph}" enterkeyhint=done autocomplete=off style="flex:1;min-width:0"><button class=fab style="width:48px;height:48px;font-size:26px;flex:none" data-a=qa aria-label="${tr('Dodaj')}">+</button><button class=sm data-a=add aria-label="${tr('Pełny formularz')}">⋯<small>${tr('więcej')}</small></button>`;
- e.innerHTML=tab==='prog'?q(tr('Dodaj zadanie na dziś'))+`<button class=sm data-a=sort>${sort?'✓<small>'+tr('gotowe')+'</small>':'⇅<small>'+tr('kolejność')+'</small>'}</button>`:tab==='todo'?q(tr('Dodaj zadanie do zrobienia')):''}
+ e.innerHTML=tab==='prog'?q(tr('Dodaj zadanie na dziś'))+`<button class=sm data-a=sort>${sort?'✓<small>'+tr('gotowe')+'</small>':'⇅<small>'+tr('kolejność')+'</small>'}</button>`:tab==='todo'?q(tr('Dodaj zadanie do zrobienia'))+`<button class=sm data-a=tsort>${tsort?'✓<small>'+tr('gotowe')+'</small>':'⇅<small>'+tr('kolejność')+'</small>'}</button>`:''}
 function i18n(){document.documentElement.lang=LANG;const tb={todo:'Do zrobienia',prog:'Dzisiaj',done:'Zrobione',stat:'Statystyki'};for(const k in tb)document.querySelector('.tab[data-tab='+k+']').textContent=tr(tb[k]);document.querySelector('.gear').setAttribute('aria-label',tr('Ustawienia'));$('upd').innerHTML=tr('Dostępna nowa wersja')+' <button class="sm" data-a="upd">'+tr('Odśwież')+'</button>'}
 function inks(){const cs=getComputedStyle(document.body),g=n=>cs.getPropertyValue(n).trim(),set=(n,v)=>/^#[0-9a-f]{6}$/i.test(v)&&document.body.style.setProperty(n,ink(v));set('--ai',g('--ac'));set('--di',g('--done'));set('--bi',g('--bad'))}
 function render(){i18n();pos[document.body.dataset.tab]=scrollY;document.body.dataset.tab=tab;
@@ -161,15 +167,17 @@ function form(x){const n=!x;x=x||{t:'',d:'',time:'',rep:{k:'none',days:[]},imp:f
  $('fx').onclick=()=>$('dlg').close();$('dlg').onclick=null;
  $('fs').onclick=()=>{const tt=$('ft').value.trim();if(!tt)return $('ft').focus();const k=$('fr').value,days=[...$('dlg').querySelectorAll('#fdays input:checked')].map(i=>+i.value),rk=k==='days'&&!days.length?'none':k;
   const c=Math.min(99,Math.max(1,Math.floor(+$('fc').value)||1)),f={area:$('fa').value,cnt:c,exp:!$('fe').checked||c>1,t:tt,d:$('fd').value,time:$('fm').value,imp:$('fi2').checked,rep:{k:rk,days},at:rk==='none'?($('fat').value||undefined):undefined};
-  if(n){Object.assign(x,f,{id:uid(),st:'todo'});S.tasks.push(x);if(tab==='prog'&&!f.at)toDay(x)}else{const oa=x.area;if(x.st==='prog'&&!x.tpl&&x.rep.k==='none'&&f.rep.k!=='none'){const tp={...f,id:uid(),st:'todo'};S.tasks.push(tp);Object.assign(x,f,{rep:{k:'none',days:[]},tpl:tp.id,at:undefined})}else Object.assign(x,f);if(x.area!==oa&&x.st==='prog')put(x)}
+  if(n){Object.assign(x,f,{id:uid(),st:'todo'});S.tasks.push(x);place(x,kind(x)==='z'?'bottom':'top');if(tab==='prog'&&!f.at)toDay(x)}else{const oa=x.area,k0=kind(x);if(x.st==='prog'&&!x.tpl&&x.rep.k==='none'&&f.rep.k!=='none'){const tp={...f,id:uid(),st:'todo'};S.tasks.push(tp);place(tp,'bottom');Object.assign(x,f,{rep:{k:'none',days:[]},tpl:tp.id,at:undefined})}else Object.assign(x,f);if(x.area!==oa&&x.st==='prog')put(x);if(x.st==='todo'&&!x.tpl&&(kind(x)!==k0||x.area!==oa))place(x,kind(x)==='z'?'bottom':'top')}
   sched();$('dlg').close();save();render()}}
 /* --- akcje --- */
 const mv=(x,d)=>{const l=prog(x.area),i=l.indexOf(x),j=Math.max(0,Math.min(l.length-1,i+d));if(j===i)return;l.splice(i,1);l.splice(j,0,x);l.forEach((y,k)=>y.ord=k)};
-const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=null;sort=false;save();render();scrollTo(0,0)},
+const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=null;sort=false;tsort=false;save();render();scrollTo(0,0)},
  aa:()=>{const v=$('an2').value.trim();if(!v)return;S.areas.push({id:uid(),name:v,color:PAL.find(c=>!S.areas.some(a=>a.color===c))||PAL[0]});save();render()},
  ren:(x,el)=>{const a=S.areas.find(q=>q.id===el.dataset.id);sheet(`<h3>${tr('Nazwa listy')}</h3><input id=an value="${esc(a.name)}"><div class=row><button class=sm id=ax>${tr('Anuluj')}</button><button class="sm pri" id=as>${tr('Zapisz')}</button></div>`);$('dlg').onclick=null;$('ax').onclick=()=>$('dlg').close();$('as').onclick=()=>{const v=$('an').value.trim();if(v){a.name=v;save();$('dlg').close();render()}}},
  col:(x,el)=>{const a=S.areas.find(q=>q.id===el.dataset.id);sheet(`<h3>${tr('Kolor listy „{n}”',{n:esc(a.name)})}</h3><div class=sw>${PICK.map(c=>`<button class=swb data-c="${c}" style="background:${c};color:${ink(c)};box-shadow:inset 0 0 0 1px var(--ln)">${c===a.color?'✓':''}</button>`).join('')}</div><label>${tr('Własny kolor (dowolny)')}<input type=color id=cc value="${a.color}" style="height:48px;padding:4px"></label><div class=row><button class=sm id=ax>${tr('Anuluj')}</button></div>`);$('ax').onclick=()=>$('dlg').close();$('cc').onchange=()=>{a.color=$('cc').value;save();$('dlg').close();render()};$('dlg').onclick=e=>{const k=e.target.closest('[data-c]');if(k){a.color=k.dataset.c;save();$('dlg').close();render()}}},
- tab:(x,el)=>{pos[tab]=scrollY;tab=el.dataset.tab;open=null;ssort=null;render();scrollTo(0,pos[tab]||0)},
+ tsort:()=>{tsort=!tsort;open=null;render()},
+ tup:x=>{mvt(x,-1);save();render()},tdn:x=>{mvt(x,1);save();render()},ttop:x=>{mvt(x,-99);save();render()},
+ tab:(x,el)=>{pos[tab]=scrollY;tab=el.dataset.tab;open=null;ssort=null;tsort=false;render();scrollTo(0,pos[tab]||0)},
  tgd:(x,el)=>{open=open===el.dataset.id?null:el.dataset.id;render()},
  tg:x=>{open=open===x.id?null:x.id;render()},ok:x=>{const id=done(x);vib(25);save();render();toastU(tr('Zrobione: {n}',{n:x.t}),id)},
  no:x=>{fail(x,today());save();render();toast(tr('Odłożono na listę „Do zrobienia”. Przyczynę dodasz w Ustawieniach.'))},
@@ -177,15 +185,15 @@ const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=nul
   $('dlg').onclick=null;$('fx2').onclick=()=>$('dlg').close();
   $('fs2').onclick=()=>{const q=$('fq').value;S.log.push({id:uid(),tid:x.id,area:x.area,tpl:x.tpl||null,title:x.t,date:today(),res:'fail',reason:q||null,dec:'cancel',...(x.cnt>1?{n:x.n||0,cnt:x.cnt}:{})});x.st=x.tpl?'closed':'arch';$('dlg').close();save();render();toast(tr('Zapisano porażkę'))}},
  ud:(x,el)=>{const l=S.log.find(y=>y.id===el.dataset.id);if(!l)return;const t=S.tasks.find(y=>y.id===l.tid);S.log=S.log.filter(y=>y!==l);if(t){t.st='prog';if(t.cnt>1)t.n=t.cnt-1}save();render();toast(tr('Cofnięto'))},
- qa:()=>{const i=$('qi'),v=i.value.trim();if(!v)return i.focus();const x={id:uid(),area:S.area,t:v,d:'',time:'',rep:{k:'none',days:[]},imp:false,cnt:1,exp:false,st:'todo'};S.tasks.push(x);if(tab==='prog')toDay(x);save();render();$('qi').focus();scrollTo(0,tab==='prog'?document.body.scrollHeight:0)},
+ qa:()=>{const i=$('qi'),v=i.value.trim();if(!v)return i.focus();const x={id:uid(),area:S.area,t:v,d:'',time:'',rep:{k:'none',days:[]},imp:false,cnt:1,exp:false,st:'todo'};S.tasks.push(x);place(x,'top');if(tab==='prog')toDay(x);save();render();$('qi').focus();scrollTo(0,tab==='prog'?document.body.scrollHeight:0)},
  pl:x=>{x.n=(x.n||0)+1;let id=null;if(x.n>=x.cnt)id=done(x);vib(id?[25,40,25]:15);save();render();if(id)toastU(tr('Zrobione: {n}',{n:x.t}),id)},
  mn:x=>{x.n=Math.max(0,(x.n||0)-1);save();render()},
  up:x=>{mv(x,-1);save();render()},dn:x=>{mv(x,1);save();render()},top:x=>{mv(x,-prog(x.area).length);save();render()},
  go:x=>{toDay(x);open=null;save();render();toast(tr('Dodano do Dzisiaj'))},edit:x=>form(x),add:()=>form(null),
- cx:x=>{x.st='arch';save();render()},rs:x=>{x.st='todo';save();render()},sort:()=>{sort=!sort;render()},
+ cx:x=>{x.st='arch';save();render()},rs:x=>{x.st='todo';place(x,'top');save();render()},sort:()=>{sort=!sort;render()},
  undo:(x,el)=>{const l=S.log.find(y=>y.id===el.dataset.id);if(!l)return;ask(tr('Cofnąć zadanie? Przywróć je do:'),[[tr('Dzisiaj'),'prog'],[tr('Do zrobienia'),'todo']],w=>{
   S.log=S.log.filter(y=>y!==l);const t=S.tasks.find(y=>y.id===l.tid);if(t&&t.cnt>1)t.n=t.cnt-1;
-  if(t){if(t.tpl){if(w==='prog'){t.st='prog';t.date=today();put(t)}else S.tasks=S.tasks.filter(y=>y!==t)}else{t.st=w;if(w==='prog'){t.date=today();put(t)}}}
+  if(t){if(t.tpl){if(w==='prog'){t.st='prog';t.date=today();put(t)}else S.tasks=S.tasks.filter(y=>y!==t)}else{t.st=w;if(w==='prog'){t.date=today();put(t)}else place(t,'top')}}
   save();render()})},
  ra:()=>{const v=$('rn').value.trim();if(!v)return;S.reasons.push({id:uid(),name:v});save();render()},
  rd:(x,el)=>{const q=S.reasons.find(r=>r.id===el.dataset.id);if(!q)return;const u=S.log.filter(l=>l.reason===q.id).length;ask(tr('Usunąć przyczynę „{n}”?',{n:esc(q.name)})+(u?' '+tr('Użyta: {u}. Wpisy wrócą do sekcji „Bez przyczyny”.',{u}):''),[[tr('Usuń'),'y']],()=>{S.log.forEach(l=>{if(l.reason===q.id)l.reason=null});S.reasons=S.reasons.filter(r=>r.id!==q.id);open=null;save();render();toast(tr('Przyczyna usunięta'))})},
@@ -205,7 +213,7 @@ document.addEventListener('input',e=>{if(e.target.id==='q'){const v=e.target.val
 document.addEventListener('change',e=>{const t=e.target;
  if(t.id==='lg'){LANG=t.value;try{localStorage.setItem('kanban-lang',LANG)}catch(x){}render();return}
  if(t.dataset.ch){const l=S.log.find(y=>y.id===t.dataset.id);if(!l)return;
-  if(t.dataset.ch==='r'){l.reason=t.value||null}else{l.dec=t.value;const k=S.tasks.find(y=>y.id===l.tid);if(k&&!k.tpl&&['todo','arch'].includes(k.st))k.st=t.value==='cancel'?'arch':'todo'}
+  if(t.dataset.ch==='r'){l.reason=t.value||null}else{l.dec=t.value;const k=S.tasks.find(y=>y.id===l.tid);if(k&&!k.tpl&&['todo','arch'].includes(k.st)){k.st=t.value==='cancel'?'arch':'todo';if(k.st==='todo')place(k,'top')}}
   save();render()}
  if(t.id==='fi'&&t.files[0]){const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);if(!Array.isArray(j.tasks)||!Array.isArray(j.log))throw 0;
   ask(tr('Wczytanie kopii zastąpi wszystkie obecne dane.'),[[tr('Zastąp dane'),'y']],()=>{delete j.app;S=j;migrate(S);S.reasons=S.reasons||[];save();roll();render();toast(tr('Kopia wczytana'))})}catch(x){toast(tr('To nie jest poprawny plik kopii'))}};r.readAsText(t.files[0])}});
