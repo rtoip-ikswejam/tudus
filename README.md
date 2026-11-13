@@ -1,4 +1,8 @@
-# Tuduś
+<p align="center"><img src="icon-512.png" alt="Tuduś" width="110"></p>
+
+<h1 align="center">Tuduś</h1>
+
+<p align="center"><b>plan, do, done.</b></p>
 
 A small, offline-first daily task planner you install on your phone. No account, no server, no tracking: everything lives in your phone's browser storage.
 
@@ -69,11 +73,11 @@ Upload the new files over the old ones (same names) and commit. Next time you op
 | `sw.js` | Service worker: offline cache, update handling |
 | `manifest.json` | Install metadata (name, icons) |
 | `lang/pl.js`, `lang/en.js` | Interface texts, one file per language (keep the `lang` folder) |
-| `icon-180.png`, `icon-192.png`, `icon-512.png` | App icons |
+| `icon-180.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` | App icons (the maskable one is a full-bleed version for Android) |
 
 ## Versioning
 
-The version is set in two places that must always match: the `V` constant in `index.html` and the cache name in `sw.js`. Data has its own schema version (stored in the backup file) so that older backups can be migrated. Tag each release on GitHub (`v1.4.0`, ...).
+The version is set in two places that must always match: the `V` constant in `index.html` and the cache name in `sw.js`. Data has its own schema version (stored in the backup file) so that older backups can be migrated. Tag each release on GitHub (`v1.5.0`, ...).
 
 ## Languages
 
