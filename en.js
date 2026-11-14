@@ -167,5 +167,14 @@
 "za minione dni": "for the past days",
 "Wygasłe zadania": "Expired tasks",
 "Wygasły, bo nie zostały zrobione w swoim dniu:": "Expired because they were not done on their day:",
-"OK": "OK"
+"OK": "OK",
+"Kroki / zakupy": "Steps / shopping",
+"Kroki (jeden w wierszu)": "Steps (one per line)",
+"Kroki edytujesz w rozwiniętej karcie zadania.": "Edit the steps in the expanded task card.",
+"Dodaj krok…": "Add a step…",
+"Niezaznaczone kroki: {n} z {m}. Zakończyć mimo to?": "Unchecked steps: {n} of {m}. Finish anyway?",
+"Zakończ": "Finish",
+"Kroki: {n}": "Steps: {n}",
+"Nazwa kroku": "Step name",
+"Zaznacz krok": "Check step"
 };

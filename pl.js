@@ -167,5 +167,14 @@
 "za minione dni": "za minione dni",
 "Wygasłe zadania": "Wygasłe zadania",
 "Wygasły, bo nie zostały zrobione w swoim dniu:": "Wygasły, bo nie zostały zrobione w swoim dniu:",
-"OK": "OK"
+"OK": "OK",
+"Kroki / zakupy": "Kroki / zakupy",
+"Kroki (jeden w wierszu)": "Kroki (jeden w wierszu)",
+"Kroki edytujesz w rozwiniętej karcie zadania.": "Kroki edytujesz w rozwiniętej karcie zadania.",
+"Dodaj krok…": "Dodaj krok…",
+"Niezaznaczone kroki: {n} z {m}. Zakończyć mimo to?": "Niezaznaczone kroki: {n} z {m}. Zakończyć mimo to?",
+"Zakończ": "Zakończ",
+"Kroki: {n}": "Kroki: {n}",
+"Nazwa kroku": "Nazwa kroku",
+"Zaznacz krok": "Zaznacz krok"
 };

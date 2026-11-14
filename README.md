@@ -18,6 +18,7 @@ It is built around one idea: **do today's tasks, then look back at how it went.*
 - **Separate lists:** for example Private and Work, each with its own tasks, history and statistics, and its own colour. Add, reorder, rename, recolour or delete lists in Settings (deleting asks for confirmation and removes the list's data). The list switcher at the top always opens *Today* and shows how many tasks are open in each list.
 - **Tasks** have a short title, an optional long description (expands on tap), an optional time, an *important* flag and optional repetition (daily or chosen weekdays).
 - **Scheduled tasks:** a one-off task can have a date from which it moves to *Today* by itself. Until then the date is shown on the task in *To do*. It is not a deadline: nothing is highlighted or overdue.
+- **Steps / shopping lists:** a task can have steps, for example a shopping list or the stages of a job. Tick them off, add or rename them, and set their order (ticked steps sink to the bottom). Coins and history count the whole task once. A repeating task keeps its steps as a template and every day starts with a fresh, unticked copy.
 - **Daily counters:** a task such as “Drink water” with a target of 8 becomes one card with a **+1** button and a progress bar.
 - **Priorities by order:** move tasks up or down, or to the top, in today's list. Important tasks enter the list below the other important ones. In *To do*, new one-off tasks go to the top and repeating or scheduled ones to the bottom; rearrange them freely with **order**.
 - **Failures with reasons:** mark a task as a failure and pick a reason from your own list. You choose the order of the reasons and can rename or delete them in Settings. See your most common reasons in *Statistics* for the last 30 days, 90 days or a year, and tap a reason to see which tasks you fail or postpone because of it.
@@ -82,7 +83,7 @@ Upload the new files over the old ones (same names) and commit. Next time you op
 
 ## Versioning
 
-The version is set in two places that must always match: the `V` constant in `index.html` and the cache name in `sw.js`. Data has its own schema version (stored in the backup file) so that older backups can be migrated. Tag each release on GitHub (`v1.9.3`, ...).
+The version is set in two places that must always match: the `V` constant in `index.html` and the cache name in `sw.js`. Data has its own schema version (stored in the backup file) so that older backups can be migrated. Tag each release on GitHub (`v1.10.0`, ...).
 
 ## Languages
 
