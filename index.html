@@ -52,6 +52,17 @@ body{--bg:var(--base)}@supports(background:color-mix(in srgb,red,blue)){body{--b
 @keyframes spn{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.spin{animation:none}}
 .foot{text-align:center;margin-top:30px;color:var(--mu);font-size:14px;line-height:1.5}.foot img{width:44px;height:44px;border-radius:50%;display:block;margin:0 auto 8px}
 .set h3.sh{display:flex;align-items:center;justify-content:space-between;gap:8px}.dng{background:var(--bad)!important;color:var(--bi,#fff)!important;border:0!important}
+
+.coin{display:inline-block;width:22px;height:22px;border-radius:50%;background:url(icon-512.png) center/cover;box-shadow:0 0 0 2px #f3c25b,0 0 0 3px #a8701a;vertical-align:-6px;margin-left:4px;animation:flip 1.1s ease-out both}
+.cb{font-weight:700;white-space:nowrap}
+.burst{position:absolute;left:50%;bottom:100%;width:0;height:0;pointer-events:none}
+.burst .coin{position:absolute;left:var(--x);bottom:6px;margin:0;width:20px;height:20px;animation:rise .95s ease-out var(--d) both}
+.toast.win{animation:pop .4s cubic-bezier(.2,1.5,.4,1)}
+@keyframes flip{from{transform:perspective(120px) rotateY(0)}to{transform:perspective(120px) rotateY(720deg)}}
+@keyframes rise{0%{opacity:0;transform:translateY(0) perspective(120px) rotateY(0)}15%{opacity:1}100%{opacity:0;transform:translateY(-78px) perspective(120px) rotateY(540deg)}}
+@keyframes pop{from{transform:translateX(-50%) scale(.85)}to{transform:translateX(-50%) scale(1)}}
+@media(prefers-reduced-motion:reduce){.coin,.toast.win{animation:none!important}.burst{display:none}}
+.coin.gray{filter:grayscale(1) brightness(.88);animation:none;box-shadow:0 0 0 2px #b9b9b9,0 0 0 3px #777}
 </style></head><body data-tab="prog">
 <div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv"></div></div></div>
 <script>(function(){var l;try{l=localStorage.getItem('kanban-lang')}catch(e){}if(!l)l=/^en/i.test(navigator.language||'')?'en':'pl';document.getElementById('spl').textContent=l==='en'?'Loading…':'Wczytywanie…';setTimeout(function(){var s=document.getElementById('splash');if(s)s.remove()},4000)})()</script>
@@ -60,7 +71,7 @@ body{--bg:var(--base)}@supports(background:color-mix(in srgb,red,blue)){body{--b
 <dialog id="dlg"></dialog>
 <script src="lang/pl.js"></script><script src="lang/en.js"></script>
 <script>
-const V='1.8.1',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
+const V='1.9.3',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
 const LG=window.LANGS||{};
 let LANG=(()=>{try{const l=localStorage.getItem('kanban-lang');if(l&&LG[l])return l}catch(e){}return /^en/i.test(navigator.language||'')?'en':'pl'})();
 const tr=(k,p)=>{let s=(LG[LANG]&&LG[LANG][k])||k;if(p)for(const n in p)s=s.split('{'+n+'}').join(p[n]);return s};
@@ -74,10 +85,13 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function load(){try{const s=JSON.parse(localStorage.getItem(K));if(s&&s.tasks)return migrate(s)}catch(e){}
 return migrate({schema:SCHEMA,tasks:[],log:[],last:'',reasons:['brak czasu','brak chęci','zapomniałem','pilniejsza sprawa','źle oszacowany czas','zmęczenie/choroba','inne'].map((n,i)=>({id:'r'+i,name:tr(n)}))})}
-function migrate(s){if(!s.areas||!s.areas.length)s.areas=[{id:'a1',name:tr('Prywatna')},{id:'a2',name:tr('Zawodowa')}];if(!s.areas.some(a=>a.id===s.area))s.area=s.areas[0].id;const d=s.areas[0].id;(s.tasks||[]).forEach(x=>{if(!x.area)x.area=d});(s.log||[]).forEach(x=>{if(!x.area)x.area=d});s.areas.forEach((a,i)=>{if(!a.color)a.color=PAL[i%PAL.length]});if(!s.ro){const m={};(s.log||[]).forEach(l=>{if(l.reason)m[l.reason]=(m[l.reason]||0)+1});(s.reasons=s.reasons||[]).sort((a,b)=>(m[b.id]||0)-(m[a.id]||0)||a.name.localeCompare(b.name,LANG));s.ro=1}if(!s.pm){(s.areas||[]).forEach(a=>{const l=(s.tasks||[]).filter(x=>x.area===a.id&&!x.tpl&&x.st==='todo').reverse(),z=x=>x.rep&&x.rep.k!=='none'||x.at;[...l.filter(x=>!z(x)),...l.filter(z)].forEach((x,i)=>x.po=i)});s.pm=1}s.schema=SCHEMA;return s}
+function migrate(s){if(!s.areas||!s.areas.length)s.areas=[{id:'a1',name:tr('Prywatna')},{id:'a2',name:tr('Zawodowa')}];if(!s.areas.some(a=>a.id===s.area))s.area=s.areas[0].id;const d=s.areas[0].id;(s.tasks||[]).forEach(x=>{if(!x.area)x.area=d});(s.log||[]).forEach(x=>{if(!x.area)x.area=d});s.areas.forEach((a,i)=>{if(!a.color)a.color=PAL[i%PAL.length]});if(!s.ro){const m={};(s.log||[]).forEach(l=>{if(l.reason)m[l.reason]=(m[l.reason]||0)+1});(s.reasons=s.reasons||[]).sort((a,b)=>(m[b.id]||0)-(m[a.id]||0)||a.name.localeCompare(b.name,LANG));s.ro=1}if(!s.pm){(s.areas||[]).forEach(a=>{const l=(s.tasks||[]).filter(x=>x.area===a.id&&!x.tpl&&x.st==='todo').reverse(),z=x=>x.rep&&x.rep.k!=='none'||x.at;[...l.filter(x=>!z(x)),...l.filter(z)].forEach((x,i)=>x.po=i)});s.pm=1}if(typeof s.coins!=='number')s.coins=0;s.rate=s.rate||{d:2,f:1};s.shop=s.shop||[];s.buys=s.buys||[];s.recap=s.recap||[];s.schema=SCHEMA;return s}
 let S=load();
 const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){toast(tr('Nie udało się zapisać danych'))}};
-function toastU(m,id,ms=6000){document.querySelectorAll('.toast').forEach(e=>e.remove());const t=document.createElement('div');t.className='toast';t.innerHTML=esc(m)+` <button class=sm data-a=ud data-id="${id}" style="margin-left:8px">${tr('Cofnij')}</button>`;document.body.append(t);setTimeout(()=>t.remove(),ms)}
+function toastU(m,id,c){document.querySelectorAll('.toast').forEach(e=>e.remove());const t=document.createElement('div');t.className='toast'+(c>0?' win':'');t.setAttribute('role','status');const n=Math.min(c||0,6);
+ t.innerHTML=(c>0?`<span class=burst aria-hidden=true>${Array.from({length:n},(_,i)=>`<i class=coin style="--x:${Math.round((i-(n-1)/2)*26)}px;--d:${(i*.08).toFixed(2)}s"></i>`).join('')}</span>`:'')+esc(m)+(c>0?` <i class=coin></i>`:'')+` <button class=sm data-a=ud data-id="${id}" style="margin-left:8px">${tr('Cofnij')}</button>`;
+ document.body.append(t);setTimeout(()=>t.remove(),6000)}
+function toastL(c){document.querySelectorAll('.toast').forEach(e=>e.remove());const t=document.createElement('div');t.className='toast loss';t.setAttribute('role','status');t.innerHTML=esc(tr('Tracisz {c}',{c:-c}))+' <i class="coin gray"></i>';document.body.append(t);setTimeout(()=>t.remove(),2600)}
 const vib=p=>{try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}};
 function toast(m,ms=2600){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),ms)}
 function sheet(h){$('dlg').innerHTML=h;$('dlg').showModal()}
@@ -96,11 +110,18 @@ const mvt=(x,d)=>{const l=tdl(x.area),i=l.indexOf(x),j=d===-99?0:Math.max(0,Math
 function toDay(t){if(t.rep.k!=='none'){if(S.tasks.some(x=>x.tpl===t.id&&x.st==='prog'))return toast(tr('To zadanie jest już w Dzisiaj'));
  const i={id:uid(),area:t.area,tpl:t.id,t:t.t,d:t.d,time:t.time,imp:t.imp,cnt:t.cnt||1,exp:t.exp,n:0,rep:{k:'none',days:[]},st:'prog',date:today()};S.tasks.push(i);put(i)}
  else{delete t.at;t.st='prog';t.date=today();t.n=0;put(t)}}
-function fail(x,date,kind){S.log.push({k:kind||'p',id:uid(),tid:x.id,area:x.area,tpl:x.tpl||null,title:x.t,date,res:'fail',reason:null,dec:'todo',...(x.cnt>1?{n:x.n||0,cnt:x.cnt}:{})});x.st=x.tpl?'closed':'todo';if(!x.tpl)place(x,'top')}
-function done(x){const id=uid();S.log.push({id,tid:x.id,area:x.area,tpl:x.tpl||null,title:x.t,date:today(),res:'done',...(x.cnt>1?{n:x.n||0,cnt:x.cnt}:{})});x.st=x.tpl?'closed':'done';return id}
+function fail(x,date,kind){S.log.push({k:kind||'p',c:kind==='f'?coin(-S.rate.f):0,id:uid(),tid:x.id,area:x.area,tpl:x.tpl||null,title:x.t,date,res:'fail',reason:null,dec:'todo',...(x.cnt>1?{n:x.n||0,cnt:x.cnt}:{})});x.st=x.tpl?'closed':'todo';if(!x.tpl)place(x,'top')}
+function coin(d){const b=S.coins;S.coins=Math.max(0,b+d);return S.coins-b}
+function doneToast(x,id){const c=(S.log.find(l=>l.id===id)||{}).c||0;c>0?toastU(tr('Zdobywasz {c}',{c}),id,c):toastU(tr('Zrobione: {n}',{n:x.t}),id,0)}
+function done(x){const id=uid();S.log.push({id,tid:x.id,area:x.area,tpl:x.tpl||null,title:x.t,date:today(),res:'done',c:coin(S.rate.d),...(x.cnt>1?{n:x.n||0,cnt:x.cnt}:{})});x.st=x.tpl?'closed':'done';return id}
 function sched(){S.tasks.filter(t=>t.st==='todo'&&t.at&&t.at<=today()&&t.rep.k==='none'&&!t.tpl).forEach(t=>{delete t.at;toDay(t)})}
+function showRecap(){const rc=S.recap||[];if(!rc.length)return;const yd=ds(new Date(Date.now()-864e5)),tot=rc.reduce((a,i)=>a+i.c,0),all=rc.every(i=>i.d===yd);
+ const items=rc.slice().sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:a.t.localeCompare(b.t,LANG));
+ const ttl=tot>0?`${esc(tr('Tracisz {c}',{c:tot}))} <i class="coin gray"></i> ${tr(all?'za wczoraj':'za minione dni')}`:tr('Wygasłe zadania');
+ $('dlg').onclick=null;sheet(`<h3>${ttl}</h3><p class=mu>${tr('Wygasły, bo nie zostały zrobione w swoim dniu:')}</p>`+items.map(i=>`<div class=rb style="margin:8px 0"><span style="flex:1">${esc(i.t)}${i.k?' '+i.n+'/'+i.k:''}<span class=mu>${i.d!==yd?' · '+dm(i.d):''}</span></span>${i.c>0?`<span>−${i.c} <i class="coin gray" style="width:18px;height:18px;margin-left:2px"></i></span>`:''}</div>`).join('')+`<div class=row><button class="sm pri" id=ok2>OK</button></div>`);
+ const clr=()=>{S.recap=[];save();$('dlg').onclose=null};$('ok2').onclick=()=>{clr();$('dlg').close()};$('dlg').onclose=clr}
 function roll(){const td=today();
- S.tasks.filter(x=>x.st==='prog'&&x.exp&&x.date<td).forEach(x=>fail(x,x.date,'f'));
+ S.tasks.filter(x=>x.st==='prog'&&x.exp&&x.date<td).forEach(x=>{fail(x,x.date,'f');const l=S.log[S.log.length-1];(S.recap=S.recap||[]).push({t:x.t,d:x.date,c:-(l.c||0),n:x.n||0,k:x.cnt>1?x.cnt:0})});
   if(S.last!==td){const w=new Date().getDay();S.tasks.filter(t=>t.rep.k!=='none'&&t.st==='todo'&&(t.rep.k==='daily'||t.rep.days.includes(w))).forEach(t=>{if(!S.tasks.some(x=>x.tpl===t.id&&x.st==='prog'))toDay(t)})}
  sched();S.last=td;S.created=S.created||td;save();
  if(bkDays()>=14&&S.remind!==td){S.remind=td;save();setTimeout(()=>toast(tr('Minęło {n} dni od ostatniej kopii. Zrób eksport w Ustawieniach (⚙).',{n:bkDays()}),6000),700)}}
@@ -132,7 +153,7 @@ function vTodo(){const q=tsort?'':(($('q')||{}).value||'');
 function vDone(){const c0=cnt(0,1),c1=cnt(1,1),f0=cnt(0,1,'fail'),d=c0-c1,p=c0+f0?Math.round(100*c0/(c0+f0))+'%':'–';
  const w=[];for(let o=7;o>=0;o--)w.push(cnt(o,o===0));const mx=Math.max(1,...w);
  const svg=`<svg viewBox="0 0 320 90" width="100%" role="img" aria-label="${tr('Zrobione zadania w ostatnich 8 tygodniach')}">${w.map((v,i)=>{const h=Math.round(56*v/mx);return`<rect x="${i*40+6}" y="${72-h}" width="28" height="${h}" rx="4" fill="var(--done)" opacity="${i===7?1:.4}"/><text x="${i*40+20}" y="${66-h}" text-anchor="middle" font-size="11" fill="var(--mu)">${v}</text>`}).join('')}<text x="6" y="86" font-size="10" fill="var(--mu)">${tr('8 tygodni temu')}</text><text x="314" y="86" font-size="10" text-anchor="end" fill="var(--mu)">${tr('ten tydzień')}</text></svg>`;
- let h=`<div class=c style="margin-bottom:14px"><div class=big>${c0}</div><div>${tr('zrobione w tym tygodniu')}</div><div class=mu>${tr('skuteczność {p} (zrobione wobec nieudanych i odłożonych)',{p})}</div><div class=mu>${tr('{d} względem tych samych dni zeszłego tygodnia (tam: {c})',{d:(d>=0?'▲ +':'▼ ')+d,c:c1})}</div>${svg}</div>`;
+ let h=`<div class=c style="margin-bottom:14px"><div class=big>${c0}</div><div>${tr('zrobione w tym tygodniu')}</div><div class=mu>${tr('skuteczność {p} (zrobione wobec nieudanych i odłożonych)',{p})}</div><div class=mu>${tr('{d} względem tych samych dni zeszłego tygodnia (tam: {c})',{d:(d>=0?'▲ +':'▼ ')+d,c:c1})}</div>${svg}</div><div class=c style="margin-bottom:14px"><div class=r><div class=ti><span class=big style="font-size:32px">🪙 ${S.coins}</span><span class=mu> ${tr('Saldo')}</span></div><button class="sm pri" data-a=shop>${tr('Sklepik')}</button></div></div>`;
  const a=ds(new Date(Date.now()-6*864e5)),l=S.log.filter(x=>x.res==='done'&&x.area===S.area&&x.date>=a).sort((x,y)=>x.date<y.date?1:-1);
  if(!l.length)return h+'<p class=empty>'+tr('W ostatnich 7 dniach nic jeszcze nie zrobiono. Pierwsze ✓ pojawi się tutaj.')+'</p>';
  let cur='';l.forEach(x=>{if(x.date!==cur){cur=x.date;const dd=new Date(x.date+'T12:00:00');h+=`<div class=day>${x.date===today()?tr('Dziś'):x.date===ds(new Date(Date.now()-864e5))?tr('Wczoraj'):dd.toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'short'})}</div>`}
@@ -151,9 +172,11 @@ function vSet(){const p=pend().filter(l=>l.area===S.area),ar=S.tasks.filter(x=>x
  const mvb=(k,id,d,t,dis)=>`<button data-a=sm data-k=${k} data-id="${id}" data-d=${d}${dis?' disabled':''}>${t}</button>`;
  const mvs=(k,id,i,n)=>mvb(k,id,-1,'▲<small>'+tr('wyżej')+'</small>',i===0)+mvb(k,id,1,'▼<small>'+tr('niżej')+'</small>',i===n-1);
  const arow=(a,i)=>ssort==='areas'?`<div class=c style="border-left-color:${a.color}"><div class=r><div class=ti>${esc(a.name)}</div><div class=bt>${mvs('areas',a.id,i,S.areas.length)}</div></div></div>`:`<div class=c style="border-left-color:${a.color}"><div class=r><div class=ti data-a=tgs data-id="${a.id}">${esc(a.name)}</div>${b('col',a.id,tr('Ustaw kolor'),'sm')}</div>${open===a.id?`<div class=ds><div class=acts>${b('ren',a.id,tr('Zmień nazwę'),'sm')}${b('adel',a.id,tr('Usuń'),'sm no',S.areas.length<2?'disabled':'')}</div>${S.areas.length<2?'<p class=mu>'+tr('Nie można usunąć ostatniej listy.')+'</p>':''}</div>`:''}</div>`;
+ const crow=(it,i)=>ssort==='shop'?`<div class=c><div class=r><div class=ti>${esc(it.name)} <span class=mu>${it.price} 🪙</span></div><div class=bt>${mvs('shop',it.id,i,S.shop.length)}</div></div></div>`:`<div class=c><div class=r><div class=ti data-a=tgs data-id="${it.id}">${esc(it.name)} <span class=mu>${it.price} 🪙</span></div></div>${open===it.id?`<div class=ds><div class=acts>${b('shed',it.id,tr('Edytuj'),'sm')}${b('sdel',it.id,tr('Usuń'),'sm no')}</div></div>`:''}</div>`;
  const rl=rs(),rrow=(q,i)=>ssort==='reasons'?`<div class=c><div class=r><div class=ti>${esc(q.name)} <span class=mu>(${q.n})</span></div><div class=bt>${mvs('reasons',q.id,i,rl.length)}${mvb('reasons',q.id,-99,'⤒<small>'+tr('na górę')+'</small>',i===0)}</div></div></div>`:`<div class=c><div class=r><div class=ti data-a=tgs data-id="${q.id}">${esc(q.name)} <span class=mu>(${q.n})</span></div></div>${open===q.id?`<div class=ds><div class=acts>${b('rrn',q.id,tr('Zmień nazwę'),'sm')}${b('rd',q.id,tr('Usuń'),'sm no')}</div></div>`:''}</div>`;
  let h=sh('areas',tr('Listy'))+(ssort==='areas'?`<p class=mu>${tr('Kolejność jak na pasku u góry, od lewej.')}</p>`:'')+S.areas.map(arow).join('')+`<div class=row><input id=an2 placeholder="${tr('Nowa lista (np. Fundacja)')}" style="flex:2"><button class="sm pri" data-a=aa>${tr('Dodaj')}</button></div><h3>${tr('Bez przyczyny: nieudane i odłożone ({n})',{n:p.length})}</h3>`+(p.length?p.map(l=>`<div class=c><div>${esc(l.title)}${l.cnt?` ${l.n}/${l.cnt}`:''} <span class=mu>${l.date}</span></div><select data-ch=r data-id="${l.id}"><option value="">${tr('Wybierz przyczynę')}</option>${rs().map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join('')}</select>${l.tpl?'':`<select data-ch=d data-id="${l.id}" style="margin-top:6px"><option value=todo ${l.dec==='todo'?'selected':''}>${tr('Zadanie wraca do „Do zrobienia”')}</option><option value=cancel ${l.dec==='cancel'?'selected':''}>${tr('Zadanie idzie do archiwum')}</option></select>`}</div>`).join(''):'<p class=mu>'+tr('Wszystkie mają wybraną przyczynę.')+'</p>');
  h+=sh('reasons',tr('Lista przyczyn'))+(ssort==='reasons'?`<p class=mu>${tr('Kolejność jak na listach wyboru przyczyny.')}</p>`:'')+rl.map(rrow).join('')+`<div class=row><input id=rn placeholder="${tr('Nowa przyczyna')}" style="flex:2"><button class="sm pri" data-a=ra>${tr('Dodaj')}</button></div>`;
+ h+=sh('shop',tr('Monety i sklepik'))+`<label style="margin-top:0">${tr('Za zrobione zadanie (+)')}<input id=rd type=number min=0 max=99 value="${S.rate.d}"></label><label>${tr('Za porażkę (−)')}<input id=rf type=number min=0 max=99 value="${S.rate.f}"></label><p class=mu>${tr('Odłożenie i anulowanie nie zmieniają salda. Saldo nie spada poniżej zera.')}</p>`+S.shop.map(crow).join('')+`<div class=row><input id=sn placeholder="${tr('Nowa nagroda')}" style="flex:2"><input id=sp type=number min=1 placeholder="🪙" style="flex:1"><button class="sm pri" data-a=sa>${tr('Dodaj')}</button></div>`;
  h+=`<h3>${tr('Archiwum: anulowane i nieudane ({n})',{n:ar.length})}</h3>`+ar.map(x=>`<div class=rb><span style="flex:1">${esc(x.t)}</span>${b('rs',x.id,tr('Przywróć'),'sm')}</div>`).join('');
  h+=`<h3>Język / Language</h3><select id=lg><option value=pl ${LANG==='pl'?'selected':''}>Polski</option><option value=en ${LANG==='en'?'selected':''}>English</option></select><h3>${tr('Dane')}</h3><div class=row><button class=sm data-a=exp>${tr('Zapisz kopię danych')}</button><button class=sm data-a=imp>${tr('Wczytaj kopię danych')}</button></div><input type=file id=fi accept=".json,application/json" hidden><p class=mu>${S.lastBackup?(bkDays()===0?tr('Ostatnia kopia: dziś'):tr('Ostatnia kopia: {n} dni temu',{n:bkDays()})):tr('Kopii jeszcze nie robiono')}. ${tr('Kopia chroni dane przy zmianie telefonu lub wyczyszczeniu przeglądarki. Przypomnę po 14 dniach.')}</p><div class=foot><img src="icon-512.png" alt=""><div>Tuduś · plan, do, done.</div><div>${tr('Wersja aplikacji {v} · schemat danych {s}',{v:V,s:SCHEMA})}</div></div>`;return`<div class=set>${h}</div>`}
 function ab(){$('ab').innerHTML=S.areas.map(a=>{const n=prog(a.id).length;return`<button class="ar${a.id===S.area?' on':''}" data-a=area data-id="${a.id}" style="--c:${a.color};--ct:${ink(a.color)}">${esc(a.name)}<span class=cn>${n}</span></button>`}).join('')}
@@ -181,25 +204,30 @@ const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=nul
  aa:()=>{const v=$('an2').value.trim();if(!v)return;S.areas.push({id:uid(),name:v,color:PAL.find(c=>!S.areas.some(a=>a.color===c))||PAL[0]});save();render()},
  ren:(x,el)=>{const a=S.areas.find(q=>q.id===el.dataset.id);sheet(`<h3>${tr('Nazwa listy')}</h3><input id=an value="${esc(a.name)}"><div class=row><button class=sm id=ax>${tr('Anuluj')}</button><button class="sm pri" id=as>${tr('Zapisz')}</button></div>`);$('dlg').onclick=null;$('ax').onclick=()=>$('dlg').close();$('as').onclick=()=>{const v=$('an').value.trim();if(v){a.name=v;save();$('dlg').close();render()}}},
  col:(x,el)=>{const a=S.areas.find(q=>q.id===el.dataset.id);sheet(`<h3>${tr('Kolor listy „{n}”',{n:esc(a.name)})}</h3><div class=sw>${PICK.map(c=>`<button class=swb data-c="${c}" style="background:${c};color:${ink(c)};box-shadow:inset 0 0 0 1px var(--ln)">${c===a.color?'✓':''}</button>`).join('')}</div><label>${tr('Własny kolor (dowolny)')}<input type=color id=cc value="${a.color}" style="height:48px;padding:4px"></label><div class=row><button class=sm id=ax>${tr('Anuluj')}</button></div>`);$('ax').onclick=()=>$('dlg').close();$('cc').onchange=()=>{a.color=$('cc').value;save();$('dlg').close();render()};$('dlg').onclick=e=>{const k=e.target.closest('[data-c]');if(k){a.color=k.dataset.c;save();$('dlg').close();render()}}},
+ sa:()=>{const n=$('sn').value.trim(),p=Math.floor(+$('sp').value);if(!n||!(p>0))return;S.shop.push({id:uid(),name:n,price:p});save();render()},
+ shed:(x,el)=>{const it=S.shop.find(q=>q.id===el.dataset.id);if(!it)return;sheet(`<h3>${tr('Edytuj nagrodę')}</h3><label>${tr('Nazwa nagrody')}<input id=an value="${esc(it.name)}"></label><label>${tr('Cena (monety)')}<input id=ap type=number min=1 value="${it.price}"></label><div class=row><button class=sm id=ax>${tr('Anuluj')}</button><button class="sm pri" id=as>${tr('Zapisz')}</button></div>`);$('dlg').onclick=null;$('ax').onclick=()=>$('dlg').close();$('as').onclick=()=>{const n=$('an').value.trim(),p=Math.floor(+$('ap').value);if(n&&p>0){it.name=n;it.price=p;save();$('dlg').close();render()}}},
+ sdel:(x,el)=>{const it=S.shop.find(q=>q.id===el.dataset.id);if(!it)return;ask(tr('Usunąć nagrodę „{n}”?',{n:esc(it.name)}),[[tr('Usuń'),'y']],()=>{S.shop=S.shop.filter(q=>q!==it);open=null;save();render()})},
+ shop:()=>{const bal=S.coins;$('dlg').onclick=null;sheet(`<h3>${tr('Sklepik')} · 🪙 ${bal}</h3>`+(S.shop.length?S.shop.map(it=>`<div class=c style="border-left-color:var(--done)"><div class=r><div class=ti>${esc(it.name)} <span class=mu>${it.price} 🪙</span></div>${bal>=it.price?`<button class="sm pri" data-a=buy data-id="${it.id}">${tr('Kup')}</button>`:`<span class=mu>${tr('brakuje {n}',{n:it.price-bal})}</span>`}</div></div>`).join(''):`<p class=mu>${tr('Sklepik jest pusty. Dodaj nagrody w Ustawieniach.')}</p>`)+(S.buys.length?`<h3>${tr('Ostatnie zakupy')}</h3>`+S.buys.slice(-5).reverse().map(q=>`<div class=mu>${dm(q.date)} · ${esc(q.name)} · ${q.price} 🪙</div>`).join(''):'')+`<div class=row><button class=sm id=ax>${tr('Zamknij')}</button></div>`);$('ax').onclick=()=>$('dlg').close()},
+ buy:(x,el)=>{const it=S.shop.find(q=>q.id===el.dataset.id);if(!it||S.coins<it.price)return;ask(tr('Kupić „{n}” za {p} 🪙?',{n:esc(it.name),p:it.price}),[[tr('Kup'),'y']],()=>{if(S.coins<it.price)return;S.coins-=it.price;S.buys.push({id:uid(),date:today(),name:it.name,price:it.price});save();render();toast(tr('Kupiono: {n}',{n:it.name}))})},
  tsort:()=>{tsort=!tsort;open=null;render()},
  tup:x=>{mvt(x,-1);save();render()},tdn:x=>{mvt(x,1);save();render()},ttop:x=>{mvt(x,-99);save();render()},
  smore:(x,el)=>{smore=el.dataset.id;render()},
  tab:(x,el)=>{pos[tab]=scrollY;tab=el.dataset.tab;open=null;smore=null;ssort=null;tsort=false;render();scrollTo(0,pos[tab]||0)},
  tgd:(x,el)=>{open=open===el.dataset.id?null:el.dataset.id;render()},
- tg:x=>{open=open===x.id?null:x.id;render()},ok:x=>{const id=done(x);vib(25);save();render();toastU(tr('Zrobione: {n}',{n:x.t}),id)},
+ tg:x=>{open=open===x.id?null:x.id;render()},ok:x=>{const id=done(x);vib(25);save();render();doneToast(x,id)},
  no:x=>{fail(x,today());save();render();toast(tr('Odłożono na listę „Do zrobienia”. Przyczynę dodasz w Ustawieniach.'))},
  fl:x=>{sheet(`<h3>${tr('Porażka: {n}',{n:esc(x.t)})}</h3><label>${tr('Przyczyna')}<select id=fq><option value="">${tr('Bez przyczyny (uzupełnię później)')}</option>${rs().map(q=>`<option value="${q.id}">${esc(q.name)}</option>`).join('')}</select></label><div class=row><button class=sm id=fx2>${tr('Anuluj')}</button><button class="sm pri" id=fs2>${tr('Zapisz porażkę')}</button></div>`);
   $('dlg').onclick=null;$('fx2').onclick=()=>$('dlg').close();
-  $('fs2').onclick=()=>{const q=$('fq').value;S.log.push({id:uid(),tid:x.id,area:x.area,tpl:x.tpl||null,title:x.t,date:today(),res:'fail',reason:q||null,dec:'cancel',k:'f',...(x.cnt>1?{n:x.n||0,cnt:x.cnt}:{})});x.st=x.tpl?'closed':'arch';$('dlg').close();save();render();toast(tr('Zapisano porażkę'))}},
- ud:(x,el)=>{const l=S.log.find(y=>y.id===el.dataset.id);if(!l)return;const t=S.tasks.find(y=>y.id===l.tid);S.log=S.log.filter(y=>y!==l);if(t){t.st='prog';if(t.cnt>1)t.n=t.cnt-1}save();render();toast(tr('Cofnięto'))},
+  $('fs2').onclick=()=>{const q=$('fq').value;S.log.push({id:uid(),tid:x.id,area:x.area,tpl:x.tpl||null,title:x.t,date:today(),res:'fail',reason:q||null,dec:'cancel',k:'f',c:coin(-S.rate.f),...(x.cnt>1?{n:x.n||0,cnt:x.cnt}:{})});x.st=x.tpl?'closed':'arch';$('dlg').close();save();render();{const c=S.log[S.log.length-1].c;c<0?toastL(c):toast(tr('Zapisano porażkę'))}}},
+ ud:(x,el)=>{const l=S.log.find(y=>y.id===el.dataset.id);if(!l)return;const t=S.tasks.find(y=>y.id===l.tid);if(l.c>0)coin(-l.c);S.log=S.log.filter(y=>y!==l);if(t){t.st='prog';if(t.cnt>1)t.n=t.cnt-1}save();render();toast(tr('Cofnięto'))},
  qa:()=>{const i=$('qi'),v=i.value.trim();if(!v)return i.focus();const x={id:uid(),area:S.area,t:v,d:'',time:'',rep:{k:'none',days:[]},imp:false,cnt:1,exp:false,st:'todo'};S.tasks.push(x);place(x,'top');if(tab==='prog')toDay(x);save();render();$('qi').focus();scrollTo(0,tab==='prog'?document.body.scrollHeight:0)},
- pl:x=>{x.n=(x.n||0)+1;let id=null;if(x.n>=x.cnt)id=done(x);vib(id?[25,40,25]:15);save();render();if(id)toastU(tr('Zrobione: {n}',{n:x.t}),id)},
+ pl:x=>{x.n=(x.n||0)+1;let id=null;if(x.n>=x.cnt)id=done(x);vib(id?[25,40,25]:15);save();render();if(id)doneToast(x,id)},
  mn:x=>{x.n=Math.max(0,(x.n||0)-1);save();render()},
  up:x=>{mv(x,-1);save();render()},dn:x=>{mv(x,1);save();render()},top:x=>{mv(x,-prog(x.area).length);save();render()},
  go:x=>{toDay(x);open=null;save();render();toast(tr('Dodano do Dzisiaj'))},edit:x=>form(x),add:()=>form(null),
  cx:x=>{x.st='arch';save();render()},rs:x=>{x.st='todo';place(x,'top');save();render()},sort:()=>{sort=!sort;render()},
  undo:(x,el)=>{const l=S.log.find(y=>y.id===el.dataset.id);if(!l)return;ask(tr('Cofnąć zadanie? Przywróć je do:'),[[tr('Dzisiaj'),'prog'],[tr('Do zrobienia'),'todo']],w=>{
-  S.log=S.log.filter(y=>y!==l);const t=S.tasks.find(y=>y.id===l.tid);if(t&&t.cnt>1)t.n=t.cnt-1;
+  if(l.c>0)coin(-l.c);S.log=S.log.filter(y=>y!==l);const t=S.tasks.find(y=>y.id===l.tid);if(t&&t.cnt>1)t.n=t.cnt-1;
   if(t){if(t.tpl){if(w==='prog'){t.st='prog';t.date=today();put(t)}else S.tasks=S.tasks.filter(y=>y!==t)}else{t.st=w;if(w==='prog'){t.date=today();put(t)}else place(t,'top')}}
   save();render()})},
  ra:()=>{const v=$('rn').value.trim();if(!v)return;S.reasons.push({id:uid(),name:v});save();render()},
@@ -211,13 +239,14 @@ const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=nul
   $('ad').onclick=()=>{S.tasks=S.tasks.filter(t=>t.area!==a.id);S.log=S.log.filter(l=>l.area!==a.id);S.areas=S.areas.filter(q=>q.id!==a.id);if(S.area===a.id){S.area=S.areas[0].id;tab='prog'}open=null;ssort=null;$('dlg').close();save();render();toast(tr('Lista usunięta'))}},
  tgs:(x,el)=>{open=open===el.dataset.id?null:el.dataset.id;render()},
  ssort:(x,el)=>{ssort=ssort===el.dataset.id?null:el.dataset.id;open=null;render()},
- sm:(x,el)=>{const arr=el.dataset.k==='areas'?S.areas:S.reasons,i=arr.findIndex(q=>q.id===el.dataset.id),d=+el.dataset.d,j=d===-99?0:Math.max(0,Math.min(arr.length-1,i+d));if(i<0||j===i)return;const [q]=arr.splice(i,1);arr.splice(j,0,q);save();render()},
+ sm:(x,el)=>{const arr=el.dataset.k==='areas'?S.areas:el.dataset.k==='shop'?S.shop:S.reasons,i=arr.findIndex(q=>q.id===el.dataset.id),d=+el.dataset.d,j=d===-99?0:Math.max(0,Math.min(arr.length-1,i+d));if(i<0||j===i)return;const [q]=arr.splice(i,1);arr.splice(j,0,q);save();render()},
 exp:()=>{S.lastBackup=Date.now();save();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({app:V,...S},null,1)],{type:'application/json'}));a.download='kanban-'+today()+'.json';a.click();render();toast(tr('Kopia zapisana w pobranych plikach'))},
  imp:()=>$('fi').click(),upd:()=>pendingSW&&pendingSW.postMessage('skip'),srch:()=>{}};
 document.addEventListener('keydown',e=>{if(e.target.id==='qi'&&e.key==='Enter'){e.preventDefault();A.qa()}});
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el||el.tagName==='INPUT')return;const f=A[el.dataset.a];f&&f(S.tasks.find(t=>t.id===el.dataset.id),el)});
 document.addEventListener('input',e=>{if(e.target.id==='q'){const v=e.target.value;$('main').innerHTML=vTodo();const q=$('q');q.focus();q.setSelectionRange(v.length,v.length)}});
 document.addEventListener('change',e=>{const t=e.target;
+ if(t.id==='rd'||t.id==='rf'){S.rate[t.id==='rd'?'d':'f']=Math.max(0,Math.min(99,Math.floor(+t.value)||0));save();render();return}
  if(t.id==='per'){per=+t.value;smore=null;open=null;render();return}
  if(t.id==='lg'){LANG=t.value;try{localStorage.setItem('kanban-lang',LANG)}catch(x){}render();return}
  if(t.dataset.ch){const l=S.log.find(y=>y.id===t.dataset.id);if(!l)return;
@@ -231,8 +260,8 @@ if('serviceWorker'in navigator){let rl=0;navigator.serviceWorker.addEventListene
   if(r.waiting&&navigator.serviceWorker.controller)u(r.waiting);watch(r.installing);r.addEventListener('updatefound',()=>watch(r.installing));
   const chk=()=>{try{r.update().catch(()=>{})}catch(e){}};chk();document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})}).catch(()=>{})}
 navigator.storage&&navigator.storage.persist&&navigator.storage.persist();
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.last!==today()){roll();render()}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.last!==today()){roll();render();showRecap()}});
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>render())}catch(e){}
 roll();render();
-{const sp=$('splash');if(sp){$('spv').textContent='v'+V;const hide=()=>{if(sp.dataset.h)return;sp.dataset.h=1;sp.classList.add('off');setTimeout(()=>sp.remove(),300)};sp.onclick=hide;setTimeout(hide,Math.max(0,SPLASH_MS-performance.now()))}}
+{const sp=$('splash');if(sp){$('spv').textContent='v'+V;const hide=()=>{if(sp.dataset.h)return;sp.dataset.h=1;sp.classList.add('off');setTimeout(()=>{sp.remove();showRecap()},300)};sp.onclick=hide;setTimeout(hide,Math.max(0,SPLASH_MS-performance.now()))}else showRecap()}
 </script></body></html>
