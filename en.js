@@ -176,5 +176,6 @@
 "Zakończ": "Finish",
 "Kroki: {n}": "Steps: {n}",
 "Nazwa kroku": "Step name",
-"Zaznacz krok": "Check step"
+"Zaznacz krok": "Check step",
+"Nagrody są ułożone od najtańszej.": "Rewards are listed from the cheapest first."
 };

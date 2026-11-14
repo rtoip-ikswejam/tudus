@@ -23,7 +23,7 @@ It is built around one idea: **do today's tasks, then look back at how it went.*
 - **Priorities by order:** move tasks up or down, or to the top, in today's list. Important tasks enter the list below the other important ones. In *To do*, new one-off tasks go to the top and repeating or scheduled ones to the bottom; rearrange them freely with **order**.
 - **Failures with reasons:** mark a task as a failure and pick a reason from your own list. You choose the order of the reasons and can rename or delete them in Settings. See your most common reasons in *Statistics* for the last 30 days, 90 days or a year, and tap a reason to see which tasks you fail or postpone because of it.
 - **Quick add:** a field at the bottom of *To do* and *Today* adds a task with just a title; **more** opens the full form.
-- **Coins and a shop:** every completed task earns coins (+2 by default) and every failure costs one (−1). Postponing and cancelling cost nothing, and the balance never drops below zero. A small spinning-coin animation (the round logo) celebrates each reward, and a grey coin marks each loss. Spend coins on rewards you define yourself (a cinema evening, a restaurant...) in the shop, with no credit. Rates, rewards and their order are set in Settings.
+- **Coins and a shop:** every completed task earns coins (+2 by default) and every failure costs one (−1). Postponing and cancelling cost nothing, and the balance never drops below zero. A small spinning-coin animation (the round logo) celebrates each reward, and a grey coin marks each loss. Spend coins on rewards you define yourself (a cinema evening, a restaurant...) in the shop, with no credit. Rates and rewards are set in Settings, and rewards are always listed from the cheapest.
 - **Undo:** a toast with **Undo** appears after every completed task.
 - **Progress:** weekly done count, comparison with the same days of the previous week, and an 8-week chart.
 - **Works offline** after the first load, with **backup and restore** of all data to a JSON file.
@@ -83,7 +83,7 @@ Upload the new files over the old ones (same names) and commit. Next time you op
 
 ## Versioning
 
-The version is set in two places that must always match: the `V` constant in `index.html` and the cache name in `sw.js`. Data has its own schema version (stored in the backup file) so that older backups can be migrated. Tag each release on GitHub (`v1.10.0`, ...).
+The version is set in two places that must always match: the `V` constant in `index.html` and the cache name in `sw.js`. Data has its own schema version (stored in the backup file) so that older backups can be migrated. Tag each release on GitHub (`v1.10.1`, ...).
 
 ## Languages
 

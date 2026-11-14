@@ -176,5 +176,6 @@
 "Zakończ": "Zakończ",
 "Kroki: {n}": "Kroki: {n}",
 "Nazwa kroku": "Nazwa kroku",
-"Zaznacz krok": "Zaznacz krok"
+"Zaznacz krok": "Zaznacz krok",
+"Nagrody są ułożone od najtańszej.": "Nagrody są ułożone od najtańszej."
 };
