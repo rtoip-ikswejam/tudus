@@ -10,7 +10,7 @@ A small, offline-first daily task planner you install on your phone. No account,
 
 It is built around one idea: **do today's tasks, then look back at how it went.**
 
-> The interface is available in **Polish and English**. The language follows your phone by default and can be changed in Settings. Your own data (task titles, list names, reasons) is never translated. This README uses the English labels.
+> The interface is available in **Polish and English**. On first launch the app asks which language to use (it suggests your phone's language), and you can change it later in Settings. Your own data (task titles, list names, reasons) is never translated. This README uses the English labels.
 
 ## Features
 
@@ -83,7 +83,7 @@ Upload the new files over the old ones (same names) and commit. Next time you op
 
 ## Versioning
 
-The version is set in two places that must always match: the `V` constant in `index.html` and the cache name in `sw.js`. Data has its own schema version (stored in the backup file) so that older backups can be migrated. Tag each release on GitHub (`v1.10.1`, ...).
+The version is set in two places that must always match: the `V` constant in `index.html` and the cache name in `sw.js`. Data has its own schema version (stored in the backup file) so that older backups can be migrated. Tag each release on GitHub (`v1.11.0`, ...).
 
 ## Languages
 

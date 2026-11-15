@@ -64,6 +64,7 @@ body{--bg:var(--base)}@supports(background:color-mix(in srgb,red,blue)){body{--b
 @media(prefers-reduced-motion:reduce){.coin,.toast.win{animation:none!important}.burst{display:none}}
 .coin.gray{filter:grayscale(1) brightness(.88);animation:none;box-shadow:0 0 0 2px #b9b9b9,0 0 0 3px #777}
 .chk{min-width:44px;min-height:44px;background:none;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}.bx{width:24px;height:24px;border:2px solid var(--mu);border-radius:6px;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:16px;line-height:1}.bx.on{background:var(--done);border-color:var(--done);color:var(--di,#fff)}
+#lgsel{position:fixed;inset:0;z-index:90;background:var(--base);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px}#lgsel .tg{font-size:24px;font-weight:800;color:var(--fg);margin-bottom:6px;text-align:center}.lgb{width:min(320px,86vw);min-height:58px;border-radius:14px;font-size:18px;font-weight:600;cursor:pointer;background:var(--cd);color:var(--fg);border:1px solid var(--ln)}.lgb.pri{background:var(--ac);color:var(--ai,#fff);border:0}
 </style></head><body data-tab="prog">
 <div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv"></div></div></div>
 <script>(function(){var l;try{l=localStorage.getItem('kanban-lang')}catch(e){}if(!l)l=/^en/i.test(navigator.language||'')?'en':'pl';document.getElementById('spl').textContent=l==='en'?'Loading…':'Wczytywanie…';setTimeout(function(){var s=document.getElementById('splash');if(s)s.remove()},4000)})()</script>
@@ -72,8 +73,9 @@ body{--bg:var(--base)}@supports(background:color-mix(in srgb,red,blue)){body{--b
 <dialog id="dlg"></dialog>
 <script src="lang/pl.js"></script><script src="lang/en.js"></script>
 <script>
-const V='1.10.1',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
+const V='1.11.0',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
 const LG=window.LANGS||{};
+const SEEDR=['brak czasu','brak chęci','zapomniałem','pilniejsza sprawa','źle oszacowany czas','zmęczenie/choroba','inne'];
 let LANG=(()=>{try{const l=localStorage.getItem('kanban-lang');if(l&&LG[l])return l}catch(e){}return /^en/i.test(navigator.language||'')?'en':'pl'})();
 const tr=(k,p)=>{let s=(LG[LANG]&&LG[LANG][k])||k;if(p)for(const n in p)s=s.split('{'+n+'}').join(p[n]);return s};
 const LOC=()=>LANG==='en'?'en-GB':'pl-PL',dm=s=>new Date(s+'T12:00:00').toLocaleDateString(LOC(),{day:'numeric',month:'numeric'});
@@ -85,9 +87,13 @@ const ink=h=>{const L=lum(h);return 1.05/(L+.05)>=(L+.05)/.068?'#ffffff':'#1f243
 const uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function load(){try{const s=JSON.parse(localStorage.getItem(K));if(s&&s.tasks)return migrate(s)}catch(e){}
-return migrate({schema:SCHEMA,tasks:[],log:[],last:'',reasons:['brak czasu','brak chęci','zapomniałem','pilniejsza sprawa','źle oszacowany czas','zmęczenie/choroba','inne'].map((n,i)=>({id:'r'+i,name:tr(n)}))})}
+return migrate({schema:SCHEMA,tasks:[],log:[],last:'',reasons:SEEDR.map((n,i)=>({id:'r'+i,name:tr(n)}))})}
 function migrate(s){if(!s.areas||!s.areas.length)s.areas=[{id:'a1',name:tr('Prywatna')},{id:'a2',name:tr('Zawodowa')}];if(!s.areas.some(a=>a.id===s.area))s.area=s.areas[0].id;const d=s.areas[0].id;(s.tasks||[]).forEach(x=>{if(!x.area)x.area=d});(s.log||[]).forEach(x=>{if(!x.area)x.area=d});s.areas.forEach((a,i)=>{if(!a.color)a.color=PAL[i%PAL.length]});if(!s.ro){const m={};(s.log||[]).forEach(l=>{if(l.reason)m[l.reason]=(m[l.reason]||0)+1});(s.reasons=s.reasons||[]).sort((a,b)=>(m[b.id]||0)-(m[a.id]||0)||a.name.localeCompare(b.name,LANG));s.ro=1}if(!s.pm){(s.areas||[]).forEach(a=>{const l=(s.tasks||[]).filter(x=>x.area===a.id&&!x.tpl&&x.st==='todo').reverse(),z=x=>x.rep&&x.rep.k!=='none'||x.at;[...l.filter(x=>!z(x)),...l.filter(z)].forEach((x,i)=>x.po=i)});s.pm=1}if(typeof s.coins!=='number')s.coins=0;s.rate=s.rate||{d:2,f:1};s.shop=s.shop||[];s.buys=s.buys||[];s.recap=s.recap||[];s.schema=SCHEMA;return s}
 let S=load();
+const NEEDLANG=(()=>{try{if(localStorage.getItem('kanban-lang')!==null)return false}catch(e){return false}return S.tasks.length===0&&S.log.length===0})();
+const LNAME={pl:'Polski',en:'English'};
+function reseed(){const a1=S.areas.find(a=>a.id==='a1'),a2=S.areas.find(a=>a.id==='a2');if(a1)a1.name=tr('Prywatna');if(a2)a2.name=tr('Zawodowa');SEEDR.forEach((n,i)=>{const q=S.reasons.find(z=>z.id==='r'+i);if(q)q.name=tr(n)});S.reasons.sort((a,b)=>a.name.localeCompare(b.name,LANG))}
+function langGate(){const g=document.createElement('div');g.id='lgsel';g.setAttribute('role','dialog');g.innerHTML='<div class=tg>Choose your language</div>'+Object.keys(LG).sort((a,b)=>(b===LANG)-(a===LANG)).map(k=>`<button class="lgb${k===LANG?' pri':''}" data-a=lang data-id="${k}">${LNAME[k]||k}</button>`).join('')+'<div class=mu>You can change this later in Settings.</div>';document.body.append(g)}
 const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){toast(tr('Nie udało się zapisać danych'))}};
 function toastU(m,id,c){document.querySelectorAll('.toast').forEach(e=>e.remove());const t=document.createElement('div');t.className='toast'+(c>0?' win':'');t.setAttribute('role','status');const n=Math.min(c||0,6);
  t.innerHTML=(c>0?`<span class=burst aria-hidden=true>${Array.from({length:n},(_,i)=>`<i class=coin style="--x:${Math.round((i-(n-1)/2)*26)}px;--d:${(i*.08).toFixed(2)}s"></i>`).join('')}</span>`:'')+esc(m)+(c>0?` <i class=coin></i>`:'')+` <button class=sm data-a=ud data-id="${id}" style="margin-left:8px">${tr('Cofnij')}</button>`;
@@ -223,6 +229,7 @@ const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=nul
  sdel:(x,el)=>{const it=S.shop.find(q=>q.id===el.dataset.id);if(!it)return;ask(tr('Usunąć nagrodę „{n}”?',{n:esc(it.name)}),[[tr('Usuń'),'y']],()=>{S.shop=S.shop.filter(q=>q!==it);open=null;save();render()})},
  shop:()=>{const bal=S.coins;$('dlg').onclick=null;sheet(`<h3>${tr('Sklepik')} · 🪙 ${bal}</h3>`+(S.shop.length?byPrice().map(it=>`<div class=c style="border-left-color:var(--done)"><div class=r><div class=ti>${esc(it.name)} <span class=mu>${it.price} 🪙</span></div>${bal>=it.price?`<button class="sm pri" data-a=buy data-id="${it.id}">${tr('Kup')}</button>`:`<span class=mu>${tr('brakuje {n}',{n:it.price-bal})}</span>`}</div></div>`).join(''):`<p class=mu>${tr('Sklepik jest pusty. Dodaj nagrody w Ustawieniach.')}</p>`)+(S.buys.length?`<h3>${tr('Ostatnie zakupy')}</h3>`+S.buys.slice(-5).reverse().map(q=>`<div class=mu>${dm(q.date)} · ${esc(q.name)} · ${q.price} 🪙</div>`).join(''):'')+`<div class=row><button class=sm id=ax>${tr('Zamknij')}</button></div>`);$('ax').onclick=()=>$('dlg').close()},
  buy:(x,el)=>{const it=S.shop.find(q=>q.id===el.dataset.id);if(!it||S.coins<it.price)return;ask(tr('Kupić „{n}” za {p} 🪙?',{n:esc(it.name),p:it.price}),[[tr('Kup'),'y']],()=>{if(S.coins<it.price)return;S.coins-=it.price;S.buys.push({id:uid(),date:today(),name:it.name,price:it.price});save();render();toast(tr('Kupiono: {n}',{n:it.name}))})},
+ lang:(x,el)=>{const l=el.dataset.id;if(!LG[l])return;LANG=l;try{localStorage.setItem('kanban-lang',l)}catch(e){}reseed();save();const g=$('lgsel');if(g)g.remove();render()},
  tsort:()=>{tsort=!tsort;open=null;render()},
  tup:x=>{mvt(x,-1);save();render()},tdn:x=>{mvt(x,1);save();render()},ttop:x=>{mvt(x,-99);save();render()},
  smore:(x,el)=>{smore=el.dataset.id;render()},
@@ -285,5 +292,6 @@ navigator.storage&&navigator.storage.persist&&navigator.storage.persist();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.last!==today()){roll();render();showRecap()}});
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>render())}catch(e){}
 roll();render();
+if(NEEDLANG)langGate();
 {const sp=$('splash');if(sp){$('spv').textContent='v'+V;const hide=()=>{if(sp.dataset.h)return;sp.dataset.h=1;sp.classList.add('off');setTimeout(()=>{sp.remove();showRecap()},300)};sp.onclick=hide;setTimeout(hide,Math.max(0,SPLASH_MS-performance.now()))}else showRecap()}
 </script></body></html>
