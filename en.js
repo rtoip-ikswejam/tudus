@@ -177,5 +177,15 @@
 "Kroki: {n}": "Steps: {n}",
 "Nazwa kroku": "Step name",
 "Zaznacz krok": "Check step",
-"Nagrody są ułożone od najtańszej.": "Rewards are listed from the cheapest first."
+"Nagrody są ułożone od najtańszej.": "Rewards are listed from the cheapest first.",
+"Zadania": "Tasks",
+"Pomysły": "Ideas",
+"Do pomysłów": "To ideas",
+"Dodaj pomysł": "Add an idea",
+"Szukaj pomysłów": "Search ideas",
+"Brak pomysłów. Dodaj pierwszy polem na dole.": "No ideas yet. Add the first one with the field below.",
+"Nowy pomysł": "New idea",
+"Edycja pomysłu": "Edit idea",
+"Przeniesiono do pomysłów": "Moved to ideas",
+"Przeniesiono do „Do zrobienia”": "Moved to “To do”"
 };

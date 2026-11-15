@@ -177,5 +177,15 @@
 "Kroki: {n}": "Kroki: {n}",
 "Nazwa kroku": "Nazwa kroku",
 "Zaznacz krok": "Zaznacz krok",
-"Nagrody są ułożone od najtańszej.": "Nagrody są ułożone od najtańszej."
+"Nagrody są ułożone od najtańszej.": "Nagrody są ułożone od najtańszej.",
+"Zadania": "Zadania",
+"Pomysły": "Pomysły",
+"Do pomysłów": "Do pomysłów",
+"Dodaj pomysł": "Dodaj pomysł",
+"Szukaj pomysłów": "Szukaj pomysłów",
+"Brak pomysłów. Dodaj pierwszy polem na dole.": "Brak pomysłów. Dodaj pierwszy polem na dole.",
+"Nowy pomysł": "Nowy pomysł",
+"Edycja pomysłu": "Edycja pomysłu",
+"Przeniesiono do pomysłów": "Przeniesiono do pomysłów",
+"Przeniesiono do „Do zrobienia”": "Przeniesiono do „Do zrobienia”"
 };

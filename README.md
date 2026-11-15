@@ -19,6 +19,7 @@ It is built around one idea: **do today's tasks, then look back at how it went.*
 - **Tasks** have a short title, an optional long description (expands on tap), an optional time, an *important* flag and optional repetition (daily or chosen weekdays).
 - **Scheduled tasks:** a one-off task can have a date from which it moves to *Today* by itself. Until then the date is shown on the task in *To do*. It is not a deadline: nothing is highlighted or overdue.
 - **Steps / shopping lists:** a task can have steps, for example a shopping list or the stages of a job. Tick them off, add or rename them, and set their order (ticked steps sink to the bottom). Coins and history count the whole task once. A repeating task keeps its steps as a template and every day starts with a fresh, unticked copy.
+- **Ideas:** a notepad next to the backlog for things you are only thinking about. Switch between **Tasks** and **Ideas** at the top of *To do*. An idea is a task in a resting state: it keeps all its fields (description, steps, repetition...) but does nothing until you move it to *To do*; you can also move a task back to ideas. Ideas are kept per list and never affect coins or statistics.
 - **Daily counters:** a task such as “Drink water” with a target of 8 becomes one card with a **+1** button and a progress bar.
 - **Priorities by order:** move tasks up or down, or to the top, in today's list. Important tasks enter the list below the other important ones. In *To do*, new one-off tasks go to the top and repeating or scheduled ones to the bottom; rearrange them freely with **order**.
 - **Failures with reasons:** mark a task as a failure and pick a reason from your own list. You choose the order of the reasons and can rename or delete them in Settings. See your most common reasons in *Statistics* for the last 30 days, 90 days or a year, and tap a reason to see which tasks you fail or postpone because of it.
@@ -45,7 +46,7 @@ Do not rename the repository after installing: a new address is a new, empty app
 
 | Where | What you do |
 |---|---|
-| **To do** | Add tasks, tap a task to expand it, tap **To today** to move it to today, use **order** to rearrange the list. |
+| **To do** | Add tasks, tap a task to expand it, tap **To today** to move it to today, use **order** to rearrange the list. Switch to **Ideas** for things you may or may not do; **To ideas** and **To do** move items between the two. |
 | **Today** | Tap **✓ done** when finished. Tap a task to reveal **Failure**, **Postpone to “To do”** and **Edit**. |
 | **Done** | Review this week, compare with earlier weeks, **Undo** a completed task, see your coin balance and open the **Shop**. |
 | **Statistics** | Most frequent failure reasons for the chosen period (30 days, 90 days or a year). Tap a reason to see the tasks behind it: how many times, whether postponed (↩) or failed (✗), and when last. |
@@ -83,7 +84,7 @@ Upload the new files over the old ones (same names) and commit. Next time you op
 
 ## Versioning
 
-The version is set in two places that must always match: the `V` constant in `index.html` and the cache name in `sw.js`. Data has its own schema version (stored in the backup file) so that older backups can be migrated. Tag each release on GitHub (`v1.11.0`, ...).
+The version is set in two places that must always match: the `V` constant in `index.html` and the cache name in `sw.js`. Data has its own schema version (stored in the backup file) so that older backups can be migrated. Tag each release on GitHub (`v1.12.0`, ...).
 
 ## Languages
 
