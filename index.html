@@ -78,7 +78,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 <dialog id="dlg"></dialog>
 <script src="lang/pl.js"></script><script src="lang/en.js"></script>
 <script>
-const V='1.13.0',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
+const V='1.14.0',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
 const LG=window.LANGS||{};
 const SEEDR=['brak czasu','brak chęci','zapomniałem','pilniejsza sprawa','źle oszacowany czas','zmęczenie/choroba','inne'];
 let LANG=(()=>{try{const l=localStorage.getItem('kanban-lang');if(l&&LG[l])return l}catch(e){}return /^en/i.test(navigator.language||'')?'en':'pl'})();
@@ -210,6 +210,11 @@ const byPrice=()=>S.shop.slice().sort((a,b)=>a.price-b.price||a.name.localeCompa
 function coin(d){const b=S.coins;S.coins=Math.max(0,b+d);return S.coins-b}
 function doneToast(x,id){const c=(S.log.find(l=>l.id===id)||{}).c||0;c>0?toastU(tr('Zdobywasz {c}',{c}),id,c):toastU(tr('Zrobione: {n}',{n:x.t}),id,0)}
 function done(x){const id=uid();S.log.push({id,tid:x.id,area:x.area,tpl:x.tpl||null,title:x.t,date:today(),res:'done',c:coin(S.rate.d),...prg(x)});x.st=x.tpl?'closed':'done';return id}
+function addDays(n){const d=new Date();d.setDate(d.getDate()+n);return ds(d)}
+function postpone(x,date){fail(x,today());if(date&&!x.tpl){x.at=date;place(x,'bottom')}save();render();toast(date?tr('Odłożono do {d}. Przyczynę dodasz w Ustawieniach.',{d:dm(date)}):tr('Odłożono na listę „Do zrobienia”. Przyczynę dodasz w Ustawieniach.'))}
+function postponeSheet(x){const o=[[1,'Jutro'],[2,'Za 2 dni'],[7,'Za tydzień']].map(([n,l])=>[addDays(n),l]);
+ sheet(`<h3>${tr('Odłożyć do kiedy?')}</h3><div class=row><button class="sm pri" id=pn0>${tr('Bez terminu')}</button></div><div class=row>${o.map(([d,l],i)=>`<button class=sm id=pq${i}>${tr(l)}<small>${dm(d)}</small></button>`).join('')}</div><label>${tr('Wybierz datę')}<input id=pd type=date min="${addDays(1)}"></label><div class=row><button class=sm id=px>${tr('Anuluj')}</button><button class="sm pri" id=pg>${tr('Odłóż')}</button></div>`);
+ $('dlg').onclick=null;$('px').onclick=()=>$('dlg').close();$('pn0').onclick=()=>{$('dlg').close();postpone(x,null)};o.forEach(([d],i)=>{$('pq'+i).onclick=()=>{$('dlg').close();postpone(x,d)}});$('pg').onclick=()=>{const v=$('pd').value;if(!v||v<=today())return $('pd').focus();$('dlg').close();postpone(x,v)}}
 function sched(){S.tasks.filter(t=>t.st==='todo'&&t.at&&t.at<=today()&&t.rep.k==='none'&&!t.tpl).forEach(t=>{delete t.at;toDay(t)})}
 function showRecap(){const rc=S.recap||[];if(!rc.length)return;const yd=ds(new Date(Date.now()-864e5)),tot=rc.reduce((a,i)=>a+i.c,0),all=rc.every(i=>i.d===yd);
  const items=rc.slice().sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:a.t.localeCompare(b.t,LANG));
@@ -343,7 +348,7 @@ const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=nul
  kd:(x,el)=>{x.steps=(x.steps||[]).filter(z=>z.id!==el.dataset.s);sopen=null;save();render()},
  ks:x=>{stsort=stsort===x.id?null:x.id;sopen=null;render()},
  ku:(x,el)=>{stmv(x,el.dataset.s,-1);save();render()},kn:(x,el)=>{stmv(x,el.dataset.s,1);save();render()},kt:(x,el)=>{stmv(x,el.dataset.s,-99);save();render()},
- no:x=>{fail(x,today());save();render();toast(tr('Odłożono na listę „Do zrobienia”. Przyczynę dodasz w Ustawieniach.'))},
+ no:x=>{if(x.tpl)postpone(x,null);else postponeSheet(x)},
  fl:x=>{sheet(`<h3>${tr('Porażka: {n}',{n:esc(x.t)})}</h3><label>${tr('Przyczyna')}<select id=fq><option value="">${tr('Bez przyczyny (uzupełnię później)')}</option>${rs().map(q=>`<option value="${q.id}">${esc(q.name)}</option>`).join('')}</select></label><div class=row><button class=sm id=fx2>${tr('Anuluj')}</button><button class="sm pri" id=fs2>${tr('Zapisz porażkę')}</button></div>`);
   $('dlg').onclick=null;$('fx2').onclick=()=>$('dlg').close();
   $('fs2').onclick=()=>{const q=$('fq').value;S.log.push({id:uid(),tid:x.id,area:x.area,tpl:x.tpl||null,title:x.t,date:today(),res:'fail',reason:q||null,dec:'cancel',k:'f',c:coin(-S.rate.f),...prg(x)});x.st=x.tpl?'closed':'arch';$('dlg').close();save();render();{const c=S.log[S.log.length-1].c;c<0?toastL(c):toast(tr('Zapisano porażkę'))}}},

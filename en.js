@@ -243,5 +243,13 @@
 "Spójność sprawdzona": "Consistency checked",
 "Sprawdzono aktualizacje": "Update check done",
 "Naprawiono: {n}": "Fixed: {n}",
-"Do sprawdzenia: {n}": "To review: {n}"
+"Do sprawdzenia: {n}": "To review: {n}",
+"Odłożyć do kiedy?": "Postpone until when?",
+"Bez terminu": "No date",
+"Jutro": "Tomorrow",
+"Za 2 dni": "In 2 days",
+"Za tydzień": "In a week",
+"Wybierz datę": "Pick a date",
+"Odłóż": "Postpone",
+"Odłożono do {d}. Przyczynę dodasz w Ustawieniach.": "Postponed until {d}. You can add a reason in Settings."
 };

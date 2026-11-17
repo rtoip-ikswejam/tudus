@@ -58,6 +58,7 @@ Tips:
 - Unfinished tasks stay on today's list until you finish, fail or postpone them. Tasks with a counter, or with *Stays on the list if not done that day* switched off, expire at midnight and are recorded as a failure.
 - Add a task fast from the field at the bottom of *Today* or *To do*, and use **more** for the full form.
 - Tap a task's title to read its description.
+- **Postponing** a task from *Today* asks until when. No date is the default; pick tomorrow, in 2 days, in a week or any date, and the task returns to *Today* on that day (it waits in *To do* with its date shown).
 - When tasks expire at midnight, the next time you open the app you get a short summary of what expired and how many coins it cost, with an **OK** button.
 
 ## Your data
@@ -87,7 +88,7 @@ If an update does not arrive, open **Settings → Diagnostics → Check for upda
 
 ## Versioning
 
-The version is set in two places that must always match: the `V` constant in `index.html` and the cache name in `sw.js`. Data has its own schema version (stored in the backup file) so that older backups can be migrated. Tag each release on GitHub (`v1.13.0`, ...).
+The version is set in two places that must always match: the `V` constant in `index.html` and the cache name in `sw.js`. Data has its own schema version (stored in the backup file) so that older backups can be migrated. Tag each release on GitHub (`v1.14.0`, ...).
 
 ## Languages
 

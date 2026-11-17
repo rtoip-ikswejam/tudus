@@ -243,5 +243,13 @@
 "Spójność sprawdzona": "Spójność sprawdzona",
 "Sprawdzono aktualizacje": "Sprawdzono aktualizacje",
 "Naprawiono: {n}": "Naprawiono: {n}",
-"Do sprawdzenia: {n}": "Do sprawdzenia: {n}"
+"Do sprawdzenia: {n}": "Do sprawdzenia: {n}",
+"Odłożyć do kiedy?": "Odłożyć do kiedy?",
+"Bez terminu": "Bez terminu",
+"Jutro": "Jutro",
+"Za 2 dni": "Za 2 dni",
+"Za tydzień": "Za tydzień",
+"Wybierz datę": "Wybierz datę",
+"Odłóż": "Odłóż",
+"Odłożono do {d}. Przyczynę dodasz w Ustawieniach.": "Odłożono do {d}. Przyczynę dodasz w Ustawieniach."
 };
