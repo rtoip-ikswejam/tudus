@@ -70,6 +70,7 @@ body{--bg:var(--base)}@supports(background:color-mix(in srgb,red,blue)){body{--b
 .dgd{display:inline-block;width:10px;height:10px;border-radius:50%;margin-left:8px;background:var(--done)}.dgd[data-st=w]{background:var(--prog)}.dgd[data-st=r]{background:var(--bad)}
 #mis{position:fixed;left:50%;transform:translateX(-50%);top:calc(112px + env(safe-area-inset-top));background:var(--bad);color:var(--bi,#fff);padding:10px 16px;border-radius:10px;z-index:9;font-size:14px;max-width:90vw;display:none}#mis button{margin-left:8px}
 body[data-tab=diag]{--ac:var(--mu)}
+.stp{border-top:1px solid var(--ln)}.stp:first-child{border-top:0}.mu.stp{padding:7px 0}
 </style></head><body data-tab="prog">
 <div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv"></div></div></div>
 <script>(function(){var l;try{l=localStorage.getItem('kanban-lang')}catch(e){}if(!l)l=/^en/i.test(navigator.language||'')?'en':'pl';document.getElementById('spl').textContent=l==='en'?'Loading…':'Wczytywanie…';setTimeout(function(){var s=document.getElementById('splash');if(s)s.remove()},4000)})()</script>
@@ -78,7 +79,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 <dialog id="dlg"></dialog>
 <script src="lang/pl.js"></script><script src="lang/en.js"></script>
 <script>
-const V='1.14.0',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
+const V='1.14.1',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
 const LG=window.LANGS||{};
 const SEEDR=['brak czasu','brak chęci','zapomniałem','pilniejsza sprawa','źle oszacowany czas','zmęczenie/choroba','inne'];
 let LANG=(()=>{try{const l=localStorage.getItem('kanban-lang');if(l&&LG[l])return l}catch(e){}return /^en/i.test(navigator.language||'')?'en':'pl'})();
@@ -246,9 +247,10 @@ const sch=x=>x.steps&&x.steps.length?(x.rep.k==='none'&&x.st!=='idea'?`<span cla
 const bkx=(a,x,q,t,c)=>`<button class="${c||'sm'}" data-a="${a}" data-id="${x.id}" data-s="${q.id}">${t}</button>`;
 const stepsHtml=x=>{const arr=x.steps||[],un=arr.filter(q=>!q.d),dn=arr.filter(q=>q.d),can=x.rep.k==='none'&&x.st!=='idea',srt=stsort===x.id;
  const mb=(a,q,t,dis)=>`<button data-a=${a} data-id="${x.id}" data-s="${q.id}"${dis?' disabled':''}>${t}</button>`;
- const row=(q,i)=>{const sty=q.d?' style="text-decoration:line-through;color:var(--mu)"':'';
+ const row0=(q,i)=>{const sty=q.d?' style="text-decoration:line-through;color:var(--mu)"':'';
   if(srt&&!q.d)return`<div class=r><div class=ti>${esc(q.t)}</div><div class=bt>${mb('ku',q,'▲<small>'+tr('wyżej')+'</small>',i===0)}${mb('kn',q,'▼<small>'+tr('niżej')+'</small>',i===un.length-1)}${mb('kt',q,'⤒<small>'+tr('na górę')+'</small>',i===0)}</div></div>`;
   return`<div class=r>${can?`<button class=chk data-a=kk data-id="${x.id}" data-s="${q.id}" aria-label="${tr('Zaznacz krok')}"><i class="bx${q.d?' on':''}">${q.d?'✓':''}</i></button>`:''}<div class=ti data-a=ko data-id="${x.id}" data-s="${q.id}"${sty}>${esc(q.t)}</div></div>${sopen===q.id?`<div class=acts>${bkx('kr',x,q,tr('Zmień nazwę'))}${bkx('kd',x,q,tr('Usuń'),'sm no')}</div>`:''}`};
+ const row=(q,i)=>'<div class=stp>'+row0(q,i)+'</div>';
  return`<div style="margin:10px 0">${un.map(row).join('')}${dn.map(row).join('')}<div class=row style="margin-top:6px"><input class=sin data-id="${x.id}" placeholder="${tr('Dodaj krok…')}" style="flex:1;min-width:0"><button class="sm pri" data-a=ka data-id="${x.id}">${tr('Dodaj')}</button></div>${arr.length>1?`<div class=acts><button class=sm data-a=ks data-id="${x.id}">${srt?'✓ '+tr('gotowe'):'⇅ '+tr('kolejność')}</button></div>`:''}</div>`};
 const desc=(x,acts)=>`<div class=ds>${x.d?esc(x.d).replace(/\n/g,'<br>'):'<em>'+tr('Brak opisu')+'</em>'}${x.steps?stepsHtml(x):''}<div class=acts>${acts}</div></div>`;
 function vProg(){const l=prog();if(!l.length){const dn=S.log.some(y=>y.res==='done'&&y.area===S.area&&y.date===today());return`<p class=empty>${dn?tr('Wszystko zrobione na dziś. Brawo!'):tr('Na dziś nic nie zaplanowano. Wpisz zadanie na dole albo weź coś z listy.')}</p><div class=row><button class="sm pri" data-a=tab data-tab=todo>${tr('Weź coś z „Do zrobienia”')}</button></div>`}
@@ -268,7 +270,7 @@ function vDone(){const c0=cnt(0,1),c1=cnt(1,1),f0=cnt(0,1,'fail'),d=c0-c1,p=c0+f
  const a=ds(new Date(Date.now()-6*864e5)),l=S.log.filter(x=>x.res==='done'&&x.area===S.area&&x.date>=a).sort((x,y)=>x.date<y.date?1:-1);
  if(!l.length)return h+'<p class=empty>'+tr('W ostatnich 7 dniach nic jeszcze nie zrobiono. Pierwsze ✓ pojawi się tutaj.')+'</p>';
  let cur='';l.forEach(x=>{if(x.date!==cur){cur=x.date;const dd=new Date(x.date+'T12:00:00');h+=`<div class=day>${x.date===today()?tr('Dziś'):x.date===ds(new Date(Date.now()-864e5))?tr('Wczoraj'):dd.toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'short'})}</div>`}
-  const t=S.tasks.find(y=>y.id===x.tid);h+=`<div class=c><div class=r><div class=ti data-a=tgd data-id="${x.id}">${t&&t.imp?'<b class=st>★</b>':''}${esc(x.title)}${t&&t.time?`<span class=tm>${t.time}</span>`:''}</div>${b('undo',x.id,tr('Cofnij'),'sm')}</div>${open===x.id?`<div class=ds>${t&&t.d?esc(t.d).replace(/\n/g,'<br>'):'<em>'+tr('Brak opisu')+'</em>'}${t&&t.steps&&t.steps.length?'<div style="margin:8px 0">'+t.steps.map(q=>`<div class=mu${q.d?' style="text-decoration:line-through"':''}>${q.d?'✓':'○'} ${esc(q.t)}</div>`).join('')+'</div>':''}</div>`:''}</div>`});return h}
+  const t=S.tasks.find(y=>y.id===x.tid);h+=`<div class=c><div class=r><div class=ti data-a=tgd data-id="${x.id}">${t&&t.imp?'<b class=st>★</b>':''}${esc(x.title)}${t&&t.time?`<span class=tm>${t.time}</span>`:''}</div>${b('undo',x.id,tr('Cofnij'),'sm')}</div>${open===x.id?`<div class=ds>${t&&t.d?esc(t.d).replace(/\n/g,'<br>'):'<em>'+tr('Brak opisu')+'</em>'}${t&&t.steps&&t.steps.length?'<div style="margin:8px 0">'+t.steps.map(q=>`<div class="mu stp"${q.d?' style="text-decoration:line-through"':''}>${q.d?'✓':'○'} ${esc(q.t)}</div>`).join('')+'</div>':''}</div>`:''}</div>`});return h}
 function vStat(){const from=ds(new Date(Date.now()-per*864e5)),f=S.log.filter(l=>l.res==='fail'&&l.area===S.area&&l.date>=from);
  const kd=l=>l.k||(l.dec==='todo'?'p':'f');
  const groups=a=>{const m={};a.forEach(l=>{const key=l.title.trim().toLowerCase(),g=m[key]=m[key]||{t:l.title,n:0,p:0,f:0,last:''};g.n++;kd(l)==='p'?g.p++:g.f++;if(l.date>=g.last){g.last=l.date;g.t=l.title}});return Object.values(m).sort((x,y)=>y.n-x.n||(x.last<y.last?1:x.last>y.last?-1:0)||x.t.localeCompare(y.t,LANG))};

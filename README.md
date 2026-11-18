@@ -88,7 +88,7 @@ If an update does not arrive, open **Settings → Diagnostics → Check for upda
 
 ## Versioning
 
-The version is set in two places that must always match: the `V` constant in `index.html` and the cache name in `sw.js`. Data has its own schema version (stored in the backup file) so that older backups can be migrated. Tag each release on GitHub (`v1.14.0`, ...).
+The version is set in two places that must always match: the `V` constant in `index.html` and the cache name in `sw.js`. Data has its own schema version (stored in the backup file) so that older backups can be migrated. Tag each release on GitHub (`v1.14.1`, ...).
 
 ## Languages
 
