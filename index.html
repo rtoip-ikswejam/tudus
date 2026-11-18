@@ -83,7 +83,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 <script src="themes.js"></script>
 <script src="lang/pl.js"></script><script src="lang/en.js"></script>
 <script>
-const V='1.15.1',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
+const V='1.15.2',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
 const THEMES = window.TUDUS_THEMES || [];
 let THEME = (() => {
   try {
@@ -216,7 +216,7 @@ function ask(title,opts,cb){sheet(`<h3>${title}</h3><div class=row>${opts.map((o
 $('dlg').onclick=e=>{const b=e.target.closest('[data-o]');if(!b)return;$('dlg').close();if(b.dataset.o!=='x')cb(opts[b.dataset.o][1])}}
 /* --- logika zadań --- */
 const prog=(a=S.area)=>S.tasks.filter(x=>x.st==='prog'&&x.area===a).sort((a,b)=>a.ord-b.ord);
-const initRank=x=>{const o=x.tpl?(S.tasks.find(q=>q.id===x.tpl)||x):x;if(o.rep&&o.rep.k==='daily')return 3;if(o.rep&&o.rep.k==='days')return 2;if(o.at)return 0;return 1};
+const initRank=x=>{const o=x?(x.tpl?(S.tasks.find(q=>q.id===x.tpl)||x):x):{};if(o&&o.rep&&o.rep.k==='daily')return 3;if(o&&o.rep&&o.rep.k==='days')return 2;if(o&&o.at)return 0;return 1};
 function put(t){const l=prog(t.area).filter(x=>x!==t);let i=l.length;
  if(t.imp){i=0;l.forEach((x,j)=>{if(x.imp)i=j+1})}
  else if(t.time){const j=l.findIndex(x=>!x.imp&&x.time&&x.time>t.time);if(j>=0)i=j}
