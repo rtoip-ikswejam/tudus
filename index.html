@@ -83,7 +83,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 <script src="themes.js"></script>
 <script src="lang/pl.js"></script><script src="lang/en.js"></script>
 <script>
-const V='1.15.3',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
+const V='1.15.4',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
 const THEMES = window.TUDUS_THEMES || [];
 let THEME = (() => {
   try {
@@ -295,8 +295,8 @@ function vDone(){const c0=cnt(0,1),c1=cnt(1,1),f0=cnt(0,1,'fail'),d=c0-c1,p=c0+f
  if(!l.length)h+='<p class=empty>'+tr('W ostatnich 7 dniach nic jeszcze nie zrobiono. Pierwsze ✓ pojawi się tutaj.')+'</p>';else{
  let cur='';l.forEach(x=>{if(x.date!==cur){cur=x.date;const dd=new Date(x.date+'T12:00:00');h+=`<div class=day>${x.date===today()?tr('Dziś'):x.date===ds(new Date(Date.now()-864e5))?tr('Wczoraj'):dd.toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'short'})}</div>`}
   const t=S.tasks.find(y=>y.id===x.tid);h+=`<div class=c><div class=r><div class=ti data-a=tgd data-id="${x.id}">${t&&t.imp?'<b class=st>★</b>':''}${esc(x.title)}${t&&t.time?`<span class=tm>${t.time}</span>`:''}</div>${b('undo',x.id,tr('Cofnij'),'sm')}</div>${open===x.id?`<div class=ds>${t&&t.d?esc(t.d).replace(/\n/g,'<br>'):'<em>'+tr('Brak opisu')+'</em>'}${t&&t.steps&&t.steps.length?'<div style="margin:8px 0">'+t.steps.map(q=>`<div class="mu stp"${q.d?' style="text-decoration:line-through"':''}>${q.d?'✓':'○'} ${esc(q.t)}</div>`).join('')+'</div>':''}</div>`:''}</div>`});}
- const p=pend().filter(l=>l.area===S.area),ar=S.tasks.filter(x=>x.st==='arch'&&x.area===S.area);
- if(p.length)h+=`<h3 style="margin-top:24px">${tr('Bez przyczyny: nieudane i odłożone ({n})',{n:p.length})}</h3>`+p.map(l=>`<div class=c><div>${esc(l.title)}${l.cnt?` ${l.n}/${l.cnt}`:''} <span class=mu>${l.date}</span></div><select data-ch=r data-id="${l.id}"><option value="">${tr('Wybierz przyczynę')}</option>${rs().map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join('')}</select>${l.tpl?'':`<select data-ch=d data-id="${l.id}" style="margin-top:6px"><option value=todo ${l.dec==='todo'?'selected':''}>${tr('Zadanie wraca do „Do zrobienia”')}</option><option value=cancel ${l.dec==='cancel'?'selected':''}>${tr('Zadanie idzie do archiwum')}</option></select>`}</div>`).join('');
+ const pendList=pend().filter(l=>l.area===S.area),ar=S.tasks.filter(x=>x.st==='arch'&&x.area===S.area);
+ if(pendList.length)h+=`<h3 style="margin-top:24px">${tr('Bez przyczyny: nieudane i odłożone ({n})',{n:p.length})}</h3>`+pendList.map(l=>`<div class=c><div>${esc(l.title)}${l.cnt?` ${l.n}/${l.cnt}`:''} <span class=mu>${l.date}</span></div><select data-ch=r data-id="${l.id}"><option value="">${tr('Wybierz przyczynę')}</option>${rs().map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join('')}</select>${l.tpl?'':`<select data-ch=d data-id="${l.id}" style="margin-top:6px"><option value=todo ${l.dec==='todo'?'selected':''}>${tr('Zadanie wraca do „Do zrobienia”')}</option><option value=cancel ${l.dec==='cancel'?'selected':''}>${tr('Zadanie idzie do archiwum')}</option></select>`}</div>`).join('');
  if(ar.length)h+=`<h3 style="margin-top:24px">${tr('Archiwum: anulowane i nieudane ({n})',{n:ar.length})}</h3>`+ar.map(x=>`<div class=rb><span style="flex:1">${esc(x.t)}</span>${b('rs',x.id,tr('Przywróć'),'sm')}</div>`).join('');
  return h}
 function vStat(){const from=ds(new Date(Date.now()-per*864e5)),f=S.log.filter(l=>l.res==='fail'&&l.area===S.area&&l.date>=from);
