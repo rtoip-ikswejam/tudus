@@ -1,11 +1,11 @@
 // Wersja cache musi zgadzać się z V w index.html
-const C='kanban-1.14.1';
+const C='kanban-1.15.0';
 const VER=C.replace('kanban-','');
 const DIAG='kanban-diag';
 // Pliki niezbędne: bez nich aktualizacja się nie uda (stara wersja zostaje).
 const NEED=['./','index.html'];
 // Pliki pomocnicze: brak któregoś (np. 404 na GitHubie) nie blokuje aktualizacji.
-const OPT=['manifest.json','lang/pl.js','lang/en.js','icon-180.png','icon-192.png','icon-512.png','icon-maskable-512.png'];
+const OPT=['manifest.json','themes.js','lang/pl.js','lang/en.js','icon-180.png','icon-192.png','icon-512.png','icon-maskable-512.png'];
 // GitHub Pages podaje max-age=600, więc zwykłe pobranie mogłoby zwrócić 10-minutową, starszą kopię z pamięci przeglądarki.
 const fresh=u=>new Request(u,{cache:'reload'});
 // Dziennik zdarzeń service workera (bez treści zadań): osobny cache, który aplikacja odczytuje w Diagnostyce.
