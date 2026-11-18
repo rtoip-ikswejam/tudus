@@ -364,6 +364,7 @@ const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=nul
  dclog:()=>ask(tr('Wyczyścić dziennik zdarzeń?'),[[tr('Wyczyść dziennik'),'y']],()=>{DG.e=[];DG.a=[];dgSave();try{caches.delete('kanban-diag')}catch(e){}DGST.swlog=[];render();toast(tr('Dziennik wyczyszczony'))}),
  dgerr:()=>{dgErr=!dgErr;render()},
  seg:(x,el)=>{ideas=el.dataset.id==='i';tsort=false;open=null;render()},
+ pseg:(x,el)=>{pfilter=el.dataset.id;open=null;render()},
  toTodo:x=>{x.st='todo';place(x,kind(x)==='z'?'bottom':'top');open=null;save();render();toast(tr('Przeniesiono do „Do zrobienia”'))},
  toIdea:x=>{x.st='idea';place(x,'top');open=null;save();render();toast(tr('Przeniesiono do pomysłów'))},
  tsort:()=>{tsort=!tsort;open=null;render()},

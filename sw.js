@@ -1,5 +1,5 @@
 // Wersja cache musi zgadzać się z V w index.html
-const C='kanban-1.15.5';
+const C='kanban-1.15.6';
 const VER=C.replace('kanban-','');
 const DIAG='kanban-diag';
 // Pliki niezbędne: bez nich aktualizacja się nie uda (stara wersja zostaje).

@@ -1,4 +1,8 @@
 (window.LANGS=window.LANGS||{}).en={
+"Wszystkie": "All",
+"Z godziną": "With time",
+"Brak zadań z przypisaną godziną na dziś.": "No tasks with assigned time for today.",
+
 "Do zrobienia": "To do",
 "Dzisiaj": "Today",
 "Zrobione": "Done",

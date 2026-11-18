@@ -1,4 +1,8 @@
 (window.LANGS=window.LANGS||{}).pl={
+"Wszystkie": "Wszystkie",
+"Z godziną": "Z godziną",
+"Brak zadań z przypisaną godziną na dziś.": "Brak zadań z przypisaną godziną na dziś.",
+
 "Do zrobienia": "Do zrobienia",
 "Dzisiaj": "Dzisiaj",
 "Zrobione": "Zrobione",
