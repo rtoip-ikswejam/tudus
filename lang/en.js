@@ -103,7 +103,7 @@
 "Kolor listy „{n}”": "Colour of list “{n}”",
 "Własny kolor (dowolny)": "Custom colour (any)",
 "Zrobione: {n}": "Done: {n}",
-"Odłożono na listę „Do zrobienia”. Przyczynę dodasz w Ustawieniach.": "Postponed to “To do”. You can add a reason in Settings.",
+"Odłożono na listę „Do zrobienia”. Przyczynę dodasz w zakładce Zrobione.": "Postponed to “To do”. You can add a reason in Done.",
 "Porażka: {n}": "Failure: {n}",
 "Przyczyna": "Reason",
 "Bez przyczyny (uzupełnię później)": "No reason (I will add it later)",
@@ -251,7 +251,7 @@
 "Za tydzień": "In a week",
 "Wybierz datę": "Pick a date",
 "Odłóż": "Postpone",
-"Odłożono do {d}. Przyczynę dodasz w Ustawieniach.": "Postponed until {d}. You can add a reason in Settings."
+"Odłożono do {d}. Przyczynę dodasz w zakładce Zrobione.": "Postponed until {d}. You can add a reason in Done."
 ,
 "Wygląd aplikacji": "App appearance",
 "Wybierz skórkę": "Choose theme",

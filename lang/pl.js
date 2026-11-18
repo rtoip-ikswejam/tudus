@@ -103,7 +103,7 @@
 "Kolor listy „{n}”": "Kolor listy „{n}”",
 "Własny kolor (dowolny)": "Własny kolor (dowolny)",
 "Zrobione: {n}": "Zrobione: {n}",
-"Odłożono na listę „Do zrobienia”. Przyczynę dodasz w Ustawieniach.": "Odłożono na listę „Do zrobienia”. Przyczynę dodasz w Ustawieniach.",
+"Odłożono na listę „Do zrobienia”. Przyczynę dodasz w zakładce Zrobione.": "Odłożono na listę „Do zrobienia”. Przyczynę dodasz w zakładce Zrobione.",
 "Porażka: {n}": "Porażka: {n}",
 "Przyczyna": "Przyczyna",
 "Bez przyczyny (uzupełnię później)": "Bez przyczyny (uzupełnię później)",
@@ -251,7 +251,7 @@
 "Za tydzień": "Za tydzień",
 "Wybierz datę": "Wybierz datę",
 "Odłóż": "Odłóż",
-"Odłożono do {d}. Przyczynę dodasz w Ustawieniach.": "Odłożono do {d}. Przyczynę dodasz w Ustawieniach."
+"Odłożono do {d}. Przyczynę dodasz w zakładce Zrobione.": "Odłożono do {d}. Przyczynę dodasz w zakładce Zrobione."
 ,
 "Wygląd aplikacji": "Wygląd aplikacji",
 "Wybierz skórkę": "Wybierz skórkę",
