@@ -2,7 +2,6 @@
 <html lang="pl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Tuduś</title>
-<base href="../">
 <link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png">
 <meta name="theme-color" content="#d98a1f"><meta name="apple-mobile-web-app-title" content="Tuduś"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <script>
@@ -492,7 +491,7 @@ document.addEventListener('change',e=>{const t=e.target;
   ask(tr('Wczytanie kopii zastąpi wszystkie obecne dane.'),[[tr('Zastąp dane'),'y']],()=>{delete j.app;S=j;migrate(S);S.reasons=S.reasons||[];save();roll();render();toast(tr('Kopia wczytana'))})}catch(x){toast(tr('To nie jest poprawny plik kopii'))}};r.readAsText(t.files[0])}});
 /* --- start i aktualizacje --- */
 if('serviceWorker'in navigator){let rl=0;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!rl){rl=1;if(pendingSW)location.reload()}});
- navigator.serviceWorker.register('./sw.js').then(r=>{const u=w=>{pendingSW=w;probe()},watch=n=>{if(n)n.addEventListener('statechange',()=>{if(n.state==='installed'&&navigator.serviceWorker.controller)u(n)})};
+ navigator.serviceWorker.register('sw.js').then(r=>{const u=w=>{pendingSW=w;probe()},watch=n=>{if(n)n.addEventListener('statechange',()=>{if(n.state==='installed'&&navigator.serviceWorker.controller)u(n)})};
   if(r.waiting&&navigator.serviceWorker.controller)u(r.waiting);watch(r.installing);r.addEventListener('updatefound',()=>watch(r.installing));
   const chk=()=>{try{r.update().catch(()=>{})}catch(e){}};chk();document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})}).catch(()=>{})}
 navigator.storage&&navigator.storage.persist&&navigator.storage.persist();
