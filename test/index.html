@@ -24,7 +24,7 @@ window.__PROD_URL = window.__IS_TEST ? location.pathname.replace(/\/test(\/.*)?$
     (document.body || document.documentElement).appendChild(d);
   }
   window.__testRescue = rescue;
-  setTimeout(function(){ if(!window.__APP_ALIVE) rescue('Aplikacja testowa nie uruchomiła się w wyznaczonym czasie.'); }, 2500);
+  setTimeout(function(){ if(!window.__APP_ALIVE) rescue('Aplikacja testowa nie uruchomiła się w wyznaczonym czasie.'); }, 5000);
   var taps = 0, tapT = null, holdT = null;
   document.addEventListener('pointerdown', function(e){
     var g = e.target && e.target.closest && e.target.closest('.gear');
@@ -116,7 +116,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 .th-prev{margin-top:10px;padding-top:10px;border-top:1px solid var(--div)}
 .th-prev-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
 </style></head><body data-tab="prog">
-<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.16.0</div></div></div>
+<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.16.1</div></div></div>
 <script>(function(){var l;try{l=localStorage.getItem('kanban-lang')}catch(e){}if(!l)l=/^en/i.test(navigator.language||'')?'en':'pl';document.getElementById('spl').textContent=l==='en'?'Loading…':'Wczytywanie…';setTimeout(function(){var s=document.getElementById('splash');if(s)s.remove()},4000)})()</script>
 <header><div id="ab"></div><nav class="tabs"><button class="tab" data-a="tab" data-tab="todo">Do zrobienia</button><button class="tab" data-a="tab" data-tab="prog">Dzisiaj</button><button class="tab" data-a="tab" data-tab="done">Zrobione</button><button class="tab" data-a="tab" data-tab="stat">Statystyki</button><span id="test-badge" class="test-pill" style="display:none">TEST</span><button class="gear" data-a="tab" data-tab="set" aria-label="Ustawienia">⚙</button></nav></header>
 <main id="main"></main><div id="bar"></div><div id="mis"></div>
@@ -126,8 +126,15 @@ body[data-tab=diag]{--ac:var(--mu)}
 <script src="lang/pl.js"></script><script src="lang/en.js"></script>
 <script>
 const IS_TEST=!!window.__IS_TEST;
-if(IS_TEST){const tb=$('test-badge');if(tb)tb.style.display='inline-flex';}
-const V='1.16.0',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
+if(IS_TEST){const tb=document.getElementById('test-badge');if(tb)tb.style.display='inline-flex';}
+const V='1.16.1',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
+/* --- Dane testowe: jednokierunkowa kopia produkcja -> test --- */
+const PK='kanban-v1',TK='kanban-v1-test',TMK='kanban-v1-test-meta';
+const tmeta=()=>{try{return JSON.parse(localStorage.getItem(TMK))}catch(e){return null}};
+function seedTest(){try{const p=localStorage.getItem(PK);if(!p)return{ok:false,empty:true};localStorage.setItem(TK,p);try{localStorage.setItem(TMK,JSON.stringify({at:Date.now(),bytes:p.length}))}catch(e){}return{ok:true,bytes:p.length}}catch(e){return{ok:false,err:(e&&e.name)||'error'}}}
+let SEED=null;
+if(IS_TEST){try{if(localStorage.getItem(TK)===null)SEED=seedTest()}catch(e){}}
+
 const THEMES = window.TUDUS_THEMES || [];
 let THEME = (() => {
   try {
@@ -189,7 +196,7 @@ function dgStatus(){const day=Date.now()-864e5,li=lastInstall();
  if((DGST.srvV&&DGST.srvV!==V)||(DGST.sw&&DGST.sw.wai)||storagePct()>=60)return'w';return'g'}
 function dot(){try{const g=document.querySelector('.gear');if(g)g.dataset.dg=dgStatus();const m=$('mis');if(m)m.style.display=DGST.offV&&DGST.offV!==V?'block':'none'}catch(e){}}
 async function readSwLog(){try{const c=await caches.open(IS_TEST?'kanban-diag-test':'kanban-diag'),r=await c.match('__diag.json');return r?await r.json():[]}catch(e){return[]}}
-async function probe(){try{const rx=IS_TEST?/^kanban-test-\d/:^kanban-\d/,sl=IS_TEST?12:7;const ks=(await caches.keys()).filter(x=>rx.test(x)).map(x=>x.slice(sl)).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));DGST.offV=ks.length?ks[ks.length-1]:null}catch(e){}
+async function probe(){try{const rx=IS_TEST?/^kanban-test-\d/:/^kanban-\d/,sl=IS_TEST?12:7;const ks=(await caches.keys()).filter(x=>rx.test(x)).map(x=>x.slice(sl)).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));DGST.offV=ks.length?ks[ks.length-1]:null}catch(e){}
  try{const r=await navigator.serviceWorker.getRegistration();DGST.sw=r?{act:!!r.active,wai:!!r.waiting,ins:!!r.installing,ctl:!!navigator.serviceWorker.controller}:{none:1}}catch(e){}
  DGST.swlog=await readSwLog();
  try{if(navigator.storage&&navigator.storage.estimate)DGST.est=await navigator.storage.estimate();if(navigator.storage&&navigator.storage.persisted)DGST.persist=await navigator.storage.persisted()}catch(e){}
@@ -227,15 +234,31 @@ function dgClear(){$('dlg').onclick=null;sheet(`<h3>${tr('Wyczyść pamięć off
 async function doClear(){log('w','clear','offline files cleared by user');dgSave();try{const reg=await navigator.serviceWorker.getRegistration();if(reg)await reg.unregister()}catch(e){}try{const ks=await caches.keys();const pref=IS_TEST?'kanban-test-':'kanban-';await Promise.all(ks.filter(k=>k.startsWith(pref)&&k!=='kanban-diag'&&k!=='kanban-diag-test').map(k=>caches.delete(k)))}catch(e){}reloadApp()}
 function startDiag(){const st=(typeof matchMedia==='function'&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone;log('i','start','v'+V+(IS_TEST?'[TEST]':'')+' '+(st?'pwa':'tab')+' '+LANG+' '+(navigator.onLine?'online':'offline')+' tasks='+S.tasks.length+' log='+S.log.length);probe().then(()=>{log('i','probe','off='+(DGST.offV||'-')+' sw='+JSON.stringify(DGST.sw)+' est='+(DGST.est?Math.round(DGST.est.usage/1024)+'KB':'-')+' persist='+DGST.persist);dot()});if(!DG.srv||Date.now()-DG.srv>216e5)srvCheck(false)}
 function enterTestMode(){
-  try{
-    const prodData = localStorage.getItem('kanban-v1');
-    if(prodData) localStorage.setItem('kanban-v1-test', prodData);
-  }catch(e){}
-  location.href = './test/';
+  let has=false;try{has=localStorage.getItem(TK)!==null}catch(e){}
+  const go=()=>{location.href='./test/'};
+  const fresh=()=>{const r=seedTest();if(r.ok||r.empty)return go();log('e','seed','copy '+(r.err||'?'));dgSoon(true);toast(tr('Nie udało się skopiować danych ({e}). Zostajesz w produkcji, nic nie zmieniono.',{e:r.err}),6000)};
+  if(!has)return fresh();
+  const m=tmeta(),d=m&&m.at?new Date(m.at).toLocaleString(LOC(),{dateStyle:'short',timeStyle:'short'}):tr('nieznana');
+  ask(tr('W teście są już dane testowe (kopia z: {d}). Co zrobić?',{d}),[[tr('Nowa kopia z produkcji'),'n'],[tr('Kontynuuj na danych testowych'),'c']],v=>v==='n'?fresh():go());
 }
 function exitTestMode(){
   location.href = window.__PROD_URL || '../';
 }
+function refreshTestData(){
+  ask(tr('Zastąpić dane testowe świeżą kopią danych produkcyjnych? Obecne dane testowe zostaną usunięte.'),[[tr('Zastąp kopią'),'y']],()=>{
+    const r=seedTest();
+    if(r.ok){log('i','seed','refresh '+r.bytes);dgSoon(true);reloadApp()}
+    else{log('e','seed','refresh '+(r.err||'empty'));dgSoon(true);toast(r.empty?tr('Brak danych produkcyjnych do skopiowania.'):tr('Nie udało się skopiować danych ({e}). Dane testowe bez zmian.',{e:r.err}),6000)}
+  });
+}
+function seedWarn(){
+  log('w','seed',SEED.empty?'no prod data':'copy failed '+SEED.err);dgSoon(true);
+  const msg=SEED.empty?tr('Brak danych produkcyjnych do skopiowania. Test startuje z pustą bazą.'):tr('Nie udało się skopiować danych produkcyjnych ({e}), prawdopodobnie brakuje miejsca. Test startuje z pustą bazą, a produkcja jest nietknięta.',{e:SEED.err});
+  $('dlg').onclick=null;
+  sheet(`<h3>${msg}</h3><div class=row><button class=sm id=sw1>${tr('Zostań w teście')}</button><button class="sm pri" id=sw2>${tr('← Wróć do wersji produkcyjnej')}</button></div>`);
+  $('sw1').onclick=()=>$('dlg').close();$('sw2').onclick=()=>exitTestMode();
+}
+function afterSplash(){if(IS_TEST&&SEED&&!SEED.ok)seedWarn();else showRecap()}
 function vDiag(){const sw=DGST.sw||{},off=DGST.offV,srv=DGST.srvV,st=dgStatus(),idx=DGST.srvIdx;
  const col={g:'var(--done)',w:'var(--prog)',r:'var(--bad)'}[st],txt={g:'Wszystko działa.',w:'Są drobne uwagi.',r:'Wykryto problem.'}[st];
  const ck=v=>v?(v===V?' ✓':' ✗'):'';
@@ -270,11 +293,8 @@ function sheet(h){$('dlg').innerHTML=h;$('dlg').showModal()}
 function ask(title,opts,cb){sheet(`<h3>${title}</h3><div class=row>${opts.map((o,i)=>`<button class="sm" data-o="${i}">${o[0]}</button>`).join('')}</div><div class=row><button class="sm" data-o="x">${tr('Anuluj')}</button></div>`);
 $('dlg').onclick=e=>{const b=e.target.closest('[data-o]');if(!b)return;$('dlg').close();if(b.dataset.o!=='x')cb(opts[b.dataset.o][1])}}
 /* --- logika zadań --- */
-const prog=(a=S.area)=>{
-  const all = S.tasks.filter(x=>x.st==='prog'&&x.area===a).sort((a,b)=>a.ord-b.ord);
-  if(pfilter==='time') return all.filter(x=>x.time);
-  return all;
-};
+/* Pełna lista otwartych zadań listy. Filtr „Z godziną” działa tylko na wyświetlaniu (vProg), żeby nie psuć kolejności ani liczników. */
+const prog=(a=S.area)=>S.tasks.filter(x=>x.st==='prog'&&x.area===a).sort((a,b)=>a.ord-b.ord);
 const initRank=x=>{const o=x?(x.tpl?(S.tasks.find(q=>q.id===x.tpl)||x):x):{};if(o&&o.rep&&o.rep.k==='daily')return 3;if(o&&o.rep&&o.rep.k==='days')return 2;if(o&&o.at)return 0;return 1};
 function put(t){const l=prog(t.area).filter(x=>x!==t);let i=l.length;
  if(t.imp){i=0;l.forEach((x,j)=>{if(x.imp)i=j+1})}
@@ -337,8 +357,9 @@ const stepsHtml=x=>{const arr=x.steps||[],un=arr.filter(q=>!q.d),dn=arr.filter(q
  return`<div style="margin:10px 0">${un.map(row).join('')}${dn.map(row).join('')}<div class=row style="margin-top:6px"><input class=sin data-id="${x.id}" placeholder="${tr('Dodaj krok…')}" style="flex:1;min-width:0"><button class="sm pri" data-a=ka data-id="${x.id}">${tr('Dodaj')}</button></div>${arr.length>1?`<div class=acts><button class=sm data-a=ks data-id="${x.id}">${srt?'✓ '+tr('gotowe'):'⇅ '+tr('kolejność')}</button></div>`:''}</div>`};
 const desc=(x,acts)=>`<div class=ds>${x.d?esc(x.d).replace(/\n/g,'<br>'):'<em>'+tr('Brak opisu')+'</em>'}${x.steps?stepsHtml(x):''}<div class=acts>${acts}</div></div>`;
 function vProg(){
- const seg=`<div class=seg><button class="${pfilter==='all'?'on':''}" data-a=pseg data-id=all>${tr('Wszystkie zadania')}</button><button class="${pfilter==='time'?'on':''}" data-a=pseg data-id=time>${tr('Z godziną')}</button></div>`;
- const l=prog();
+ const all=prog(),nT=all.filter(x=>x.time).length;
+ const seg=`<div class=seg><button class="${pfilter==='all'?'on':''}" data-a=pseg data-id=all>${tr('Wszystkie zadania')} ${all.length}</button><button class="${pfilter==='time'?'on':''}" data-a=pseg data-id=time>${tr('Z godziną')} ${nT}</button></div>`;
+ const l=pfilter==='time'?all.filter(x=>x.time):all;
  if(!l.length){const dn=S.log.some(y=>y.res==='done'&&y.area===S.area&&y.date===today());return seg+(pfilter==='time'?`<p class=empty>${tr('Brak zadań z godziną na dziś.')}</p>`:`<p class=empty>${dn?tr('Wszystko zrobione na dziś. Brawo!'):tr('Na dziś nic nie zaplanowano. Wpisz zadanie na dole albo weź coś z listy.')}</p><div class=row><button class="sm pri" data-a=tab data-tab=todo>${tr('Weź coś z „Do zrobienia”')}</button></div>`)}
  return seg+l.map((x,i)=>`<div class=c><div class=r><div class=ti data-a=tg data-id="${x.id}">${badge(x)}${esc(x.t)}${x.cnt>1?` ${x.n||0}/${x.cnt}`:''}${sch(x)}${tm(x,1)}${x.date<today()?`<span class=tm>${tr('od {d}',{d:dm(x.date)})}</span>`:''}</div><div class=bt>`+
  (sort?b('up',x.id,'▲<small>'+tr('wyżej')+'</small>','',i?'':'disabled')+b('dn',x.id,'▼<small>'+tr('niżej')+'</small>')+b('top',x.id,'⤒<small>'+tr('na górę')+'</small>'):(x.cnt>1?b('pl',x.id,'+1','ok'):b('ok',x.id,'✓<small>'+tr('zrobione')+'</small>','ok')))+
@@ -377,9 +398,10 @@ function vSet(){
  const arow=(a,i)=>ssort==='areas'?`<div class=c style="border-left-color:${a.color}"><div class=r><div class=ti>${esc(a.name)}</div><div class=bt>${mvs('areas',a.id,i,S.areas.length)}</div></div></div>`:`<div class=c style="border-left-color:${a.color}"><div class=r><div class=ti data-a=tgs data-id="${a.id}">${esc(a.name)}</div>${b('col',a.id,tr('Ustaw kolor'),'sm')}</div>${open===a.id?`<div class=ds><div class=acts>${b('ren',a.id,tr('Zmień nazwę'),'sm')}${b('adel',a.id,tr('Usuń'),'sm no',S.areas.length<2?'disabled':'')}</div>${S.areas.length<2?'<p class=mu>'+tr('Nie można usunąć ostatniej listy.')+'</p>':''}</div>`:''}</div>`;
  const crow=it=>`<div class=c><div class=r><div class=ti data-a=tgs data-id="${it.id}">${esc(it.name)} <span class=mu>${it.price} 🪙</span></div></div>${open===it.id?`<div class=ds><div class=acts>${b('shed',it.id,tr('Edytuj'),'sm')}${b('sdel',it.id,tr('Usuń'),'sm no')}</div></div>`:''}</div>`;
  const rl=rs(),rrow=(q,i)=>ssort==='reasons'?`<div class=c><div class=r><div class=ti>${esc(q.name)} <span class=mu>(${q.n})</span></div><div class=bt>${mvs('reasons',q.id,i,rl.length)}${mvb('reasons',q.id,-99,'⤒<small>'+tr('na górę')+'</small>',i===0)}</div></div></div>`:`<div class=c><div class=r><div class=ti data-a=tgs data-id="${q.id}">${esc(q.name)} <span class=mu>(${q.n})</span></div></div>${open===q.id?`<div class=ds><div class=acts>${b('rrn',q.id,tr('Zmień nazwę'),'sm')}${b('rd',q.id,tr('Usuń'),'sm no')}</div></div>`:''}</div>`;
- const envBox = IS_TEST
-   ? `<div class=c style="border-left-color:#d97706 !important"><div style="font-weight:700;margin-bottom:4px">Pracujesz w trybie testowym</div><div class=mu style="margin-bottom:10px">Zmiany zapisują się w osobnej bazie testowej (kanban-v1-test) i nie wpływają na wersję główną. Awaryjny powrót: przytrzymaj ⚙ przez 1,5 s lub kliknij 3× szybko w ⚙.</div><div class=row style="margin-top:6px"><button class="sm pri" data-a=exittest>← Wróć do wersji produkcyjnej</button></div></div>`
-   : `<div class=c style="border-left-color:#d97706"><div style="font-weight:700;margin-bottom:4px">Środowisko testowe (piaskownica)</div><div class=mu style="margin-bottom:10px">${DGST.testV && DGST.testV !== V ? 'Dostępna nowa wersja testowa: <b>v' + esc(DGST.testV) + '</b>. ' : ''}Skopiuje bieżącą bazę do odizolowanej bazy testowej i otworzy wersję testową w osobnym katalogu (/test/).</div><div class=row style="margin-top:6px"><button class=sm data-a=gotest>${DGST.testV && DGST.testV !== V ? 'Przetestuj nową wersję v' + esc(DGST.testV) : 'Przejdź na test'}</button></div></div>`;
+ const tm0=tmeta(),copyAt=tm0&&tm0.at?new Date(tm0.at).toLocaleString(LOC(),{dateStyle:'short',timeStyle:'short'}):tr('nieznana'),newT=DGST.testV&&DGST.testV!==V;
+ const envBox=IS_TEST
+   ? `<div class=c style="border-left-color:#d97706 !important"><div style="font-weight:700;margin-bottom:4px">${tr('Pracujesz w trybie testowym')}</div><div class=mu style="margin-bottom:10px">${tr('Zmiany zapisują się w osobnej bazie testowej i nie wpływają na wersję główną. Kopia danych produkcyjnych z: {d}.',{d:copyAt})}<br>${tr('Awaryjny powrót: przytrzymaj ⚙ przez 1,5 s lub kliknij 3× szybko w ⚙.')}</div><div class=row style="margin-top:6px"><button class="sm pri" data-a=exittest>${tr('← Wróć do wersji produkcyjnej')}</button><button class=sm data-a=refreshtest>${tr('Odśwież kopię z produkcji')}</button></div></div>`
+   : `<div class=c style="border-left-color:#d97706"><div style="font-weight:700;margin-bottom:4px">${tr('Środowisko testowe (piaskownica)')}</div><div class=mu style="margin-bottom:10px">${newT?tr('Dostępna nowa wersja testowa: {v}.',{v:'v'+esc(DGST.testV)})+' ':''}${tr('Otwiera wersję testową w osobnym katalogu (/test/) z kopią bieżących danych. Twoje dane produkcyjne się nie zmieniają.')}</div><div class=row style="margin-top:6px"><button class=sm data-a=gotest>${newT?tr('Przetestuj nową wersję v{v}',{v:esc(DGST.testV)}):tr('Przejdź na test')}</button></div></div>`;
  let h=envBox+sh('areas',tr('Listy'))+(ssort==='areas'?`<p class=mu>${tr('Kolejność jak na pasku u góry, od lewej.')}</p>`:'')+S.areas.map(arow).join('')+`<div class=row><input id=an2 placeholder="${tr('Nowa lista (np. Fundacja)')}" style="flex:2"><button class="sm pri" data-a=aa>${tr('Dodaj')}</button></div>`;
  h+=sh('reasons',tr('Lista przyczyn'))+(ssort==='reasons'?`<p class=mu>${tr('Kolejność jak na listach wyboru przyczyny.')}</p>`:'')+rl.map(rrow).join('')+`<div class=row><input id=rn placeholder="${tr('Nowa przyczyna')}" style="flex:2"><button class="sm pri" data-a=ra>${tr('Dodaj')}</button></div>`;
  h+=sh('shop',tr('Monety i sklepik'),1)+`<label style="margin-top:0">${tr('Za zrobione zadanie (+)')}<input id=rd type=number min=0 max=99 value="${S.rate.d}"></label><label>${tr('Za porażkę (−)')}<input id=rf type=number min=0 max=99 value="${S.rate.f}"></label><p class=mu>${tr('Odłożenie i anulowanie nie zmieniają salda. Saldo nie spada poniżej zera.')}</p>`+(S.shop.length?`<p class=mu>${tr('Nagrody są ułożone od najtańszej.')}</p>`:'')+byPrice().map(crow).join('')+`<div class=row><input id=sn placeholder="${tr('Nowa nagroda')}" style="flex:2"><input id=sp type=number min=1 placeholder="🪙" style="flex:1"><button class="sm pri" data-a=sa>${tr('Dodaj')}</button></div>`;
@@ -409,7 +431,7 @@ function form(x){const n=!x;x=x||{t:'',d:'',time:'',rep:{k:'none',days:[]},imp:f
   if(n){const asIdea=tab==='todo'&&ideas;Object.assign(x,f,{id:uid(),st:asIdea?'idea':'todo'});S.tasks.push(x);place(x,asIdea?'top':'auto');if(tab==='prog'&&!f.at)toDay(x)}else{const oa=x.area,k0=kind(x);if(x.st==='prog'&&!x.tpl&&x.rep.k==='none'&&f.rep.k!=='none'){const tp={...f,id:uid(),st:'todo'};if(f.steps)tp.steps=f.steps.map(q=>({id:uid(),t:q.t,d:0}));S.tasks.push(tp);place(tp,'auto');Object.assign(x,f,{rep:{k:'none',days:[]},tpl:tp.id,at:undefined})}else{Object.assign(x,f);if(x.rep.k!=='none'&&x.steps)x.steps.forEach(q=>q.d=0)}if(x.area!==oa&&x.st==='prog')put(x);if(!x.tpl){if(x.st==='todo'&&(kind(x)!==k0||x.area!==oa))place(x,'auto');else if(x.st==='idea'&&x.area!==oa)place(x,'top')}}
   sched();$('dlg').close();save();render()}}
 /* --- akcje --- */
-const mv=(x,d)=>{const l=prog(x.area),i=l.indexOf(x),j=Math.max(0,Math.min(l.length-1,i+d));if(j===i)return;l.splice(i,1);l.splice(j,0,x);l.forEach((y,k)=>y.ord=k)};
+const mv=(x,d)=>{const l=prog(x.area),v=pfilter==='time'?l.filter(y=>y.time):l,i=v.indexOf(x);if(i<0)return;const j=Math.max(0,Math.min(v.length-1,i+d));if(j===i)return;const tg=v[j];l.splice(l.indexOf(x),1);const k=l.indexOf(tg);l.splice(d>0?k+1:k,0,x);l.forEach((y,n)=>y.ord=n)};
 const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=null;sort=false;tsort=false;save();render();scrollTo(0,0)},
  aa:()=>{const v=$('an2').value.trim();if(!v)return;S.areas.push({id:uid(),name:v,color:PAL.find(c=>!S.areas.some(a=>a.color===c))||PAL[0]});save();render()},
  ren:(x,el)=>{const a=S.areas.find(q=>q.id===el.dataset.id);sheet(`<h3>${tr('Nazwa listy')}</h3><input id=an value="${esc(a.name)}"><div class=row><button class=sm id=ax>${tr('Anuluj')}</button><button class="sm pri" id=as>${tr('Zapisz')}</button></div>`);$('dlg').onclick=null;$('ax').onclick=()=>$('dlg').close();$('as').onclick=()=>{const v=$('an').value.trim();if(v){a.name=v;save();$('dlg').close();render()}}},
@@ -422,6 +444,7 @@ const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=nul
  lang:(x,el)=>{const l=el.dataset.id;if(!LG[l])return;LANG=l;try{localStorage.setItem('kanban-lang',l)}catch(e){}reseed();save();const g=$('lgsel');if(g)g.remove();render()},
  gotest:()=>enterTestMode(),
  exittest:()=>exitTestMode(),
+ refreshtest:()=>refreshTestData(),
  dchk:()=>{runCheck()},
  dinst:()=>{navigator.serviceWorker.getRegistration().then(r=>{if(r&&r.waiting){pendingSW=r.waiting;log('i','install-now','skip-waiting requested');r.waiting.postMessage('skip')}}).catch(()=>{})},
  dcons:()=>{runCons(true);toast(tr('Spójność sprawdzona'));render()},
@@ -500,5 +523,5 @@ try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>ren
 roll();runCons(true);render();startDiag();
 window.__APP_ALIVE = true;
 if(NEEDLANG)langGate();
-{const sp=$('splash');if(sp){$('spv').textContent='v'+V+(IS_TEST?' · TRYB TESTOWY':'');const hide=()=>{if(sp.dataset.h)return;sp.dataset.h=1;sp.classList.add('off');setTimeout(()=>{sp.remove();showRecap()},300)};sp.onclick=hide;setTimeout(hide,Math.max(0,SPLASH_MS-performance.now()))}else showRecap()}
+{const sp=$('splash');if(sp){$('spv').textContent='v'+V+(IS_TEST?' · TRYB TESTOWY':'');const hide=()=>{if(sp.dataset.h)return;sp.dataset.h=1;sp.classList.add('off');setTimeout(()=>{sp.remove();afterSplash()},300)};sp.onclick=hide;setTimeout(hide,Math.max(0,SPLASH_MS-performance.now()))}else afterSplash()}
 </script></body></html>

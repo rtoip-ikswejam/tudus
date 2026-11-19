@@ -1,13 +1,12 @@
-const VER = '1.16.0';
+const VER = '1.16.1';
 const IS_TEST = /\/test(\/|$)/.test(self.registration.scope);
 const C = (IS_TEST ? 'kanban-test-' : 'kanban-') + VER;
 const DIAG = IS_TEST ? 'kanban-diag-test' : 'kanban-diag';
-const base = IS_TEST ? '../' : './';
 const NEED = ['./', 'index.html'];
 const OPT = [
   'manifest.json', 'themes.js', 'lang/pl.js', 'lang/en.js',
   'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'
-].map(p => base + p);
+];
 const fresh = u => new Request(u, { cache: 'reload' });
 const cacheRx = IS_TEST ? /^kanban-test-\d/ : /^kanban-\d/;
 

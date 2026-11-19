@@ -1,0 +1,7 @@
+{
+  "name": "tudus-tools",
+  "private": true,
+  "type": "module",
+  "scripts": { "smoke": "node smoke.mjs" },
+  "dependencies": { "jsdom": "24.1.3" }
+}
