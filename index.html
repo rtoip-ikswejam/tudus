@@ -4,6 +4,46 @@
 <title>Tuduś</title>
 <link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png">
 <meta name="theme-color" content="#d98a1f"><meta name="apple-mobile-web-app-title" content="Tuduś"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<script>
+/* --- Izolacja środowiska i niezależny bezpiecznik startowy (Dead Man's Switch) --- */
+window.__IS_TEST = /\/test(\/|$)/.test(location.pathname);
+window.__APP_ALIVE = false;
+window.__PROD_URL = window.__IS_TEST ? location.pathname.replace(/\/test(\/.*)?$/, '/') : './';
+(function(){
+  if(!window.__IS_TEST) return;
+  document.title = 'Tuduś [TEST]';
+  function rescue(reason){
+    if(document.getElementById('__test_rescue')) return;
+    var d = document.createElement('div');
+    d.id = '__test_rescue';
+    d.setAttribute('style','position:fixed;inset:0;z-index:2147483647;background:#1a1e29;color:#ffffff;font:16px/1.5 system-ui,-apple-system,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center');
+    d.innerHTML = '<div style="background:#d97706;color:#fff;font-weight:800;font-size:12px;letter-spacing:1px;padding:4px 10px;border-radius:999px;margin-bottom:14px">TRYB TESTOWY · AWARYJNY POWRÓT</div>'
+      + '<div style="font-size:20px;font-weight:700;margin-bottom:8px">Wersja testowa nie odpowiada</div>'
+      + '<div style="color:#cbd5e1;font-size:14px;max-width:340px;margin-bottom:22px">' + (reason || 'Wykryto problem z uruchomieniem lub obsługą nowej wersji. Twoje dane produkcyjne są bezpieczne.') + '</div>'
+      + '<a href="' + window.__PROD_URL + '" style="display:inline-block;background:#287247;color:#ffffff;text-decoration:none;font-weight:700;padding:14px 22px;border-radius:12px;font-size:16px">← Wróć do wersji produkcyjnej</a>';
+    (document.body || document.documentElement).appendChild(d);
+  }
+  window.__testRescue = rescue;
+  setTimeout(function(){ if(!window.__APP_ALIVE) rescue('Aplikacja testowa nie uruchomiła się w wyznaczonym czasie.'); }, 2500);
+  var taps = 0, tapT = null, holdT = null;
+  document.addEventListener('pointerdown', function(e){
+    var g = e.target && e.target.closest && e.target.closest('.gear');
+    if(!g) return;
+    clearTimeout(holdT);
+    holdT = setTimeout(function(){ rescue('Wymuszono powrót przez przytrzymanie przycisku ustawień.'); }, 1500);
+  }, true);
+  document.addEventListener('pointerup', function(){ clearTimeout(holdT); }, true);
+  document.addEventListener('pointercancel', function(){ clearTimeout(holdT); }, true);
+  document.addEventListener('click', function(e){
+    var g = e.target && e.target.closest && e.target.closest('.gear');
+    if(!g) return;
+    taps++;
+    clearTimeout(tapT);
+    if(taps >= 3){ taps = 0; rescue('Wymuszono powrót przez potrójne kliknięcie ustawień.'); return; }
+    tapT = setTimeout(function(){ taps = 0; }, 900);
+  }, true);
+})();
+</script>
 <style>
 :root{--bg:#f6f4ef;--base:#f6f4ef;--fg:#1a1e29;--mu:#525866;--cd:#fff;--ln:#c5bfb2;--div:#b8b1a2;--todo:#2b5b9e;--prog:#b86e0c;--done:#287247;--stat:#62469b;--bad:#b53826;--r-card:10px;--r-btn:10px;--r-pill:20px;--r-chk:6px;--r-dlg:14px;--shadow-card:none;--font-main:system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:light dark}
 @media(prefers-color-scheme:dark){:root{--bg:#151820;--base:#151820;--fg:#f2f0ea;--mu:#a4aab8;--cd:#202531;--ln:#3f465c;--div:#4d556e;--todo:#7aa8eb;--prog:#f5ad42;--done:#66c78d;--stat:#b399eb;--bad:#f08978}}
@@ -11,10 +51,12 @@
 body{margin:0;font:16px/1.4 var(--font-main);color:var(--fg);background:var(--bg);max-width:480px;margin:auto;min-height:100vh;padding-bottom:calc(88px + env(safe-area-inset-bottom))}
 body[data-tab=todo]{--ac:var(--todo)}body[data-tab=prog]{--ac:var(--prog)}body[data-tab=done]{--ac:var(--done)}body[data-tab=stat]{--ac:var(--stat)}body[data-tab=set]{--ac:var(--mu)}
 header{position:sticky;top:0;z-index:5;background:var(--bg);padding-top:env(safe-area-inset-top);border-bottom:3px solid var(--area,var(--ln))}
-.tabs{display:flex}#ab{display:flex;gap:6px;padding:8px 12px 4px;overflow-x:auto}.ar{border:1px solid var(--ln);background:var(--cd);color:var(--fg);font:inherit;font-size:14px;border-radius:var(--r-pill);padding:6px 14px;min-height:36px;white-space:nowrap;cursor:pointer}.ar.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}.cn{font-size:11px;background:var(--prog);color:#fff;border-radius:10px;padding:0 6px;margin-left:6px}
+.tabs{display:flex;align-items:center}#ab{display:flex;gap:6px;padding:8px 12px 4px;overflow-x:auto}.ar{border:1px solid var(--ln);background:var(--cd);color:var(--fg);font:inherit;font-size:14px;border-radius:var(--r-pill);padding:6px 14px;min-height:36px;white-space:nowrap;cursor:pointer}.ar.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}.cn{font-size:11px;background:var(--prog);color:#fff;border-radius:10px;padding:0 6px;margin-left:6px}
 .tab,.gear{background:none;border:0;color:var(--mu);font:inherit;font-size:13px;min-height:48px;border-bottom:3px solid transparent;cursor:pointer}
 .tab{flex:1;padding:0 2px}.gear{width:44px;font-size:18px}
 .tab.on{color:var(--ac);font-weight:600;border-color:var(--ac)}
+/* Niezależna od skórek odznaka trybu testowego */
+.test-pill{all:unset;display:inline-flex;align-items:center;justify-content:center;background:#d97706 !important;color:#ffffff !important;border:1.5px solid #92400e !important;font:800 10px/1 system-ui,-apple-system,sans-serif !important;letter-spacing:.6px;padding:3px 6px !important;border-radius:6px !important;margin-right:4px;user-select:none;flex:none}
 main{padding:12px}
 .c{background:var(--cd);border:1px solid var(--ln);border-left:5px solid var(--ac);border-radius:var(--r-card);box-shadow:var(--shadow-card);padding:10px 12px;margin-bottom:8px}
 .r{display:flex;align-items:center;gap:8px}.ti{flex:1;min-height:44px;display:flex;align-items:center;flex-wrap:wrap;gap:6px;cursor:pointer}
@@ -74,16 +116,18 @@ body[data-tab=diag]{--ac:var(--mu)}
 .th-prev{margin-top:10px;padding-top:10px;border-top:1px solid var(--div)}
 .th-prev-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
 </style></head><body data-tab="prog">
-<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.15.8</div></div></div>
+<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.16.0</div></div></div>
 <script>(function(){var l;try{l=localStorage.getItem('kanban-lang')}catch(e){}if(!l)l=/^en/i.test(navigator.language||'')?'en':'pl';document.getElementById('spl').textContent=l==='en'?'Loading…':'Wczytywanie…';setTimeout(function(){var s=document.getElementById('splash');if(s)s.remove()},4000)})()</script>
-<header><div id="ab"></div><nav class="tabs"><button class="tab" data-a="tab" data-tab="todo">Do zrobienia</button><button class="tab" data-a="tab" data-tab="prog">Dzisiaj</button><button class="tab" data-a="tab" data-tab="done">Zrobione</button><button class="tab" data-a="tab" data-tab="stat">Statystyki</button><button class="gear" data-a="tab" data-tab="set" aria-label="Ustawienia">⚙</button></nav></header>
+<header><div id="ab"></div><nav class="tabs"><button class="tab" data-a="tab" data-tab="todo">Do zrobienia</button><button class="tab" data-a="tab" data-tab="prog">Dzisiaj</button><button class="tab" data-a="tab" data-tab="done">Zrobione</button><button class="tab" data-a="tab" data-tab="stat">Statystyki</button><span id="test-badge" class="test-pill" style="display:none">TEST</span><button class="gear" data-a="tab" data-tab="set" aria-label="Ustawienia">⚙</button></nav></header>
 <main id="main"></main><div id="bar"></div><div id="mis"></div>
 <dialog id="dlg"></dialog>
 <style id="theme-style"></style>
 <script src="themes.js"></script>
 <script src="lang/pl.js"></script><script src="lang/en.js"></script>
 <script>
-const V='1.15.8',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K='kanban-v1',$=id=>document.getElementById(id);
+const IS_TEST=!!window.__IS_TEST;
+if(IS_TEST){const tb=$('test-badge');if(tb)tb.style.display='inline-flex';}
+const V='1.16.0',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
 const THEMES = window.TUDUS_THEMES || [];
 let THEME = (() => {
   try {
@@ -121,10 +165,10 @@ let S=load();
 const NEEDLANG=(()=>{try{if(localStorage.getItem('kanban-lang')!==null)return false}catch(e){return false}return S.tasks.length===0&&S.log.length===0})();
 const LNAME={pl:'Polski',en:'English'};
 /* --- diagnostyka i dziennik zdarzeń (bez treści zadań) --- */
-const LK='kanban-log';
+const LK=IS_TEST?'kanban-log-test':'kanban-log';
 let DG=(()=>{try{const j=JSON.parse(localStorage.getItem(LK));if(j&&Array.isArray(j.e))return{e:j.e,a:Array.isArray(j.a)?j.a:[],srv:j.srv||0}}catch(e){}return{e:[],a:[],srv:0}})();
 let dgT=null,dgErr=false,lastErrT=0,reloadApp=()=>location.reload();
-const DGST={offV:null,srvV:null,srvIdx:null,sw:{},swlog:[],est:null,persist:null,chk:0,checking:false,cons:null};
+const DGST={offV:null,srvV:null,srvIdx:null,testV:null,sw:{},swlog:[],est:null,persist:null,chk:0,checking:false,cons:null};
 function dgSave(){dgT=null;try{let s=JSON.stringify(DG);while(s.length>40000&&DG.e.length>20){DG.e.splice(0,20);s=JSON.stringify(DG)}localStorage.setItem(LK,s)}catch(e){}}
 function dgSoon(now){if(now){clearTimeout(dgT);dgSave()}else if(!dgT)dgT=setTimeout(dgSave,3000)}
 function log(l,c,d){try{DG.e.push({t:Date.now(),l,c,d:String(d==null?'':d).slice(0,160)});if(DG.e.length>200)DG.e.splice(0,DG.e.length-200);dgSoon(l==='e')}catch(e){}}
@@ -144,15 +188,16 @@ function dgStatus(){const day=Date.now()-864e5,li=lastInstall();
  if(errs||mis||insFail||consBad||storagePct()>=80)return'r';
  if((DGST.srvV&&DGST.srvV!==V)||(DGST.sw&&DGST.sw.wai)||storagePct()>=60)return'w';return'g'}
 function dot(){try{const g=document.querySelector('.gear');if(g)g.dataset.dg=dgStatus();const m=$('mis');if(m)m.style.display=DGST.offV&&DGST.offV!==V?'block':'none'}catch(e){}}
-async function readSwLog(){try{const c=await caches.open('kanban-diag'),r=await c.match('__diag.json');return r?await r.json():[]}catch(e){return[]}}
-async function probe(){try{const ks=(await caches.keys()).filter(x=>/^kanban-\d/.test(x)).map(x=>x.slice(7)).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));DGST.offV=ks.length?ks[ks.length-1]:null}catch(e){}
+async function readSwLog(){try{const c=await caches.open(IS_TEST?'kanban-diag-test':'kanban-diag'),r=await c.match('__diag.json');return r?await r.json():[]}catch(e){return[]}}
+async function probe(){try{const rx=IS_TEST?/^kanban-test-\d/:^kanban-\d/,sl=IS_TEST?12:7;const ks=(await caches.keys()).filter(x=>rx.test(x)).map(x=>x.slice(sl)).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));DGST.offV=ks.length?ks[ks.length-1]:null}catch(e){}
  try{const r=await navigator.serviceWorker.getRegistration();DGST.sw=r?{act:!!r.active,wai:!!r.waiting,ins:!!r.installing,ctl:!!navigator.serviceWorker.controller}:{none:1}}catch(e){}
  DGST.swlog=await readSwLog();
  try{if(navigator.storage&&navigator.storage.estimate)DGST.est=await navigator.storage.estimate();if(navigator.storage&&navigator.storage.persisted)DGST.persist=await navigator.storage.persisted()}catch(e){}
  dot()}
-async function srvCheck(full){const t0=Date.now();try{const r=await fetch('sw.js?net='+t0,{cache:'no-store'}),tx=await r.text(),m=tx.match(/const C='kanban-([^']+)'/);DGST.srvV=m?m[1]:null;
+async function srvCheck(full){const t0=Date.now();try{const r=await fetch('sw.js?net='+t0,{cache:'no-store'}),tx=await r.text(),m=tx.match(/const VER='([^']+)'/);DGST.srvV=m?m[1]:null;
   if(full){const r2=await fetch('index.html?net='+t0,{cache:'no-store'}),t2=await r2.text(),m2=t2.match(/const V='([^']+)'/);DGST.srvIdx=m2?m2[1]:null}
-  DGST.chk=Date.now();DG.srv=DGST.chk;log('i','srv','sw='+DGST.srvV+(full?' idx='+DGST.srvIdx:'')+' '+(Date.now()-t0)+'ms')}catch(e){log('w','srv','failed: '+(e&&e.message))}dot()}
+  if(!IS_TEST){try{const rt=await fetch('test/sw.js?net='+t0,{cache:'no-store'});if(rt.ok){const txt=await rt.text(),mt=txt.match(/const VER='([^']+)'/);DGST.testV=mt?mt[1]:null}}catch(e){}}
+  DGST.chk=Date.now();DG.srv=DGST.chk;log('i','srv','sw='+DGST.srvV+(DGST.testV?' test='+DGST.testV:'')+(full?' idx='+DGST.srvIdx:'')+' '+(Date.now()-t0)+'ms')}catch(e){log('w','srv','failed: '+(e&&e.message))}dot();if(tab==='set'||tab==='diag')render()}
 async function runCheck(){DGST.checking=true;if(tab==='diag')render();await probe();await srvCheck(true);try{const r=await navigator.serviceWorker.getRegistration();if(r)await r.update()}catch(e){log('w','update','update() failed: '+(e&&e.message))}await new Promise(z=>setTimeout(z,400));await probe();log('i','check','app='+V+' off='+(DGST.offV||'-')+' srv='+(DGST.srvV||'-')+' idx='+(DGST.srvIdx||'-')+' sw='+JSON.stringify(DGST.sw));DGST.checking=false;if(tab==='diag')render();toast(tr('Sprawdzono aktualizacje'))}
 function diagOpen(){probe().then(()=>{if(tab==='diag')render()});if(Date.now()-DGST.chk>60000)srvCheck(false).then(()=>{if(tab==='diag')render()})}
 function checkData(fix){const out=[],add=(c,n,f)=>{if(n)out.push({c,n,f:!!f})};const aid=new Set(S.areas.map(a=>a.id)),a0=S.areas[0].id,rid=new Set(S.reasons.map(r=>r.id));let n=0;
@@ -169,18 +214,28 @@ function checkData(fix){const out=[],add=(c,n,f)=>{if(n)out.push({c,n,f:!!f})};c
 function runCons(fix){const o=checkData(fix),fx=o.filter(x=>x.f);if(fix&&fx.length){save();log('w','repair',fx.map(x=>x.c+':'+x.n).join(','))}DGST.cons={t:Date.now(),out:o,bad:o.filter(x=>!x.f&&x.c!=='orphan-instance').reduce((a,x)=>a+x.n,0)};return o}
 function dgReport(){const iso=t=>new Date(t).toISOString().slice(0,19).replace('T',' '),cnt=k=>S.tasks.filter(t=>t.st===k).length,est=DGST.est;
  const pwa=(typeof matchMedia==='function'&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone?'pwa':'tab';
- const L=['Tudus diagnostic report','Date (UTC): '+iso(Date.now()),
- 'Versions: app '+V+' | offline files '+(DGST.offV||'?')+' | server sw '+(DGST.srvV||'?')+' | server index '+(DGST.srvIdx||'?')+' | last server check '+(DG.srv?iso(DG.srv):'never'),
+ const L=['Tudus diagnostic report'+(IS_TEST?' [TEST]':''),'Date (UTC): '+iso(Date.now()),
+ 'Versions: app '+V+' | offline files '+(DGST.offV||'?')+' | server sw '+(DGST.srvV||'?')+' | server index '+(DGST.srvIdx||'?')+(DGST.testV?' | test sw '+DGST.testV:'')+' | last server check '+(DG.srv?iso(DG.srv):'never'),
  'Service worker: '+JSON.stringify(DGST.sw||{}),
- 'Mode: '+pwa+' | lang '+LANG+' | online '+navigator.onLine+' | UA '+String(navigator.userAgent).slice(0,140),
+ 'Mode: '+pwa+(IS_TEST?' (test)':'')+' | lang '+LANG+' | online '+navigator.onLine+' | UA '+String(navigator.userAgent).slice(0,140),
  'Storage: data '+Math.round(JSON.stringify(S).length/1024)+' KB | localStorage '+Math.round(lsChars()/1024)+' KB (~'+storagePct()+'% of 5 MB) | estimate '+(est?Math.round(est.usage/1024)+' KB of '+Math.round(est.quota/1048576)+' MB':'n/a')+' | persistent '+DGST.persist,
  'Data: tasks '+S.tasks.length+' (todo '+cnt('todo')+', prog '+cnt('prog')+', idea '+cnt('idea')+', arch '+cnt('arch')+', done '+cnt('done')+', closed '+cnt('closed')+'), log '+S.log.length+', areas '+S.areas.length+', reasons '+S.reasons.length+', shop '+S.shop.length+', coins '+S.coins+', schema '+S.schema,
  'Consistency: '+(DGST.cons?(DGST.cons.out.length?DGST.cons.out.map(x=>x.c+':'+x.n+(x.f?'(fixed)':'')).join(', '):'ok'):'not run'),
  'Status: '+dgStatus(),'','Events (last 60):',...allEvents().slice(-60).map(e=>iso(e.t).slice(5)+' '+e.l+' '+e.src+' '+e.c+' '+(e.d||'')),'','Actions (last 30):',...DG.a.map(a=>iso(a.t).slice(5)+' '+a.a+' '+a.id)];return L.join('\n')}
 function dgCopyFallback(t){const x=document.createElement('textarea');x.value=t;x.style.position='fixed';x.style.opacity='0';document.body.append(x);x.select();try{document.execCommand('copy')}catch(e){}x.remove()}
 function dgClear(){$('dlg').onclick=null;sheet(`<h3>${tr('Wyczyść pamięć offline i pobierz od nowa')}</h3><p>${tr('Usunę tylko pliki aplikacji zapisane do pracy offline i pobiorę je od nowa. Twoje zadania nie zostaną ruszone. Wymaga połączenia z internetem.')}</p><div class=row><button class=sm id=dcx>${tr('Anuluj')}</button><button class=sm id=dcb>${tr('Zapisz kopię danych')}</button></div><div class=row><button class="sm pri" id=dcg>${tr('Wyczyść i pobierz')}</button></div>`);$('dcx').onclick=()=>$('dlg').close();$('dcb').onclick=()=>A.exp();$('dcg').onclick=doClear}
-async function doClear(){log('w','clear','offline files cleared by user');dgSave();try{const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()))}catch(e){}try{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='kanban-diag').map(k=>caches.delete(k)))}catch(e){}reloadApp()}
-function startDiag(){const st=(typeof matchMedia==='function'&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone;log('i','start','v'+V+' '+(st?'pwa':'tab')+' '+LANG+' '+(navigator.onLine?'online':'offline')+' tasks='+S.tasks.length+' log='+S.log.length);probe().then(()=>{log('i','probe','off='+(DGST.offV||'-')+' sw='+JSON.stringify(DGST.sw)+' est='+(DGST.est?Math.round(DGST.est.usage/1024)+'KB':'-')+' persist='+DGST.persist);dot()});if(!DG.srv||Date.now()-DG.srv>216e5)srvCheck(false)}
+async function doClear(){log('w','clear','offline files cleared by user');dgSave();try{const reg=await navigator.serviceWorker.getRegistration();if(reg)await reg.unregister()}catch(e){}try{const ks=await caches.keys();const pref=IS_TEST?'kanban-test-':'kanban-';await Promise.all(ks.filter(k=>k.startsWith(pref)&&k!=='kanban-diag'&&k!=='kanban-diag-test').map(k=>caches.delete(k)))}catch(e){}reloadApp()}
+function startDiag(){const st=(typeof matchMedia==='function'&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone;log('i','start','v'+V+(IS_TEST?'[TEST]':'')+' '+(st?'pwa':'tab')+' '+LANG+' '+(navigator.onLine?'online':'offline')+' tasks='+S.tasks.length+' log='+S.log.length);probe().then(()=>{log('i','probe','off='+(DGST.offV||'-')+' sw='+JSON.stringify(DGST.sw)+' est='+(DGST.est?Math.round(DGST.est.usage/1024)+'KB':'-')+' persist='+DGST.persist);dot()});if(!DG.srv||Date.now()-DG.srv>216e5)srvCheck(false)}
+function enterTestMode(){
+  try{
+    const prodData = localStorage.getItem('kanban-v1');
+    if(prodData) localStorage.setItem('kanban-v1-test', prodData);
+  }catch(e){}
+  location.href = './test/';
+}
+function exitTestMode(){
+  location.href = window.__PROD_URL || '../';
+}
 function vDiag(){const sw=DGST.sw||{},off=DGST.offV,srv=DGST.srvV,st=dgStatus(),idx=DGST.srvIdx;
  const col={g:'var(--done)',w:'var(--prog)',r:'var(--bad)'}[st],txt={g:'Wszystko działa.',w:'Są drobne uwagi.',r:'Wykryto problem.'}[st];
  const ck=v=>v?(v===V?' ✓':' ✗'):'';
@@ -193,7 +248,7 @@ function vDiag(){const sw=DGST.sw||{},off=DGST.offV,srv=DGST.srvV,st=dgStatus(),
  const ev=allEvents().filter(e=>!dgErr||e.l==='e').slice(-30).reverse(),tf=t=>{const d=new Date(t),p=n=>String(n).padStart(2,'0');return(ds(d)===today()?'':p(d.getDate())+'.'+p(d.getMonth()+1)+' ')+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds())};
  return`<div class=set><p style="margin:0 0 10px"><button class=sm data-a=tab data-tab=set>‹ ${tr('Ustawienia')}</button></p>
  <div class=c style="border-left-color:${col}"><div class=ti>${tr(txt)}</div></div>
- <h3>${tr('Wersje')}</h3>${row(tr('Aplikacja'),V)}${row(tr('Pliki offline'),esc(off||tr('nieznana'))+ck(off))}${row(tr('Serwer'),esc(srv||tr('nieznana'))+ck(srv))}${idx&&idx!==srv?row(tr('Serwer (index.html)'),esc(idx)+ck(idx)):''}${row('Service worker',swS)}
+ <h3>${tr('Wersje')}</h3>${row(tr('Środowisko'),IS_TEST?'TEST (kanban-v1-test)':'Produkcja (kanban-v1)')}${row(tr('Aplikacja'),V)}${row(tr('Pliki offline'),esc(off||tr('nieznana'))+ck(off))}${row(tr('Serwer'),esc(srv||tr('nieznana'))+ck(srv))}${idx&&idx!==srv?row(tr('Serwer (index.html)'),esc(idx)+ck(idx)):''}${!IS_TEST&&DGST.testV?row('Wersja testowa (/test/)',esc(DGST.testV)):''}${row('Service worker',swS)}
  <h3>${tr('Aktualizacja')}</h3><div>${upd}</div><div class=mu style="margin-top:4px">${tr('Ostatnie sprawdzenie: {t}',{t:DG.srv?tf(DG.srv):tr('nie sprawdzano')})}</div>
  <h3>${tr('Pamięć')}</h3>${row(tr('Dane aplikacji'),dkb+' KB')}${row(tr('Pamięć przeglądarki'),`<span style="color:${pct>=80?'var(--bad)':pct>=60?'var(--prog)':'inherit'}">${Math.round(lsc/1024)} KB (~${pct}% / 5 MB)</span>`)}${est?row('Storage API',(est.usage/1048576).toFixed(1)+' / '+Math.round(est.quota/1048576)+' MB'):''}${DGST.persist===null?'':row(tr('Ochrona przed usunięciem'),DGST.persist?tr('chroniona'):tr('niegwarantowana'))}<div class=mu>${tr('Zadania: {t}, wpisy: {l}',{t:S.tasks.length,l:S.log.length})}</div>
  <h3>${tr('Spójność danych')}</h3>${cs||`<div class=mu>${tr('nie sprawdzano')}</div>`}
@@ -303,7 +358,7 @@ function vDone(){const c0=cnt(0,1),c1=cnt(1,1),f0=cnt(0,1,'fail'),d=c0-c1,p=c0+f
  let cur='';l.forEach(x=>{if(x.date!==cur){cur=x.date;const dd=new Date(x.date+'T12:00:00');h+=`<div class=day>${x.date===today()?tr('Dziś'):x.date===ds(new Date(Date.now()-864e5))?tr('Wczoraj'):dd.toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'short'})}</div>`}
   const t=S.tasks.find(y=>y.id===x.tid);h+=`<div class=c><div class=r><div class=ti data-a=tgd data-id="${x.id}">${t&&t.imp?'<b class=st>★</b>':''}${esc(x.title)}${t&&t.time?`<span class=tm>${t.time}</span>`:''}</div>${b('undo',x.id,tr('Cofnij'),'sm')}</div>${open===x.id?`<div class=ds>${t&&t.d?esc(t.d).replace(/\n/g,'<br>'):'<em>'+tr('Brak opisu')+'</em>'}${t&&t.steps&&t.steps.length?'<div style="margin:8px 0">'+t.steps.map(q=>`<div class="mu stp"${q.d?' style="text-decoration:line-through"':''}>${q.d?'✓':'○'} ${esc(q.t)}</div>`).join('')+'</div>':''}</div>`:''}</div>`});}
  const pendList=pend().filter(l=>l.area===S.area),ar=S.tasks.filter(x=>x.st==='arch'&&x.area===S.area);
- if(pendList.length)h+=`<h3 style="margin-top:24px">${tr('Bez przyczyny: nieudane i odłożone ({n})',{n:p.length})}</h3>`+pendList.map(l=>`<div class=c><div>${esc(l.title)}${l.cnt?` ${l.n}/${l.cnt}`:''} <span class=mu>${l.date}</span></div><select data-ch=r data-id="${l.id}"><option value="">${tr('Wybierz przyczynę')}</option>${rs().map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join('')}</select>${l.tpl?'':`<select data-ch=d data-id="${l.id}" style="margin-top:6px"><option value=todo ${l.dec==='todo'?'selected':''}>${tr('Zadanie wraca do „Do zrobienia”')}</option><option value=cancel ${l.dec==='cancel'?'selected':''}>${tr('Zadanie idzie do archiwum')}</option></select>`}</div>`).join('');
+ if(pendList.length)h+=`<h3 style="margin-top:24px">${tr('Bez przyczyny: nieudane i odłożone ({n})',{n:pendList.length})}</h3>`+pendList.map(l=>`<div class=c><div>${esc(l.title)}${l.cnt?` ${l.n}/${l.cnt}`:''} <span class=mu>${l.date}</span></div><select data-ch=r data-id="${l.id}"><option value="">${tr('Wybierz przyczynę')}</option>${rs().map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join('')}</select>${l.tpl?'':`<select data-ch=d data-id="${l.id}" style="margin-top:6px"><option value=todo ${l.dec==='todo'?'selected':''}>${tr('Zadanie wraca do „Do zrobienia”')}</option><option value=cancel ${l.dec==='cancel'?'selected':''}>${tr('Zadanie idzie do archiwum')}</option></select>`}</div>`).join('');
  if(ar.length)h+=`<h3 style="margin-top:24px">${tr('Archiwum: anulowane i nieudane ({n})',{n:ar.length})}</h3>`+ar.map(x=>`<div class=rb><span style="flex:1">${esc(x.t)}</span>${b('rs',x.id,tr('Przywróć'),'sm')}</div>`).join('');
  return h}
 function vStat(){const from=ds(new Date(Date.now()-per*864e5)),f=S.log.filter(l=>l.res==='fail'&&l.area===S.area&&l.date>=from);
@@ -322,13 +377,16 @@ function vSet(){
  const arow=(a,i)=>ssort==='areas'?`<div class=c style="border-left-color:${a.color}"><div class=r><div class=ti>${esc(a.name)}</div><div class=bt>${mvs('areas',a.id,i,S.areas.length)}</div></div></div>`:`<div class=c style="border-left-color:${a.color}"><div class=r><div class=ti data-a=tgs data-id="${a.id}">${esc(a.name)}</div>${b('col',a.id,tr('Ustaw kolor'),'sm')}</div>${open===a.id?`<div class=ds><div class=acts>${b('ren',a.id,tr('Zmień nazwę'),'sm')}${b('adel',a.id,tr('Usuń'),'sm no',S.areas.length<2?'disabled':'')}</div>${S.areas.length<2?'<p class=mu>'+tr('Nie można usunąć ostatniej listy.')+'</p>':''}</div>`:''}</div>`;
  const crow=it=>`<div class=c><div class=r><div class=ti data-a=tgs data-id="${it.id}">${esc(it.name)} <span class=mu>${it.price} 🪙</span></div></div>${open===it.id?`<div class=ds><div class=acts>${b('shed',it.id,tr('Edytuj'),'sm')}${b('sdel',it.id,tr('Usuń'),'sm no')}</div></div>`:''}</div>`;
  const rl=rs(),rrow=(q,i)=>ssort==='reasons'?`<div class=c><div class=r><div class=ti>${esc(q.name)} <span class=mu>(${q.n})</span></div><div class=bt>${mvs('reasons',q.id,i,rl.length)}${mvb('reasons',q.id,-99,'⤒<small>'+tr('na górę')+'</small>',i===0)}</div></div></div>`:`<div class=c><div class=r><div class=ti data-a=tgs data-id="${q.id}">${esc(q.name)} <span class=mu>(${q.n})</span></div></div>${open===q.id?`<div class=ds><div class=acts>${b('rrn',q.id,tr('Zmień nazwę'),'sm')}${b('rd',q.id,tr('Usuń'),'sm no')}</div></div>`:''}</div>`;
- let h=sh('areas',tr('Listy'))+(ssort==='areas'?`<p class=mu>${tr('Kolejność jak na pasku u góry, od lewej.')}</p>`:'')+S.areas.map(arow).join('')+`<div class=row><input id=an2 placeholder="${tr('Nowa lista (np. Fundacja)')}" style="flex:2"><button class="sm pri" data-a=aa>${tr('Dodaj')}</button></div>`;
+ const envBox = IS_TEST
+   ? `<div class=c style="border-left-color:#d97706 !important"><div style="font-weight:700;margin-bottom:4px">Pracujesz w trybie testowym</div><div class=mu style="margin-bottom:10px">Zmiany zapisują się w osobnej bazie testowej (kanban-v1-test) i nie wpływają na wersję główną. Awaryjny powrót: przytrzymaj ⚙ przez 1,5 s lub kliknij 3× szybko w ⚙.</div><div class=row style="margin-top:6px"><button class="sm pri" data-a=exittest>← Wróć do wersji produkcyjnej</button></div></div>`
+   : `<div class=c style="border-left-color:#d97706"><div style="font-weight:700;margin-bottom:4px">Środowisko testowe (piaskownica)</div><div class=mu style="margin-bottom:10px">${DGST.testV && DGST.testV !== V ? 'Dostępna nowa wersja testowa: <b>v' + esc(DGST.testV) + '</b>. ' : ''}Skopiuje bieżącą bazę do odizolowanej bazy testowej i otworzy wersję testową w osobnym katalogu (/test/).</div><div class=row style="margin-top:6px"><button class=sm data-a=gotest>${DGST.testV && DGST.testV !== V ? 'Przetestuj nową wersję v' + esc(DGST.testV) : 'Przejdź na test'}</button></div></div>`;
+ let h=envBox+sh('areas',tr('Listy'))+(ssort==='areas'?`<p class=mu>${tr('Kolejność jak na pasku u góry, od lewej.')}</p>`:'')+S.areas.map(arow).join('')+`<div class=row><input id=an2 placeholder="${tr('Nowa lista (np. Fundacja)')}" style="flex:2"><button class="sm pri" data-a=aa>${tr('Dodaj')}</button></div>`;
  h+=sh('reasons',tr('Lista przyczyn'))+(ssort==='reasons'?`<p class=mu>${tr('Kolejność jak na listach wyboru przyczyny.')}</p>`:'')+rl.map(rrow).join('')+`<div class=row><input id=rn placeholder="${tr('Nowa przyczyna')}" style="flex:2"><button class="sm pri" data-a=ra>${tr('Dodaj')}</button></div>`;
  h+=sh('shop',tr('Monety i sklepik'),1)+`<label style="margin-top:0">${tr('Za zrobione zadanie (+)')}<input id=rd type=number min=0 max=99 value="${S.rate.d}"></label><label>${tr('Za porażkę (−)')}<input id=rf type=number min=0 max=99 value="${S.rate.f}"></label><p class=mu>${tr('Odłożenie i anulowanie nie zmieniają salda. Saldo nie spada poniżej zera.')}</p>`+(S.shop.length?`<p class=mu>${tr('Nagrody są ułożone od najtańszej.')}</p>`:'')+byPrice().map(crow).join('')+`<div class=row><input id=sn placeholder="${tr('Nowa nagroda')}" style="flex:2"><input id=sp type=number min=1 placeholder="🪙" style="flex:1"><button class="sm pri" data-a=sa>${tr('Dodaj')}</button></div>`;
 
  const curTh = THEMES.find(x => x.id === THEME) || THEMES[0];
  const themeSection = curTh ? `<h3>${tr('Wygląd aplikacji')}</h3><label>${tr('Wybierz skórkę')}</label><select id="thsel">${THEMES.map(t => `<option value="${t.id}" ${t.id === THEME ? 'selected' : ''}>${esc(t.name[LANG] || t.name.pl)}</option>`).join('')}</select><div class="th-box"><div class="mu">${esc(curTh.description[LANG] || curTh.description.pl)}</div><div class="th-prev"><small class="mu">${tr('Podgląd elementów:')}</small><div class="th-prev-row"><span class="bx on">✓</span><span style="flex:1">${tr('Przykładowe zadanie')}</span><button type="button" class="sm">${tr('Opcja')}</button><button type="button" class="sm pri">${tr('Akcja')}</button></div><div class="stp mu" style="margin-top:8px;padding-top:6px;font-size:13px">${tr('Linia podziału (divider) między elementami')}</div></div></div>` : '';
- h+=themeSection+`<h3>Język / Language</h3><select id=lg><option value=pl ${LANG==='pl'?'selected':''}>Polski</option><option value=en ${LANG==='en'?'selected':''}>English</option></select><h3>${tr('Diagnostyka')}</h3><div class=c><div class=r><div class=ti data-a=tab data-tab=diag>${tr('Wersje, aktualizacje, dziennik, raport')}<span class=dgd data-st="${dgStatus()}"></span></div><span class=mu>›</span></div></div><h3>${tr('Dane')}</h3><div class=row><button class=sm data-a=exp>${tr('Zapisz kopię danych')}</button><button class=sm data-a=imp>${tr('Wczytaj kopię danych')}</button></div><input type=file id=fi accept=".json,application/json" hidden><p class=mu>${S.lastBackup?(bkDays()===0?tr('Ostatnia kopia: dziś'):tr('Ostatnia kopia: {n} dni temu',{n:bkDays()})):tr('Kopii jeszcze nie robiono')}. ${tr('Kopia chroni dane przy zmianie telefonu lub wyczyszczeniu przeglądarki. Przypomnę po 14 dniach.')}</p><div class=foot><img src="icon-512.png" alt=""><div>Tuduś · plan, do, done.</div><div>${tr('Wersja aplikacji {v} · schemat danych {s}',{v:V,s:SCHEMA})}</div></div>`;return`<div class=set>${h}</div>`}
+ h+=themeSection+`<h3>Język / Language</h3><select id=lg><option value=pl ${LANG==='pl'?'selected':''}>Polski</option><option value=en ${LANG==='en'?'selected':''}>English</option></select><h3>${tr('Diagnostyka')}</h3><div class=c><div class=r><div class=ti data-a=tab data-tab=diag>${tr('Wersje, aktualizacje, dziennik, raport')}<span class=dgd data-st="${dgStatus()}"></span></div><span class=mu>›</span></div></div><h3>${tr('Dane')}</h3><div class=row><button class=sm data-a=exp>${tr('Zapisz kopię danych')}</button><button class=sm data-a=imp>${tr('Wczytaj kopię danych')}</button></div><input type=file id=fi accept=".json,application/json" hidden><p class=mu>${S.lastBackup?(bkDays()===0?tr('Ostatnia kopia: dziś'):tr('Ostatnia kopia: {n} dni temu',{n:bkDays()})):tr('Kopii jeszcze nie robiono')}. ${tr('Kopia chroni dane przy zmianie telefonu lub wyczyszczeniu przeglądarki. Przypomnę po 14 dniach.')}</p><div class=foot><img src="icon-512.png" alt=""><div>Tuduś · plan, do, done.</div><div>${tr('Wersja aplikacji {v} · schemat danych {s}',{v:V+(IS_TEST?' [TEST]':''),s:SCHEMA})}</div></div>`;return`<div class=set>${h}</div>`}
 function ab(){$('ab').innerHTML=S.areas.map(a=>{const n=prog(a.id).length;return`<button class="ar${a.id===S.area?' on':''}" data-a=area data-id="${a.id}" style="--c:${a.color};--ct:${ink(a.color)}">${esc(a.name)}<span class=cn>${n}</span></button>`}).join('')}
 function bar(){const e=$('bar');e.className=tab==='prog'||tab==='todo'?'bar':'';
  const q=ph=>`<input id=qi placeholder="${ph}" enterkeyhint=done autocomplete=off style="flex:1;min-width:0"><button class=fab style="width:48px;height:48px;font-size:26px;flex:none" data-a=qa aria-label="${tr('Dodaj')}">+</button><button class=sm data-a=add aria-label="${tr('Pełny formularz')}">⋯<small>${tr('więcej')}</small></button>`;
@@ -362,13 +420,15 @@ const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=nul
  shop:()=>{const bal=S.coins;$('dlg').onclick=null;sheet(`<h3>${tr('Sklepik')} · 🪙 ${bal}</h3>`+(S.shop.length?byPrice().map(it=>`<div class=c style="border-left-color:var(--done)"><div class=r><div class=ti>${esc(it.name)} <span class=mu>${it.price} 🪙</span></div>${bal>=it.price?`<button class="sm pri" data-a=buy data-id="${it.id}">${tr('Kup')}</button>`:`<span class=mu>${tr('brakuje {n}',{n:it.price-bal})}</span>`}</div></div>`).join(''):`<p class=mu>${tr('Sklepik jest pusty. Dodaj nagrody w Ustawieniach.')}</p>`)+(S.buys.length?`<h3>${tr('Ostatnie zakupy')}</h3>`+S.buys.slice(-5).reverse().map(q=>`<div class=mu>${dm(q.date)} · ${esc(q.name)} · ${q.price} 🪙</div>`).join(''):'')+`<div class=row><button class=sm id=ax>${tr('Zamknij')}</button></div>`);$('ax').onclick=()=>$('dlg').close()},
  buy:(x,el)=>{const it=S.shop.find(q=>q.id===el.dataset.id);if(!it||S.coins<it.price)return;ask(tr('Kupić „{n}” za {p} 🪙?',{n:esc(it.name),p:it.price}),[[tr('Kup'),'y']],()=>{if(S.coins<it.price)return;S.coins-=it.price;S.buys.push({id:uid(),date:today(),name:it.name,price:it.price});save();render();toast(tr('Kupiono: {n}',{n:it.name}))})},
  lang:(x,el)=>{const l=el.dataset.id;if(!LG[l])return;LANG=l;try{localStorage.setItem('kanban-lang',l)}catch(e){}reseed();save();const g=$('lgsel');if(g)g.remove();render()},
+ gotest:()=>enterTestMode(),
+ exittest:()=>exitTestMode(),
  dchk:()=>{runCheck()},
  dinst:()=>{navigator.serviceWorker.getRegistration().then(r=>{if(r&&r.waiting){pendingSW=r.waiting;log('i','install-now','skip-waiting requested');r.waiting.postMessage('skip')}}).catch(()=>{})},
  dcons:()=>{runCons(true);toast(tr('Spójność sprawdzona'));render()},
  dclr:()=>dgClear(),dfix:()=>dgClear(),
  drep:()=>{const t=dgReport(),done=()=>toast(tr('Skopiowano raport'));if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(done).catch(()=>{dgCopyFallback(t);done()});else{dgCopyFallback(t);done()}},
  drsv:()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([dgReport()],{type:'text/plain'}));a.download='tudus-diagnostics-'+today()+'.txt';a.click();toast(tr('Zapisano raport'))},
- dclog:()=>ask(tr('Wyczyścić dziennik zdarzeń?'),[[tr('Wyczyść dziennik'),'y']],()=>{DG.e=[];DG.a=[];dgSave();try{caches.delete('kanban-diag')}catch(e){}DGST.swlog=[];render();toast(tr('Dziennik wyczyszczony'))}),
+ dclog:()=>ask(tr('Wyczyścić dziennik zdarzeń?'),[[tr('Wyczyść dziennik'),'y']],()=>{DG.e=[];DG.a=[];dgSave();try{caches.delete(IS_TEST?'kanban-diag-test':'kanban-diag')}catch(e){}DGST.swlog=[];render();toast(tr('Dziennik wyczyszczony'))}),
  dgerr:()=>{dgErr=!dgErr;render()},
  seg:(x,el)=>{ideas=el.dataset.id==='i';tsort=false;open=null;render()},
  pseg:(x,el)=>{pfilter=el.dataset.id;open=null;render()},
@@ -413,7 +473,7 @@ const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=nul
  tgs:(x,el)=>{open=open===el.dataset.id?null:el.dataset.id;render()},
  ssort:(x,el)=>{ssort=ssort===el.dataset.id?null:el.dataset.id;open=null;render()},
  sm:(x,el)=>{const arr=el.dataset.k==='areas'?S.areas:S.reasons,i=arr.findIndex(q=>q.id===el.dataset.id),d=+el.dataset.d,j=d===-99?0:Math.max(0,Math.min(arr.length-1,i+d));if(i<0||j===i)return;const [q]=arr.splice(i,1);arr.splice(j,0,q);save();render()},
-exp:()=>{S.lastBackup=Date.now();save();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({app:V,...S},null,1)],{type:'application/json'}));a.download='kanban-'+today()+'.json';a.click();render();toast(tr('Kopia zapisana w pobranych plikach'))},
+ exp:()=>{S.lastBackup=Date.now();save();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({app:V,...S},null,1)],{type:'application/json'}));a.download=(IS_TEST?'kanban-test-':'kanban-')+today()+'.json';a.click();render();toast(tr('Kopia zapisana w pobranych plikach'))},
  imp:()=>$('fi').click(),srch:()=>{}};
 document.addEventListener('keydown',e=>{if(e.target.id==='qi'&&e.key==='Enter'){e.preventDefault();A.qa()}else if(e.target.classList&&e.target.classList.contains('sin')&&e.key==='Enter'){e.preventDefault();A.ka(S.tasks.find(t=>t.id===e.target.dataset.id),e.target)}});
 const ACTW=new Set(['ok','fl','no','cx','rs','go','toIdea','toTodo','ud','undo','buy','pl','mn','qa','exp','imp','adel','rd','sdel','lang','kk']);
@@ -438,6 +498,7 @@ navigator.storage&&navigator.storage.persist&&navigator.storage.persist();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.last!==today()){roll();render();showRecap()}});
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>render())}catch(e){}
 roll();runCons(true);render();startDiag();
+window.__APP_ALIVE = true;
 if(NEEDLANG)langGate();
-{const sp=$('splash');if(sp){$('spv').textContent='v'+V;const hide=()=>{if(sp.dataset.h)return;sp.dataset.h=1;sp.classList.add('off');setTimeout(()=>{sp.remove();showRecap()},300)};sp.onclick=hide;setTimeout(hide,Math.max(0,SPLASH_MS-performance.now()))}else showRecap()}
+{const sp=$('splash');if(sp){$('spv').textContent='v'+V+(IS_TEST?' · TRYB TESTOWY':'');const hide=()=>{if(sp.dataset.h)return;sp.dataset.h=1;sp.classList.add('off');setTimeout(()=>{sp.remove();showRecap()},300)};sp.onclick=hide;setTimeout(hide,Math.max(0,SPLASH_MS-performance.now()))}else showRecap()}
 </script></body></html>
