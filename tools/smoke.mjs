@@ -177,5 +177,38 @@ try {
   ok(/All tasks\s*4/.test(s[0]) && /With time\s*2/.test(s[1]), 'All tasks 4 | With time 2', s.join(' | '));
 } catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.message).split('\n')[0]); }
 
+console.log('\n[11] Produkcja po promocji: start, liczniki i przejście do testu z Ustawień');
+try {
+  if (!fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').includes('gotest')) {
+    console.log('  --   pominięto: katalog główny nie ma jeszcze launchera testu (to wersja sprzed promocji)');
+  } else {
+    const a = await boot('', { ls: { 'kanban-lang': 'pl', 'kanban-v1': prodState } });
+    ok(a.errors.length === 0, 'produkcja startuje bez błędów', a.errors.join(' | '));
+    ok(a.w.__IS_TEST === false && a.d.getElementById('test-badge').style.display === 'none', 'produkcja nie jest w trybie testowym (plakietka TEST ukryta)');
+    const s = segText(a.d);
+    ok(/Wszystkie zadania\s*4/.test(s[0]) && /Z godziną\s*2/.test(s[1]), 'liczniki w „Dzisiaj” działają w produkcji', s.join(' | '));
+    a.ev("tab='set';render()");
+    const g = a.d.querySelector('[data-a=gotest]');
+    ok(!!g, 'w Ustawieniach jest przycisk przejścia na test');
+    if (g) {
+      // pierwsze wejście: tworzy kopię; nawigację (niezaimplementowaną w jsdom) pomijamy
+      const before = a.w.localStorage.getItem('kanban-v1');
+      g.click();
+      ok(a.w.localStorage.getItem('kanban-v1-test') === before, 'kopia w bazie testowej jest identyczna z bieżącą produkcją');
+      ok(a.w.localStorage.getItem('kanban-v1') === before, 'produkcja nietknięta przez kopiowanie');
+    }
+    const own = mkState([mkTask({ t: 'Moje testowe' })]);
+    const b = await boot('', { ls: { 'kanban-lang': 'pl', 'kanban-v1': prodState, 'kanban-v1-test': own } });
+    b.ev("tab='set';render()");
+    b.d.querySelector('[data-a=gotest]').click();
+    const dlg = b.d.getElementById('dlg');
+    ok(dlg.hasAttribute('open') && dlg.querySelectorAll('[data-o]').length === 3, 'przy istniejących danych testowych pyta: nowa kopia / kontynuuj / anuluj');
+    b.d.querySelector('#dlg [data-o="1"]').click();
+    ok(JSON.parse(b.w.localStorage.getItem('kanban-v1-test')).tasks[0].t === 'Moje testowe', '„Kontynuuj” nie rusza danych testowych');
+    b.ev("tab='set';render()"); b.d.querySelector('[data-a=gotest]').click(); b.d.querySelector('#dlg [data-o="0"]').click();
+    ok(JSON.parse(b.w.localStorage.getItem('kanban-v1-test')).tasks.length === prodState.tasks.length, '„Nowa kopia” zastępuje dane testowe produkcyjnymi');
+  }
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.message).split('\n')[0]); }
+
 console.log(`\nWynik: ${pass} ok, ${fail} błędów`);
 process.exit(fail ? 1 : 0);
