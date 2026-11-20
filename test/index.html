@@ -116,7 +116,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 .th-prev{margin-top:10px;padding-top:10px;border-top:1px solid var(--div)}
 .th-prev-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
 </style></head><body data-tab="prog">
-<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.17.0</div></div></div>
+<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.18.0</div></div></div>
 <script>(function(){var l;try{l=localStorage.getItem('kanban-lang')}catch(e){}if(!l)l=/^en/i.test(navigator.language||'')?'en':'pl';document.getElementById('spl').textContent=l==='en'?'Loading…':'Wczytywanie…';setTimeout(function(){var s=document.getElementById('splash');if(s)s.remove()},4000)})()</script>
 <header><div id="ab"></div><nav class="tabs"><button class="tab" data-a="tab" data-tab="todo">Do zrobienia</button><button class="tab" data-a="tab" data-tab="prog">Dzisiaj</button><button class="tab" data-a="tab" data-tab="done">Zrobione</button><button class="tab" data-a="tab" data-tab="stat">Statystyki</button><span id="test-badge" class="test-pill" style="display:none">TEST</span><button class="gear" data-a="tab" data-tab="set" aria-label="Ustawienia">⚙</button></nav></header>
 <main id="main"></main><div id="bar"></div><div id="mis"></div>
@@ -127,7 +127,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 <script>
 const IS_TEST=!!window.__IS_TEST;
 if(IS_TEST){const tb=document.getElementById('test-badge');if(tb)tb.style.display='inline-flex';}
-const V='1.17.0',SPLASH_MS=1000,SCHEMA=3,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
+const V='1.18.0',SPLASH_MS=1000,SCHEMA=3,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
 /* --- Dane testowe: jednokierunkowa kopia produkcja -> test --- */
 const PK='kanban-v1',TK='kanban-v1-test',TMK='kanban-v1-test-meta';
 const tmeta=()=>{try{return JSON.parse(localStorage.getItem(TMK))}catch(e){return null}};
@@ -167,7 +167,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function load(){try{const s=JSON.parse(localStorage.getItem(K));if(s&&s.tasks)return migrate(s)}catch(e){}
 return migrate({schema:SCHEMA,tasks:[],log:[],last:'',reasons:SEEDR.map((n,i)=>({id:'r'+i,name:tr(n)}))})}
-function migrate(s){if(!s.areas||!s.areas.length)s.areas=[{id:'a1',name:tr('Prywatna')},{id:'a2',name:tr('Zawodowa')}];if(!s.areas.some(a=>a.id===s.area))s.area=s.areas[0].id;const d=s.areas[0].id;(s.tasks||[]).forEach(x=>{if(!x.area)x.area=d});(s.log||[]).forEach(x=>{if(!x.area)x.area=d});s.areas.forEach((a,i)=>{if(!a.color)a.color=PAL[i%PAL.length]});if(!s.ro){const m={};(s.log||[]).forEach(l=>{if(l.reason)m[l.reason]=(m[l.reason]||0)+1});(s.reasons=s.reasons||[]).sort((a,b)=>(m[b.id]||0)-(m[a.id]||0)||a.name.localeCompare(b.name,LANG));s.ro=1}if(!s.pm){(s.areas||[]).forEach(a=>{const l=(s.tasks||[]).filter(x=>x.area===a.id&&!x.tpl&&x.st==='todo').reverse(),z=x=>x.rep&&x.rep.k!=='none'||x.at;[...l.filter(x=>!z(x)),...l.filter(z)].forEach((x,i)=>x.po=i)});s.pm=1}if(typeof s.coins!=='number')s.coins=0;if(!s.wk||typeof s.wk!=='object'||Array.isArray(s.wk))s.wk={};if(![0,2,3,4].includes(s.keep))s.keep=0;s.rate=s.rate||{d:2,f:1};s.shop=s.shop||[];s.buys=s.buys||[];s.recap=s.recap||[];s.schema=SCHEMA;return s}
+function migrate(s){if(!s.areas||!s.areas.length)s.areas=[{id:'a1',name:tr('Prywatna')},{id:'a2',name:tr('Zawodowa')}];if(!s.areas.some(a=>a.id===s.area))s.area=s.areas[0].id;const d=s.areas[0].id;(s.tasks||[]).forEach(x=>{if(!x.area)x.area=d});(s.log||[]).forEach(x=>{if(!x.area)x.area=d});s.areas.forEach((a,i)=>{if(!a.color)a.color=PAL[i%PAL.length]});if(!s.ro){const m={};(s.log||[]).forEach(l=>{if(l.reason)m[l.reason]=(m[l.reason]||0)+1});(s.reasons=s.reasons||[]).sort((a,b)=>(m[b.id]||0)-(m[a.id]||0)||a.name.localeCompare(b.name,LANG));s.ro=1}if(!s.pm){(s.areas||[]).forEach(a=>{const l=(s.tasks||[]).filter(x=>x.area===a.id&&!x.tpl&&x.st==='todo').reverse(),z=x=>x.rep&&x.rep.k!=='none'||x.at;[...l.filter(x=>!z(x)),...l.filter(z)].forEach((x,i)=>x.po=i)});s.pm=1}if(typeof s.coins!=='number')s.coins=0;if(!s.wk||typeof s.wk!=='object'||Array.isArray(s.wk))s.wk={};if(![0,2,3,4].includes(s.keep))s.keep=0;if(!Array.isArray(s.pauses))s.pauses=[];s.rate=s.rate||{d:2,f:1};s.shop=s.shop||[];s.buys=s.buys||[];s.recap=s.recap||[];s.schema=SCHEMA;return s}
 let S=load();
 const NEEDLANG=(()=>{try{if(localStorage.getItem('kanban-lang')!==null)return false}catch(e){return false}return S.tasks.length===0&&S.log.length===0})();
 const LNAME={pl:'Polski',en:'English'};
@@ -213,6 +213,7 @@ function checkData(fix){const out=[],add=(c,n,f)=>{if(n)out.push({c,n,f:!!f})};c
  n=0;S.log.forEach(l=>{if(l.reason&&!rid.has(l.reason)){n++;if(fix)l.reason=null}});add('log-reason',n,fix);
  n=0;Object.keys(S.wk||{}).forEach(a=>{if(!aid.has(a)){n++;if(fix)delete S.wk[a]}});add('wk-area',n,fix);
  n=0;{const ac=aggReasonCounts(S);Object.keys(ac).forEach(k=>{if(!rid.has(k)){n+=ac[k];if(fix)aggMergeReason(S,k)}})}add('wk-reason',n,fix);
+ n=0;(S.pauses||[]).forEach(q=>{if(!pauseOk(q)||(q.areas&&q.areas.some(x=>!aid.has(x))))n++});if(fix)S.pauses=(S.pauses||[]).map(q=>q&&q.areas?{...q,areas:q.areas.filter(x=>aid.has(x))}:q).filter(pauseOk);add('pauses',n,fix);
  if(typeof S.coins!=='number'||!isFinite(S.coins)||S.coins<0||S.coins!==Math.floor(S.coins)){add('coins',1,fix);if(fix)S.coins=Math.max(0,Math.floor(+S.coins)||0)}
  n=0;S.tasks.forEach(t=>{if(t.steps!==undefined){const g=Array.isArray(t.steps)?t.steps.filter(q=>q&&q.id&&typeof q.t==='string'):[];if(!Array.isArray(t.steps)||g.length!==t.steps.length){n++;if(fix)t.steps=g}}});add('steps',n,fix);
  const seen=new Set();n=0;S.tasks.forEach(t=>{if(seen.has(t.id))n++;seen.add(t.id)});add('dup-id',n,false);
@@ -228,7 +229,7 @@ function dgReport(){const iso=t=>new Date(t).toISOString().slice(0,19).replace('
  'Service worker: '+JSON.stringify(DGST.sw||{}),
  'Mode: '+pwa+(IS_TEST?' (test)':'')+' | lang '+LANG+' | online '+navigator.onLine+' | UA '+String(navigator.userAgent).slice(0,140),
  'Storage: data '+Math.round(JSON.stringify(S).length/1024)+' KB | localStorage '+Math.round(lsChars()/1024)+' KB (~'+storagePct()+'% of 5 MB) | estimate '+(est?Math.round(est.usage/1024)+' KB of '+Math.round(est.quota/1048576)+' MB':'n/a')+' | persistent '+DGST.persist,
- 'Data: tasks '+S.tasks.length+' (todo '+cnt('todo')+', prog '+cnt('prog')+', idea '+cnt('idea')+', arch '+cnt('arch')+', done '+cnt('done')+', closed '+cnt('closed')+'), log '+S.log.length+', wk '+aggWeeks(S)+'w, keep '+(S.keep||0)+', areas '+S.areas.length+', reasons '+S.reasons.length+', shop '+S.shop.length+', coins '+S.coins+', schema '+S.schema,
+ 'Data: tasks '+S.tasks.length+' (todo '+cnt('todo')+', prog '+cnt('prog')+', idea '+cnt('idea')+', arch '+cnt('arch')+', done '+cnt('done')+', closed '+cnt('closed')+'), log '+S.log.length+', wk '+aggWeeks(S)+'w, keep '+(S.keep||0)+', pauses '+(S.pauses||[]).length+', areas '+S.areas.length+', reasons '+S.reasons.length+', shop '+S.shop.length+', coins '+S.coins+', schema '+S.schema,
  'Consistency: '+(DGST.cons?(DGST.cons.out.length?DGST.cons.out.map(x=>x.c+':'+x.n+(x.f?'(fixed)':'')).join(', '):'ok'):'not run'),
  'Status: '+dgStatus(),'','Events (last 60):',...allEvents().slice(-60).map(e=>iso(e.t).slice(5)+' '+e.l+' '+e.src+' '+e.c+' '+(e.d||'')),'','Actions (last 30):',...DG.a.map(a=>iso(a.t).slice(5)+' '+a.a+' '+a.id)];return L.join('\n')}
 function dgCopyFallback(t){const x=document.createElement('textarea');x.value=t;x.style.position='fixed';x.style.opacity='0';document.body.append(x);x.select();try{document.execCommand('copy')}catch(e){}x.remove()}
@@ -297,7 +298,7 @@ $('dlg').onclick=e=>{const b=e.target.closest('[data-o]');if(!b)return;$('dlg').
 /* --- logika zadań --- */
 /* Pełna lista otwartych zadań listy. Filtr „Z godziną” działa tylko na wyświetlaniu (vProg), żeby nie psuć kolejności ani liczników. */
 const prog=(a=S.area)=>S.tasks.filter(x=>x.st==='prog'&&x.area===a).sort((a,b)=>a.ord-b.ord);
-const initRank=x=>{const o=x?(x.tpl?(S.tasks.find(q=>q.id===x.tpl)||x):x):{};if(o&&o.rep&&o.rep.k==='daily')return 3;if(o&&o.rep&&o.rep.k==='days')return 2;if(o&&o.at)return 0;return 1};
+const initRank=x=>{const o=x?(x.tpl?(S.tasks.find(q=>q.id===x.tpl)||x):x):{};if(o&&o.rep&&o.rep.k==='daily')return 3;if(o&&o.rep&&o.rep.k==='days')return 2;if(o&&(o.at||o.late))return 0;return 1};
 function put(t){const l=prog(t.area).filter(x=>x!==t);let i=l.length;
  if(t.imp){i=0;l.forEach((x,j)=>{if(x.imp)i=j+1})}
  else if(t.time){const j=l.findIndex(x=>!x.imp&&x.time&&x.time>t.time);if(j>=0)i=j}
@@ -309,7 +310,7 @@ function place(t,where){const l=tdl(t.area,t.st==='idea'?'idea':'todo').filter(x
 const mvt=(x,d)=>{const l=tdl(x.area,x.st==='idea'?'idea':'todo'),i=l.indexOf(x),j=d===-99?0:Math.max(0,Math.min(l.length-1,i+d));if(i<0||j===i)return;l.splice(i,1);l.splice(j,0,x);l.forEach((y,k)=>y.po=k)};
 function toDay(t){if(t.rep.k!=='none'){if(S.tasks.some(x=>x.tpl===t.id&&x.st==='prog'))return toast(tr('To zadanie jest już w Dzisiaj'));
  const i={id:uid(),area:t.area,tpl:t.id,t:t.t,d:t.d,time:t.time,imp:t.imp,cnt:t.cnt||1,exp:t.exp,n:0,rep:{k:'none',days:[]},st:'prog',date:today(),...(t.steps?{steps:t.steps.map(q=>({id:uid(),t:q.t,d:0}))}:{})};S.tasks.push(i);put(i)}
- else{delete t.at;t.st='prog';t.date=today();t.n=0;put(t)}}
+ else{delete t.at;delete t.late;t.st='prog';t.date=today();t.n=0;put(t)}}
 function fail(x,date,kind){S.log.push({k:kind||'p',c:kind==='f'?coin(-S.rate.f):0,id:uid(),tid:x.id,area:x.area,tpl:x.tpl||null,title:x.t,date,res:'fail',reason:null,dec:'todo',...prg(x)});x.st=x.tpl?'closed':'todo';if(!x.tpl)place(x,'top')}
 const prg=x=>x.cnt>1?{n:x.n||0,cnt:x.cnt}:x.steps&&x.steps.length?{n:x.steps.filter(q=>q.d).length,cnt:x.steps.length}:{};
 const byPrice=()=>S.shop.slice().sort((a,b)=>a.price-b.price||a.name.localeCompare(b.name,LANG));
@@ -321,15 +322,15 @@ function postpone(x,date){fail(x,today());if(date&&!x.tpl){x.at=date;place(x,'bo
 function postponeSheet(x){const o=[[1,'Jutro'],[2,'Za 2 dni'],[7,'Za tydzień']].map(([n,l])=>[addDays(n),l]);
  sheet(`<h3>${tr('Odłożyć do kiedy?')}</h3><div class=row><button class="sm pri" id=pn0>${tr('Bez terminu')}</button></div><div class=row>${o.map(([d,l],i)=>`<button class=sm id=pq${i}>${tr(l)}<small>${dm(d)}</small></button>`).join('')}</div><label>${tr('Wybierz datę')}<input id=pd type=date min="${addDays(1)}"></label><div class=row><button class=sm id=px>${tr('Anuluj')}</button><button class="sm pri" id=pg>${tr('Odłóż')}</button></div>`);
  $('dlg').onclick=null;$('px').onclick=()=>$('dlg').close();$('pn0').onclick=()=>{$('dlg').close();postpone(x,null)};o.forEach(([d],i)=>{$('pq'+i).onclick=()=>{$('dlg').close();postpone(x,d)}});$('pg').onclick=()=>{const v=$('pd').value;if(!v||v<=today())return $('pd').focus();$('dlg').close();postpone(x,v)}}
-function sched(){S.tasks.filter(t=>t.st==='todo'&&t.at&&t.at<=today()&&t.rep.k==='none'&&!t.tpl).forEach(t=>{delete t.at;toDay(t)})}
+function sched(){const td=today();S.tasks.filter(t=>t.st==='todo'&&t.at&&t.at<=td&&t.rep.k==='none'&&!t.tpl&&!pauseOn(S,t.area,td)).forEach(t=>{const lt=t.at<td&&pauseOn(S,t.area,t.at)?t.at:null;delete t.at;toDay(t);if(lt){t.late=lt;put(t)}})}
 function showRecap(){const rc=S.recap||[];if(!rc.length)return;const yd=ds(new Date(Date.now()-864e5)),tot=rc.reduce((a,i)=>a+i.c,0),all=rc.every(i=>i.d===yd);
  const items=rc.slice().sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:a.t.localeCompare(b.t,LANG));
  const ttl=tot>0?`${esc(tr('Tracisz {c}',{c:tot}))} <i class="coin gray"></i> ${tr(all?'za wczoraj':'za minione dni')}`:tr('Wygasłe zadania');
  $('dlg').onclick=null;sheet(`<h3>${ttl}</h3><p class=mu>${tr('Wygasły, bo nie zostały zrobione w swoim dniu:')}</p>`+items.map(i=>`<div class=rb style="margin:8px 0"><span style="flex:1">${esc(i.t)}${i.k?' '+i.n+'/'+i.k:''}<span class=mu>${i.d!==yd?' · '+dm(i.d):''}</span></span>${i.c>0?`<span>−${i.c} <i class="coin gray" style="width:18px;height:18px;margin-left:2px"></i></span>`:''}</div>`).join('')+`<div class=row><button class="sm pri" id=ok2>OK</button></div>`);
  const clr=()=>{S.recap=[];save();$('dlg').onclose=null};$('ok2').onclick=()=>{clr();$('dlg').close()};$('dlg').onclose=clr}
 function roll(){const td=today();
- S.tasks.filter(x=>x.st==='prog'&&x.exp&&x.date<td).forEach(x=>{fail(x,x.date,'f');const l=S.log[S.log.length-1];(S.recap=S.recap||[]).push({t:x.t,d:x.date,c:-(l.c||0),n:prg(x).n||0,k:prg(x).cnt||0})});
-  if(S.last!==td){const w=new Date().getDay();S.tasks.filter(t=>t.rep.k!=='none'&&t.st==='todo'&&(t.rep.k==='daily'||t.rep.days.includes(w))).forEach(t=>{if(!S.tasks.some(x=>x.tpl===t.id&&x.st==='prog'))toDay(t)})}
+ S.tasks.filter(x=>x.st==='prog'&&x.exp&&x.date<td).forEach(x=>{if(pauseOn(S,x.area,x.date)){if(x.tpl)x.st='closed';else x.date=td;return}fail(x,x.date,'f');const l=S.log[S.log.length-1];(S.recap=S.recap||[]).push({t:x.t,d:x.date,c:-(l.c||0),n:prg(x).n||0,k:prg(x).cnt||0})});
+  if(S.last!==td)genRep(false);
  if(S.keep&&S.last!==td){const r=aggTry(S,td,S.keep);if(!r.ok)log('e','compact','auto '+r.err);else if(!r.none){S=r.c;S.cmp={at:Date.now(),ent:r.ent,tasks:r.tasks,saved:r.saved};log('i','compact','auto ent='+r.ent+' tasks='+r.tasks)}}
  sched();S.last=td;S.created=S.created||td;save();
  if(bkDays()>=14&&S.remind!==td){S.remind=td;save();setTimeout(()=>toast(tr('Minęło {n} dni od ostatniej kopii. Zrób eksport w Ustawieniach (⚙).',{n:bkDays()}),6000),700)}}
@@ -372,6 +373,14 @@ const aggCountArea=(s,id)=>Object.values((s.wk||{})[id]||{}).reduce((n,w)=>n+w.d
 const aggWeeks=s=>Object.values(s.wk||{}).reduce((n,A)=>n+Object.keys(A).length,0);
 const wkGet=(s,area,w)=>((s.wk||{})[area]||{})[w]||null;
 /* AGG-END */
+/* PAUSE-BEGIN: pauza (wakacje, choroba, wyjazd). Czyste funkcje (bez DOM, bez globalnego S), testowane w tools/pause.test.mjs. Wymaga bloku AGG (aDt, aSt) */
+const aAdd=(d,n)=>{const x=aDt(d);x.setDate(x.getDate()+n);return aSt(x)};
+const pauseOn=(s,area,d)=>(s.pauses||[]).some(p=>p.from<=d&&d<=p.to&&(!p.areas||p.areas.includes(area)));
+const pauseWeekDays=(s,area,mon)=>{let n=0;for(let i=0;i<7;i++)if(pauseOn(s,area,aAdd(mon,i)))n++;return n};
+const pauseActive=(s,area,td)=>(s.pauses||[]).filter(p=>p.from<=td&&td<=p.to&&(!p.areas||p.areas.includes(area))).sort((a,b)=>a.to<b.to?1:-1)[0]||null;
+function pauseOk(p){return !!p&&typeof p.id==='string'&&/^\d{4}-\d\d-\d\d$/.test(p.from)&&/^\d{4}-\d\d-\d\d$/.test(p.to)&&p.from<=p.to&&(p.areas==null||(Array.isArray(p.areas)&&p.areas.length>0))}
+function pauseHeld(s,p){const ar=new Set(p.areas||(s.areas||[]).map(a=>a.id));return(s.tasks||[]).filter(t=>t.st==='todo'&&t.at&&!t.tpl&&(!t.rep||t.rep.k==='none')&&ar.has(t.area)&&t.at>=p.from&&t.at<=p.to)}
+/* PAUSE-END */
 /* --- porządkowanie danych: sekcja w Ustawieniach --- */
 function keepBox(){const td=today(),nw=aggWeeks(S),kb=Math.round(lsChars()/1024);
  let h=`<h3>${tr('Porządkowanie danych')}</h3><p class=mu>${tr('Wpisy starsze niż wybrany okres zamieniają się w statystyki tygodniowe (zrobione, porażki, przyczyny), więc wykresy zostają, a baza przestaje rosnąć.')}</p>`
@@ -391,6 +400,39 @@ function onKeep(v){const old=S.keep||0,td=today();
  const go=bk=>{if(bk)A.exp();const q=aggTry(S,today(),v);if(!q.ok||q.none){log('e','compact','apply '+(q.err||'none'));dgSoon(true);dl.close();toast(tr('Kontrola spójności nie przeszła, nic nie zmieniono.'),6000);return}
   S=q.c;S.keep=v;S.cmp={at:Date.now(),ent:q.ent,tasks:q.tasks,saved:q.saved};log('i','compact','manual ent='+q.ent+' tasks='+q.tasks+' saved='+q.saved);dgSoon(true);save();dl.close();toast(tr('Uporządkowano: {n} wpisów, zwolniono ok. {kb} KB',{n:q.ent,kb:Math.max(1,Math.round(q.saved/1024))}),4000)};
  $('kx').onclick=()=>dl.close();$('kb1').onclick=()=>go(true);if($('kb0'))$('kb0').onclick=()=>go(false)}
+/* --- pauza: logika i interfejs --- */
+function genRep(guard,areas){const w=new Date().getDay(),td=today();
+ S.tasks.filter(t=>t.rep.k!=='none'&&t.st==='todo'&&(!areas||areas.includes(t.area))&&!pauseOn(S,t.area,td)&&(t.rep.k==='daily'||t.rep.days.includes(w))).forEach(t=>{if(!S.tasks.some(x=>x.tpl===t.id&&(x.st==='prog'||(guard&&x.date===td))))toDay(t)})}
+const pausedNow=()=>S.areas.filter(a=>pauseOn(S,a.id,today())).map(a=>a.id);
+function afterPauseChange(before){const rel=before.filter(id=>!pauseOn(S,id,today()));if(rel.length){sched();genRep(true,rel)}save();render()}
+function pauseBox(){const td=today(),ps=(S.pauses||[]).filter(p=>p.to>=td).sort((a,b)=>a.from<b.from?-1:1),
+  an=p=>p.areas?p.areas.map(id=>(S.areas.find(a=>a.id===id)||{name:'?'}).name).join(', '):tr('wszystkie listy');
+ return `<h3>${tr('Pauza')}</h3><p class=mu>${tr('Wakacje, choroba, wyjazd: w czasie pauzy zadania cykliczne i z datą są wstrzymane, a wygasanie zadań nie odejmuje monet.')}</p>`
+  +ps.map(p=>`<div class=c><div class=r><div class=ti>${dm(p.from)} – ${dm(p.to)}<div class=mu style="font-weight:400">${esc(an(p))}${p.from<=td?' · '+tr('trwa'):''}</div></div><div class=bt>${b('pzedit',p.id,tr('Zmień'),'sm')}${p.from<=td?b('pzend',p.id,tr('Zakończ teraz'),'sm'):b('pzdel',p.id,tr('Usuń'),'sm no')}</div></div></div>`).join('')
+  +`<div class=row><button class="sm pri" data-a=pznew>${tr('Zaplanuj pauzę')}</button></div>`}
+function pauseSheet(id){const td=today(),p=id?S.pauses.find(x=>x.id===id):null;if(id&&!p)return;const started=!!p&&p.from<=td,ar=p&&p.areas?p.areas:S.areas.map(a=>a.id);
+ sheet(`<h3>${tr(p?'Zmień pauzę':'Zaplanuj pauzę')}</h3><label>${tr('Od')}<input id=pzf type=date value="${p?p.from:td}" min="${td}" ${started?'disabled':''}></label><label>${tr('Do')}<input id=pzt type=date value="${p?p.to:aAdd(td,6)}" min="${td}"></label>`
+  +`<div class=mu style="margin:10px 0 2px">${tr('Listy objęte pauzą')}</div>${S.areas.map(a=>`<div><label class=ck><input type=checkbox class=pza value="${a.id}" ${ar.includes(a.id)?'checked':''}>${esc(a.name)}</label></div>`).join('')}`
+  +`<p class=mu id=pze style="color:var(--bad)"></p><div class=row><button class=sm id=pzx>${tr('Anuluj')}</button><button class="sm pri" id=pzg>${tr('Zapisz')}</button></div>`);
+ const dl=$('dlg');dl.onclick=null;$('pzx').onclick=()=>dl.close();
+ $('pzg').onclick=()=>{const f=started?p.from:$('pzf').value,to=$('pzt').value,as=[...dl.querySelectorAll('.pza:checked')].map(x=>x.value),err=m=>{$('pze').textContent=m};
+  if(!f||!to||to<f)return err(tr('Data końca nie może być wcześniejsza niż początek.'));
+  if(!started&&f<td)return err(tr('Pauza nie może zaczynać się w przeszłości.'));
+  if(!as.length)return err(tr('Wybierz co najmniej jedną listę.'));
+  const before=pausedNow(),np={id:p?p.id:uid(),from:f,to,areas:as.length===S.areas.length?null:as},old=p?new Set(pauseHeld(S,p).map(x=>x.id)):new Set();
+  if(p)Object.assign(p,np);else S.pauses.push(np);
+  const held=pauseHeld(S,np).filter(x=>!old.has(x.id));
+  dl.close();afterPauseChange(before);
+  if(held.length)reviewHeld(held.map(x=>x.id),np);else toast(tr('Pauza zapisana.'))}}
+function reviewHeld(ids,np){const ts=ids.map(i=>S.tasks.find(x=>x.id===i)).filter(Boolean);if(!ts.length)return;const dl=$('dlg'),multi=S.areas.length>1;
+ sheet(`<h3>${tr('Zadania z datą w czasie pauzy ({n})',{n:ts.length})}</h3><p class=mu>${tr('W czasie pauzy nie wejdą do „Dzisiaj”. Po jej końcu wpadną tam z oznaczeniem „po terminie”. Wybierz, co zrobić z każdym.')}</p>`
+  +ts.map((x,i)=>`<div class=c><div class=ti>${esc(x.t)}<span class=tm>${dm(x.at)}</span>${multi?`<span class=tm>${esc((S.areas.find(a=>a.id===x.area)||{}).name||'')}</span>`:''}</div><select id=hs${i} style="margin-top:6px"><option value=keep>${tr('Zostaw (po pauzie: po terminie)')}</option><option value=date>${tr('Zmień datę')}</option><option value=none>${tr('Usuń datę (zostanie w „Do zrobienia”)')}</option><option value=arch>${tr('Anuluj (do archiwum)')}</option></select><input id=hd${i} type=date value="${aAdd(np.to,1)}" min="${today()}" style="display:none;margin-top:6px"></div>`).join('')
+  +`<div class=row><button class="sm pri" id=hg>${tr('Gotowe')}</button></div>`);
+ dl.onclick=null;dl.onchange=e=>{const m=/^hs(\d+)$/.exec(e.target.id);if(m)$('hd'+m[1]).style.display=e.target.value==='date'?'':'none'};
+ $('hg').onclick=()=>{ts.forEach((x,i)=>{const v=$('hs'+i).value;if(v==='date'){const d=$('hd'+i).value;if(d&&d>=today())x.at=d}else if(v==='none')delete x.at;else if(v==='arch'){x.from=undefined;x.st='arch'}});
+  dl.onchange=null;dl.close();save();render();toast(tr('Zadania z datą zaktualizowane.'))}}
+function endPause(id){const p=S.pauses.find(x=>x.id===id);if(!p)return;
+ ask(tr('Zakończyć pauzę teraz? Zadania z datą i cykliczne wrócą jeszcze dziś.'),[[tr('Zakończ pauzę'),'y']],()=>{const before=pausedNow();p.to=aAdd(today(),-1);if(p.to<p.from)S.pauses=S.pauses.filter(x=>x!==p);afterPauseChange(before);toast(tr('Pauza zakończona.'))})}
 /* --- tygodnie --- */
 const wd0=()=>(new Date().getDay()+6)%7;
 const wstart=o=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate()-wd0()-7*o)};
@@ -414,11 +456,12 @@ const stepsHtml=x=>{const arr=x.steps||[],un=arr.filter(q=>!q.d),dn=arr.filter(q
  return`<div style="margin:10px 0">${un.map(row).join('')}${dn.map(row).join('')}<div class=row style="margin-top:6px"><input class=sin data-id="${x.id}" placeholder="${tr('Dodaj krok…')}" style="flex:1;min-width:0"><button class="sm pri" data-a=ka data-id="${x.id}">${tr('Dodaj')}</button></div>${arr.length>1?`<div class=acts><button class=sm data-a=ks data-id="${x.id}">${srt?'✓ '+tr('gotowe'):'⇅ '+tr('kolejność')}</button></div>`:''}</div>`};
 const desc=(x,acts)=>`<div class=ds>${x.d?esc(x.d).replace(/\n/g,'<br>'):'<em>'+tr('Brak opisu')+'</em>'}${x.steps?stepsHtml(x):''}<div class=acts>${acts}</div></div>`;
 function vProg(){
- const all=prog(),nT=all.filter(x=>x.time).length;
+ const all=prog(),nT=all.filter(x=>x.time).length,pz=pauseActive(S,S.area,today()),
+  ban=pz?`<div class=c style="border-left-color:var(--prog)"><div class=r><div class=ti>⏸ ${tr('Pauza do {d}',{d:dm(pz.to)})}<div class=mu style="font-weight:400">${tr('Zadania cykliczne i z datą są wstrzymane. Dodaj ręcznie to, czego potrzebujesz.')}</div></div>${b('pzend',pz.id,tr('Zakończ teraz'),'sm')}</div></div>`:'';
  const seg=`<div class=seg><button class="${pfilter==='all'?'on':''}" data-a=pseg data-id=all>${tr('Wszystkie zadania')} ${all.length}</button><button class="${pfilter==='time'?'on':''}" data-a=pseg data-id=time>${tr('Z godziną')} ${nT}</button></div>`;
  const l=pfilter==='time'?all.filter(x=>x.time):all;
- if(!l.length){const dn=S.log.some(y=>y.res==='done'&&y.area===S.area&&y.date===today());return seg+(pfilter==='time'?`<p class=empty>${tr('Brak zadań z godziną na dziś.')}</p>`:`<p class=empty>${dn?tr('Wszystko zrobione na dziś. Brawo!'):tr('Na dziś nic nie zaplanowano. Wpisz zadanie na dole albo weź coś z listy.')}</p><div class=row><button class="sm pri" data-a=tab data-tab=todo>${tr('Weź coś z „Do zrobienia”')}</button></div>`)}
- return seg+l.map((x,i)=>`<div class=c><div class=r><div class=ti data-a=tg data-id="${x.id}">${badge(x)}${esc(x.t)}${x.cnt>1?` ${x.n||0}/${x.cnt}`:''}${sch(x)}${tm(x,1)}${x.date<today()?`<span class=tm>${tr('od {d}',{d:dm(x.date)})}</span>`:''}</div><div class=bt>`+
+ if(!l.length){const dn=S.log.some(y=>y.res==='done'&&y.area===S.area&&y.date===today());return ban+seg+(pfilter==='time'?`<p class=empty>${tr('Brak zadań z godziną na dziś.')}</p>`:`<p class=empty>${dn?tr('Wszystko zrobione na dziś. Brawo!'):tr('Na dziś nic nie zaplanowano. Wpisz zadanie na dole albo weź coś z listy.')}</p><div class=row><button class="sm pri" data-a=tab data-tab=todo>${tr('Weź coś z „Do zrobienia”')}</button></div>`)}
+ return ban+seg+l.map((x,i)=>`<div class=c><div class=r><div class=ti data-a=tg data-id="${x.id}">${badge(x)}${esc(x.t)}${x.cnt>1?` ${x.n||0}/${x.cnt}`:''}${sch(x)}${tm(x,1)}${x.date<today()?`<span class=tm>${tr('od {d}',{d:dm(x.date)})}</span>`:''}${x.late?`<span class="tm late">${tr('po terminie · {d}',{d:dm(x.late)})}</span>`:''}</div><div class=bt>`+
  (sort?b('up',x.id,'▲<small>'+tr('wyżej')+'</small>','',i?'':'disabled')+b('dn',x.id,'▼<small>'+tr('niżej')+'</small>')+b('top',x.id,'⤒<small>'+tr('na górę')+'</small>'):(x.cnt>1?b('pl',x.id,'+1','ok'):b('ok',x.id,'✓<small>'+tr('zrobione')+'</small>','ok')))+
  `</div></div>${x.cnt>1?`<div style="height:6px;border-radius:3px;background:var(--ln);margin-top:6px"><div style="height:100%;width:${Math.round(100*(x.n||0)/x.cnt)}%;background:var(--ac);border-radius:3px"></div></div>`:''}${x.steps&&x.steps.length&&x.rep.k==='none'?`<div style="height:6px;border-radius:3px;background:var(--ln);margin-top:6px"><div style="height:100%;width:${Math.round(100*x.steps.filter(q=>q.d).length/x.steps.length)}%;background:var(--ac);border-radius:3px"></div></div>`:''}${open===x.id?desc(x,(x.cnt>1?b('mn',x.id,'−1','sm'):'')+b('fl',x.id,tr('Porażka'),'sm')+b('no',x.id,tr('Odłóż do „Do zrobienia”'),'sm')+b('edit',x.id,tr('Edytuj'),'sm')):''}</div>`).join('')}
 function vTodo(){const q=tsort?'':(($('q')||{}).value||'');const st=ideas?'idea':'todo';
@@ -429,8 +472,9 @@ function vTodo(){const q=tsort?'':(($('q')||{}).value||'');const st=ideas?'idea'
  return seg+`<input id=q placeholder="${tr(ideas?'Szukaj pomysłów':'Szukaj zadań')}" value="${esc(q)}" data-a=srch style="margin-bottom:10px">`+(l.length?l.map(x=>`<div class=c><div class=r><div class=ti data-a=tg data-id="${x.id}">${ch(x)}</div>${ideas?b('toTodo',x.id,tr('Do zrobienia'),'sm pri'):b('go',x.id,tr('Do dzisiaj'),'sm pri')}</div>${open===x.id?desc(x,b('edit',x.id,tr('Edytuj'),'sm')+(ideas?'':b('toIdea',x.id,tr('Do pomysłów'),'sm'))+b('cx',x.id,tr('Anuluj (do archiwum)'),'sm')):''}</div>`).join(''):'<p class=empty>'+tr(ideas?'Brak pomysłów. Dodaj pierwszy polem na dole.':'Brak zadań. Dodaj pierwsze przyciskiem +.')+'</p>')}
 function vDone(){const c0=cnt(0,1),c1=cnt(1,1),f0=cnt(0,1,'fail'),d=c0-c1,p=c0+f0?Math.round(100*c0/(c0+f0))+'%':'–';
  const w=[];for(let o=7;o>=0;o--)w.push(cnt(o,o===0));const mx=Math.max(1,...w);
- const svg=`<svg viewBox="0 0 320 90" width="100%" role="img" aria-label="${tr('Zrobione zadania w ostatnich 8 tygodniach')}">${w.map((v,i)=>{const h=Math.round(56*v/mx);return`<rect x="${i*40+6}" y="${72-h}" width="28" height="${h}" rx="4" fill="var(--done)" opacity="${i===7?1:.4}"/><text x="${i*40+20}" y="${66-h}" text-anchor="middle" font-size="11" fill="var(--mu)">${v}</text>`}).join('')}<text x="6" y="86" font-size="10" fill="var(--mu)">${tr('8 tygodni temu')}</text><text x="314" y="86" font-size="10" text-anchor="end" fill="var(--mu)">${tr('ten tydzień')}</text></svg>`;
- let h=`<div class=c style="margin-bottom:14px"><div class=big>${c0}</div><div>${tr('zrobione w tym tygodniu')}</div><div class=mu>${tr('skuteczność {p} (zrobione wobec nieudanych i odłożonych)',{p})}</div><div class=mu>${tr('{d} względem tych samych dni zeszłego tygodnia (tam: {c})',{d:(d>=0?'▲ +':'▼ ')+d,c:c1})}</div>${svg}</div><div class=c style="margin-bottom:14px"><div class=r><div class=ti><span class=big style="font-size:32px">🪙 ${S.coins}</span><span class=mu> ${tr('Saldo')}</span></div><button class="sm pri" data-a=shop>${tr('Sklepik')}</button></div></div>`;
+ const pzs=w.map((_,i)=>pauseWeekDays(S,S.area,ds(wstart(7-i)))>0),pzCmp=pauseWeekDays(S,S.area,ds(wstart(0)))+pauseWeekDays(S,S.area,ds(wstart(1)))>0;
+ const svg=`<svg viewBox="0 0 320 90" width="100%" role="img" aria-label="${tr('Zrobione zadania w ostatnich 8 tygodniach')}">${w.map((v,i)=>{const h=Math.round(56*v/mx);return`<rect x="${i*40+6}" y="${72-h}" width="28" height="${h}" rx="4" fill="var(--done)" opacity="${i===7?1:.4}"${pzs[i]?' fill-opacity=".25" stroke="var(--done)" stroke-width="1.5" stroke-dasharray="3 2"':''}/><text x="${i*40+20}" y="${66-h}" text-anchor="middle" font-size="11" fill="var(--mu)">${v}</text>`}).join('')}<text x="6" y="86" font-size="10" fill="var(--mu)">${tr('8 tygodni temu')}</text><text x="314" y="86" font-size="10" text-anchor="end" fill="var(--mu)">${tr('ten tydzień')}</text></svg>`;
+ let h=`<div class=c style="margin-bottom:14px"><div class=big>${c0}</div><div>${tr('zrobione w tym tygodniu')}</div><div class=mu>${tr('skuteczność {p} (zrobione wobec nieudanych i odłożonych)',{p})}</div><div class=mu>${pzCmp?tr('Tydzień z pauzą: bez porównania z poprzednim.'):tr('{d} względem tych samych dni zeszłego tygodnia (tam: {c})',{d:(d>=0?'▲ +':'▼ ')+d,c:c1})}</div>${svg}${pzs.some(Boolean)?`<div class=mu>${tr('Przerywany słupek: tydzień z pauzą.')}</div>`:''}</div><div class=c style="margin-bottom:14px"><div class=r><div class=ti><span class=big style="font-size:32px">🪙 ${S.coins}</span><span class=mu> ${tr('Saldo')}</span></div><button class="sm pri" data-a=shop>${tr('Sklepik')}</button></div></div>`;
  const a=ds(new Date(Date.now()-6*864e5)),l=S.log.filter(x=>x.res==='done'&&x.area===S.area&&x.date>=a).sort((x,y)=>x.date<y.date?1:-1);
  if(!l.length)h+='<p class=empty>'+tr('W ostatnich 7 dniach nic jeszcze nie zrobiono. Pierwsze ✓ pojawi się tutaj.')+'</p>';else{
  let cur='';l.forEach(x=>{if(x.date!==cur){cur=x.date;const dd=new Date(x.date+'T12:00:00');h+=`<div class=day>${x.date===today()?tr('Dziś'):x.date===ds(new Date(Date.now()-864e5))?tr('Wczoraj'):dd.toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'short'})}</div>`}
@@ -465,7 +509,7 @@ function vSet(){
 
  const curTh = THEMES.find(x => x.id === THEME) || THEMES[0];
  const themeSection = curTh ? `<h3>${tr('Wygląd aplikacji')}</h3><label>${tr('Wybierz skórkę')}</label><select id="thsel">${THEMES.map(t => `<option value="${t.id}" ${t.id === THEME ? 'selected' : ''}>${esc(t.name[LANG] || t.name.pl)}</option>`).join('')}</select><div class="th-box"><div class="mu">${esc(curTh.description[LANG] || curTh.description.pl)}</div><div class="th-prev"><small class="mu">${tr('Podgląd elementów:')}</small><div class="th-prev-row"><span class="bx on">✓</span><span style="flex:1">${tr('Przykładowe zadanie')}</span><button type="button" class="sm">${tr('Opcja')}</button><button type="button" class="sm pri">${tr('Akcja')}</button></div><div class="stp mu" style="margin-top:8px;padding-top:6px;font-size:13px">${tr('Linia podziału (divider) między elementami')}</div></div></div>` : '';
- h+=themeSection+`<h3>Język / Language</h3><select id=lg><option value=pl ${LANG==='pl'?'selected':''}>Polski</option><option value=en ${LANG==='en'?'selected':''}>English</option></select><h3>${tr('Diagnostyka')}</h3><div class=c><div class=r><div class=ti data-a=tab data-tab=diag>${tr('Wersje, aktualizacje, dziennik, raport')}<span class=dgd data-st="${dgStatus()}"></span></div><span class=mu>›</span></div></div><h3>${tr('Dane')}</h3><div class=row><button class=sm data-a=exp>${tr('Zapisz kopię danych')}</button><button class=sm data-a=imp>${tr('Wczytaj kopię danych')}</button></div><input type=file id=fi accept=".json,application/json" hidden><p class=mu>${S.lastBackup?(bkDays()===0?tr('Ostatnia kopia: dziś'):tr('Ostatnia kopia: {n} dni temu',{n:bkDays()})):tr('Kopii jeszcze nie robiono')}. ${tr('Kopia chroni dane przy zmianie telefonu lub wyczyszczeniu przeglądarki. Przypomnę po 14 dniach.')}</p>${keepBox()}<div class=foot><img src="icon-512.png" alt=""><div>Tuduś · plan, do, done.</div><div>${tr('Wersja aplikacji {v} · schemat danych {s}',{v:V+(IS_TEST?' [TEST]':''),s:SCHEMA})}</div></div>`;return`<div class=set>${h}</div>`}
+ h+=themeSection+`<h3>Język / Language</h3><select id=lg><option value=pl ${LANG==='pl'?'selected':''}>Polski</option><option value=en ${LANG==='en'?'selected':''}>English</option></select><h3>${tr('Diagnostyka')}</h3><div class=c><div class=r><div class=ti data-a=tab data-tab=diag>${tr('Wersje, aktualizacje, dziennik, raport')}<span class=dgd data-st="${dgStatus()}"></span></div><span class=mu>›</span></div></div><h3>${tr('Dane')}</h3><div class=row><button class=sm data-a=exp>${tr('Zapisz kopię danych')}</button><button class=sm data-a=imp>${tr('Wczytaj kopię danych')}</button></div><input type=file id=fi accept=".json,application/json" hidden><p class=mu>${S.lastBackup?(bkDays()===0?tr('Ostatnia kopia: dziś'):tr('Ostatnia kopia: {n} dni temu',{n:bkDays()})):tr('Kopii jeszcze nie robiono')}. ${tr('Kopia chroni dane przy zmianie telefonu lub wyczyszczeniu przeglądarki. Przypomnę po 14 dniach.')}</p>${pauseBox()}${keepBox()}<div class=foot><img src="icon-512.png" alt=""><div>Tuduś · plan, do, done.</div><div>${tr('Wersja aplikacji {v} · schemat danych {s}',{v:V+(IS_TEST?' [TEST]':''),s:SCHEMA})}</div></div>`;return`<div class=set>${h}</div>`}
 function ab(){$('ab').innerHTML=S.areas.map(a=>{const n=prog(a.id).length;return`<button class="ar${a.id===S.area?' on':''}" data-a=area data-id="${a.id}" style="--c:${a.color};--ct:${ink(a.color)}">${esc(a.name)}<span class=cn>${n}</span></button>`}).join('')}
 function bar(){const e=$('bar');e.className=tab==='prog'||tab==='todo'?'bar':'';
  const q=ph=>`<input id=qi placeholder="${ph}" enterkeyhint=done autocomplete=off style="flex:1;min-width:0"><button class=fab style="width:48px;height:48px;font-size:26px;flex:none" data-a=qa aria-label="${tr('Dodaj')}">+</button><button class=sm data-a=add aria-label="${tr('Pełny formularz')}">⋯<small>${tr('więcej')}</small></button>`;
@@ -502,6 +546,7 @@ const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=nul
  gotest:()=>enterTestMode(),
  exittest:()=>exitTestMode(),
  refreshtest:()=>refreshTestData(),
+ pznew:()=>pauseSheet(null),pzedit:(x,el)=>pauseSheet(el.dataset.id),pzend:(x,el)=>endPause(el.dataset.id),pzdel:(x,el)=>{S.pauses=S.pauses.filter(q=>q.id!==el.dataset.id);save();render()},
  dchk:()=>{runCheck()},
  dinst:()=>{navigator.serviceWorker.getRegistration().then(r=>{if(r&&r.waiting){pendingSW=r.waiting;log('i','install-now','skip-waiting requested');r.waiting.postMessage('skip')}}).catch(()=>{})},
  dcons:()=>{runCons(true);toast(tr('Spójność sprawdzona'));render()},
@@ -549,7 +594,7 @@ const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=nul
  adel:(x,el)=>{const a=S.areas.find(q=>q.id===el.dataset.id);if(!a||S.areas.length<2)return;const ts=S.tasks.filter(t=>t.area===a.id&&!t.tpl&&t.st!=='done'),np=ts.filter(t=>t.st==='prog').length,nr=ts.filter(t=>t.rep.k!=='none').length,nh=S.log.filter(l=>l.area===a.id).length+aggCountArea(S,a.id);
   sheet(`<h3>${tr('Usunąć listę „{n}” razem z danymi?',{n:esc(a.name)})}</h3><p>${tr('Zadania: {t} (w Dzisiaj: {p}, powtarzalne: {r}). Wpisy historii: {h}.',{t:ts.length,p:np,r:nr,h:nh})}</p><p class=mu>${tr('Tego nie da się cofnąć. Kopia danych to jedyny sposób na powrót.')}</p><div class=row><button class=sm id=ax>${tr('Anuluj')}</button><button class=sm id=ab2>${tr('Zapisz kopię teraz')}</button></div><div class=row><button class="sm dng" id=ad>${tr('Usuń listę i dane')}</button></div>`);
   $('dlg').onclick=null;$('ax').onclick=()=>$('dlg').close();$('ab2').onclick=()=>A.exp();
-  $('ad').onclick=()=>{S.tasks=S.tasks.filter(t=>t.area!==a.id);S.log=S.log.filter(l=>l.area!==a.id);delete S.wk[a.id];S.areas=S.areas.filter(q=>q.id!==a.id);if(S.area===a.id){S.area=S.areas[0].id;tab='prog'}open=null;ssort=null;$('dlg').close();save();render();toast(tr('Lista usunięta'))}},
+  $('ad').onclick=()=>{S.tasks=S.tasks.filter(t=>t.area!==a.id);S.log=S.log.filter(l=>l.area!==a.id);delete S.wk[a.id];S.areas=S.areas.filter(q=>q.id!==a.id);S.pauses=(S.pauses||[]).map(q=>q.areas?{...q,areas:q.areas.filter(x=>x!==a.id)}:q).filter(pauseOk);if(S.area===a.id){S.area=S.areas[0].id;tab='prog'}open=null;ssort=null;$('dlg').close();save();render();toast(tr('Lista usunięta'))}},
  tgs:(x,el)=>{open=open===el.dataset.id?null:el.dataset.id;render()},
  ssort:(x,el)=>{ssort=ssort===el.dataset.id?null:el.dataset.id;open=null;render()},
  sm:(x,el)=>{const arr=el.dataset.k==='areas'?S.areas:S.reasons,i=arr.findIndex(q=>q.id===el.dataset.id),d=+el.dataset.d,j=d===-99?0:Math.max(0,Math.min(arr.length-1,i+d));if(i<0||j===i)return;const [q]=arr.splice(i,1);arr.splice(j,0,q);save();render()},

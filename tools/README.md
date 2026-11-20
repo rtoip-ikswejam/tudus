@@ -6,6 +6,7 @@ Dwie kontrole, które powinny przejść **przed** każdym wydaniem (na GitHubie 
 |---|---|---|
 | Kontrola statyczna | `python3 tools/check.py` | składnię JS, zgodność wersji (`V` w index.html = sw.js = splash), czy pliki z listy service workera istnieją, tłumaczenia EN, izolację środowiska testowego (kod `/test/` nie może pisać do klucza produkcyjnego) |
 | Testy agregacji | `node tools/agg.test.mjs` | rdzeń porządkowania danych bez interfejsu: sumy przed = po (także niezależnym liczeniem tygodni), idempotencja, porażki bez przyczyny, czyszczenie zadań, granice tygodni (DST, przełom roku), pomiar rozmiaru |
+| Testy pauzy | `node tools/pause.test.mjs` | rdzeń pauzy bez interfejsu: granice dat (DST, przełom roku), listy objęte pauzą, nakładanie się pauz, walidacja, wybór zadań z datą do przeglądu |
 | Test dymny | `cd tools && npm install && node smoke.mjs` | uruchamia aplikację (produkcję i `/test/`) w jsdom: start bez błędów, kopię danych prod → test, brak miejsca przy kopiowaniu, odświeżenie kopii, liczniki, kolejność zadań, interfejs EN |
 
 Ograniczenia: jsdom nie ma service workera ani prawdziwego localStorage z limitem 5 MB, więc aktualizacje offline i przepełnienie trzeba nadal sprawdzić ręcznie na telefonie (Ustawienia → Diagnostyka).

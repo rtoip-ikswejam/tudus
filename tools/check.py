@@ -76,6 +76,7 @@ def check_dir(d):
 
     # 4b. blok agregacji (testowany osobno) musi mieć oba znaczniki
     if 'AGG-BEGIN' in html and 'AGG-END' not in html: err(f'{name}: blok AGG ma znacznik początku bez końca')
+    if 'PAUSE-BEGIN' in html and ('PAUSE-END' not in html or 'AGG-BEGIN' not in html): err(f'{name}: blok PAUSE wymaga znacznika końca i bloku AGG')
     ms = re.search(r'SCHEMA=(\d+)', html)
     if 'AGG-BEGIN' in html and (not ms or int(ms.group(1)) < 3): err(f'{name}: agregacja wymaga SCHEMA>=3')
 

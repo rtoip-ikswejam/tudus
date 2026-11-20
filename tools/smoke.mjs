@@ -316,5 +316,174 @@ try {
   ok(a.ev('checkData(false).filter(x=>x.c.startsWith("wk-")).length') === 0, 'kontrola spójności nie widzi problemów w agregatach');
 } catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
 
+// ---------- pauza ----------
+const D = n => { const d = new Date(); d.setDate(d.getDate() + n); const p = x => String(x).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); };
+const PZ = (from, to, areas = null, id = 'p1') => ({ id, from: D(from), to: D(to), areas });
+const tpl = (id, area = 'a1', extra = {}) => mkTask({ id, area, t: 'Cykl ' + id, st: 'todo', rep: { k: 'daily', days: [] }, date: undefined, ...extra });
+function rollState(pauses) {
+  return mkState([
+    tpl('tpl1'), tpl('tpl2', 'a2'),
+    mkTask({ id: 'dated1', t: 'Z datą wczoraj', st: 'todo', at: D(-1), date: undefined }),
+    mkTask({ id: 'dated2', t: 'Z datą dziś', st: 'todo', at: D(0), date: undefined }),
+    mkTask({ id: 'exo', t: 'Wygasa jednorazowe', st: 'prog', exp: true, date: D(-1), ord: 0 }),
+    mkTask({ id: 'exi', t: 'Wygasa z cyklu', st: 'prog', exp: true, tpl: 'tpl1', date: D(-1), ord: 1 }),
+  ], { last: D(-1), coins: 10, pauses });
+}
+const S_ = (a, e) => a.ev(e);
+
+console.log('\n[17] Bez pauzy (kontrola punktu odniesienia): wygasanie karze, cykliczne i zadania z datą wchodzą');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': rollState([]) } });
+  ok(S_(a, "S.log.filter(l=>l.tid==='exo'&&l.res==='fail').length") === 1 && S_(a, "S.log.filter(l=>l.tid==='exi'&&l.res==='fail').length") === 1, 'wygasłe zadania zostały zapisane jako porażki');
+  ok(S_(a, 'S.coins') < 10, 'monety zostały odjęte', String(S_(a, 'S.coins')));
+  ok(S_(a, "S.tasks.some(t=>t.tpl==='tpl1'&&t.st==='prog'&&t.date===today())") && S_(a, "S.tasks.some(t=>t.tpl==='tpl2'&&t.st==='prog')"), 'zadania cykliczne dodały się do Dzisiaj (obie listy)');
+  ok(S_(a, "S.tasks.find(t=>t.id==='dated1').st") === 'prog' && S_(a, "S.tasks.find(t=>t.id==='dated2').st") === 'prog', 'zadania z datą weszły do Dzisiaj');
+  ok(S_(a, "!S.tasks.find(t=>t.id==='dated1').late"), 'bez pauzy brak oznaczenia „po terminie” (zachowanie jak dotąd)');
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[18] W pauzie (wszystkie listy): nic nie wchodzi, nic nie karze');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': rollState([PZ(-3, 3)]) } });
+  ok(S_(a, "S.tasks.filter(t=>t.tpl==='tpl1'&&t.date===today()).length") === 0 && S_(a, "S.tasks.filter(t=>t.tpl==='tpl2'&&t.st==='prog').length") === 0, 'zadania cykliczne nie dodały się');
+  ok(S_(a, "S.tasks.find(t=>t.id==='dated1').st") === 'todo' && S_(a, "S.tasks.find(t=>t.id==='dated2').st") === 'todo', 'zadania z datą zostały w „Do zrobienia”');
+  ok(S_(a, 'S.log.length') === 0 && S_(a, 'S.coins') === 10, 'żadnych porażek ani utraty monet');
+  ok(S_(a, "S.tasks.find(t=>t.id==='exo').st") === 'prog' && S_(a, "S.tasks.find(t=>t.id==='exo').date") === D(0), 'wygasające zadanie jednorazowe przeniesione na dziś');
+  ok(S_(a, "S.tasks.find(t=>t.id==='exi').st") === 'closed', 'dzienna kopia zadania cyklicznego zniknęła bez kary');
+  a.ev("tab='prog';render()");
+  ok(/Pauza do/.test(mainText(a)) && !!a.d.querySelector('[data-a=pzend]'), 'na ekranie „Dzisiaj” jest baner pauzy z przyciskiem „Zakończ teraz”');
+  ok(!S_(a, "document.getElementById('dlg').hasAttribute('open')"), 'brak okna „Tracisz monety” po starcie');
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[19] Po zakończeniu pauzy: zadania z datą z pauzy wpadają do Dzisiaj jako „po terminie”');
+try {
+  const st = rollState([PZ(-4, -1)]); st.tasks.push(mkTask({ id: 'old', t: 'Sprzed pauzy', st: 'todo', at: D(-6), date: undefined }), mkTask({ id: 'dated0', t: 'Z datą w pauzie', st: 'todo', at: D(-2), date: undefined }));
+  st.last = D(-1);
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': st } });
+  ok(S_(a, "S.tasks.find(t=>t.id==='dated1').st") === 'prog' && S_(a, "S.tasks.find(t=>t.id==='dated0').st") === 'prog', 'oba zadania z datą z okresu pauzy są w Dzisiaj');
+  ok(S_(a, "S.tasks.find(t=>t.id==='dated1').late") === D(-1) && S_(a, "S.tasks.find(t=>t.id==='dated0').late") === D(-2), 'mają zapisaną pierwotną datę (late)');
+  ok(S_(a, "!S.tasks.find(t=>t.id==='old').late") && S_(a, "S.tasks.find(t=>t.id==='old').st") === 'prog', 'zadanie z datą sprzed pauzy wchodzi normalnie, bez oznaczenia');
+  ok(S_(a, "S.tasks.find(t=>t.id==='dated2').st") === 'prog' && S_(a, "!S.tasks.find(t=>t.id==='dated2').late"), 'zadanie z datą na dziś wchodzi normalnie');
+  ok(S_(a, "S.tasks.some(t=>t.tpl==='tpl1'&&t.st==='prog'&&t.date===today())"), 'zadania cykliczne znów się dodają');
+  a.ev("tab='prog';render()");
+  const tags = [...a.d.querySelectorAll('#main .tm.late')].map(x => x.textContent);
+  ok(tags.length === 2 && tags.every(x => /po terminie/.test(x)), 'w Dzisiaj widać dwa znaczniki „po terminie”', tags.join(' | '));
+  const order = a.ev("prog().map(x=>x.id).join()");
+  ok(/^(dated0|dated1),(dated0|dated1)/.test(order), 'zadania po terminie są na górze listy', order);
+  ok(!/Pauza do/.test(mainText(a)), 'baner pauzy zniknął po jej końcu');
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[20] „Zakończ teraz” w trakcie pauzy: wszystko wraca jeszcze dziś');
+try {
+  const st = rollState([PZ(-3, 5)]); st.last = D(0);
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': st } });
+  ok(S_(a, "S.tasks.find(t=>t.id==='dated1').st") === 'todo', 'przed zakończeniem: zadanie z datą wstrzymane');
+  a.ev("A.pzend(null,{dataset:{id:'p1'}})");
+  ok(/Zakończyć pauzę teraz/.test(a.d.getElementById('dlg').textContent), 'jest pytanie o potwierdzenie');
+  ok(S_(a, "S.tasks.find(t=>t.id==='dated1').st") === 'todo', 'bez potwierdzenia nic się nie zmienia');
+  a.d.querySelector('#dlg [data-o="0"]').click();
+  ok(S_(a, "S.tasks.find(t=>t.id==='dated1').st") === 'prog' && S_(a, "S.tasks.find(t=>t.id==='dated1').late") === D(-1), 'zadanie z datą z pauzy weszło od razu, jako „po terminie”');
+  ok(S_(a, "S.tasks.some(t=>t.tpl==='tpl1'&&t.st==='prog'&&t.date===today())"), 'zadanie cykliczne dodało się jeszcze dziś');
+  ok(S_(a, "S.pauses[0].to") === D(-1), 'pauza kończy się wczoraj (dziś już nie obowiązuje)');
+  a.ev("A.pzend(null,{dataset:{id:'p1'}})"); // już zakończona: nic nie psuje
+  ok(!a.errors.some(e => /pzend|TypeError/.test(e)), 'ponowne zakończenie nie rzuca błędu');
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[21] Pauza tylko dla jednej listy');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': rollState([PZ(-1, 4, ['a2'])]) } });
+  ok(S_(a, "S.tasks.some(t=>t.tpl==='tpl1'&&t.st==='prog'&&t.date===today())"), 'lista a1 (bez pauzy): cykliczne dodane');
+  ok(S_(a, "S.tasks.filter(t=>t.tpl==='tpl2'&&t.st==='prog').length") === 0, 'lista a2 (w pauzie): cykliczne wstrzymane');
+  a.ev("tab='prog';render()"); ok(!/Pauza do/.test(mainText(a)), 'na liście a1 nie ma banera');
+  a.ev("S.area='a2';tab='prog';render()"); ok(/Pauza do/.test(mainText(a)), 'na liście a2 jest baner');
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[22] Planowanie pauzy z Ustawień i przegląd zadań z datą');
+try {
+  const mk = () => mkState([
+    mkTask({ id: 'k1', t: 'Zmień mi datę', st: 'todo', at: D(2), date: undefined }), mkTask({ id: 'k2', t: 'Zarchiwizuj mnie', st: 'todo', at: D(3), date: undefined }),
+    mkTask({ id: 'k3', t: 'Usuń mi datę', st: 'todo', at: D(4), date: undefined }), mkTask({ id: 'k4', t: 'Zostaw mnie', st: 'todo', at: D(5), date: undefined }),
+    mkTask({ id: 'k5', t: 'Po pauzie', st: 'todo', at: D(12), date: undefined }), mkTask({ id: 'k6', t: 'Inna lista', area: 'a2', st: 'todo', at: D(3), date: undefined }),
+  ]);
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': mk() } });
+  a.ev("tab='set';render()");
+  ok(/Pauza/.test(mainText(a)) && !!a.d.querySelector('[data-a=pznew]'), 'w Ustawieniach jest sekcja Pauza');
+  a.d.querySelector('[data-a=pznew]').click();
+  const dlg = a.d.getElementById('dlg');
+  ok(dlg.hasAttribute('open') && !!a.d.getElementById('pzf') && a.d.querySelectorAll('.pza').length === 2, 'formularz: daty i lista checkboxów dla obu list');
+  // walidacja
+  a.d.getElementById('pzt').value = D(-1); a.d.getElementById('pzg').click();
+  ok(/nie może być wcześniejsza/.test(a.d.getElementById('pze').textContent) && S_(a, 'S.pauses.length') === 0, 'data końca przed początkiem: komunikat i brak zapisu');
+  a.d.getElementById('pzt').value = D(6); a.d.querySelectorAll('.pza').forEach(c => { c.checked = false; }); a.d.getElementById('pzg').click();
+  ok(/co najmniej jedną listę/.test(a.d.getElementById('pze').textContent) && S_(a, 'S.pauses.length') === 0, 'brak wybranej listy: komunikat i brak zapisu');
+  a.d.querySelectorAll('.pza').forEach(c => { c.checked = true; }); a.d.getElementById('pzg').click();
+  ok(S_(a, 'S.pauses.length') === 1 && S_(a, 'S.pauses[0].areas') === null && S_(a, 'S.pauses[0].to') === D(6), 'pauza zapisana (wszystkie listy => areas=null)');
+  ok(/Zadania z datą w czasie pauzy \(5\)/.test(a.d.getElementById('dlg').textContent), 'przegląd pokazuje 5 zadań z datą w okresie (k1–k4 i k6; k5 poza zakresem)', a.d.getElementById('dlg').textContent.slice(0, 90));
+  const ids = ['k1', 'k2', 'k3', 'k4', 'k6'];
+  const rows = [...a.d.querySelectorAll('#dlg select')];
+  ok(rows.length === 5 && rows.every(s => s.value === 'keep'), 'domyślnie każde zadanie: „Zostaw”');
+  const setSel = (i, v) => { rows[i].value = v; rows[i].dispatchEvent(new a.w.Event('change', { bubbles: true })); };
+  setSel(0, 'date'); ok(a.d.getElementById('hd0').style.display !== 'none', 'wybór „Zmień datę” pokazuje pole daty');
+  a.d.getElementById('hd0').value = D(9); setSel(1, 'arch'); setSel(2, 'none');
+  a.d.getElementById('hg').click();
+  const g = id => a.ev(`(()=>{const t=S.tasks.find(x=>x.id==='${id}');return JSON.stringify({st:t.st,at:t.at||null})})()`);
+  ok(g('k1') === JSON.stringify({ st: 'todo', at: D(9) }), 'zmiana daty: nowa data zapisana');
+  ok(JSON.parse(g('k2')).st === 'arch', 'anulowanie: zadanie w archiwum');
+  ok(g('k3') === JSON.stringify({ st: 'todo', at: null }), 'usunięcie daty: zostaje w „Do zrobienia” bez terminu');
+  ok(g('k4') === JSON.stringify({ st: 'todo', at: D(5) }) && g('k5') === JSON.stringify({ st: 'todo', at: D(12) }) && JSON.parse(g('k6')).at === D(3), 'zostaw / poza zakresem / inna lista: bez zmian (k6 też „zostaw”)');
+  // pauza już trwa (od dziś): zmiana zakresu pokazuje tylko nowo objęte zadania
+  a.ev("tab='set';render()");
+  a.d.querySelector('[data-a=pzedit]').click();
+  ok(a.d.getElementById('pzf').disabled, 'rozpoczęta pauza: pole „Od” zablokowane');
+  a.d.getElementById('pzt').value = D(13); a.d.getElementById('pzg').click();
+  const ext = a.d.getElementById('dlg').textContent;
+  ok(/Zadania z datą w czasie pauzy \(2\)/.test(ext) && /Po pauzie/.test(ext) && /Zmień mi datę/.test(ext) && !/Zostaw mnie/.test(ext), 'wydłużenie pauzy: przegląd tylko nowo objętych (k5 i przesunięte na D+9 k1), bez wcześniej przejrzanych', ext.slice(0, 120));
+  a.d.getElementById('hg').click();
+  // pauza tylko dla jednej listy
+  const b = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': mk() } });
+  b.ev("tab='set';render()"); b.d.querySelector('[data-a=pznew]').click();
+  b.d.getElementById('pzt').value = D(6); b.d.querySelectorAll('.pza')[1].checked = false; b.d.getElementById('pzg').click();
+  ok(JSON.stringify(b.ev('S.pauses[0].areas')) === '["a1"]', 'odznaczenie listy: pauza tylko dla pierwszej');
+  ok(/Zadania z datą w czasie pauzy \(4\)/.test(b.d.getElementById('dlg').textContent), 'przegląd obejmuje tylko zadania z wybranej listy (k1–k4)');
+  b.d.getElementById('hg').click();
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[23] Zaplanowana pauza w przyszłości, usuwanie, porządki w danych');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': rollState([PZ(5, 9)]) } });
+  ok(S_(a, "S.tasks.some(t=>t.tpl==='tpl1'&&t.st==='prog')"), 'pauza w przyszłości nic dziś nie wstrzymuje');
+  a.ev("tab='set';render()");
+  ok(!!a.d.querySelector('[data-a=pzdel]') && !a.d.querySelector('[data-a=pzend]'), 'przyszła pauza ma „Usuń”, a nie „Zakończ teraz”');
+  a.d.querySelector('[data-a=pzdel]').click(); ok(S_(a, 'S.pauses.length') === 0, 'usunięcie przyszłej pauzy działa');
+  a.ev("S.pauses=[{id:'bad',from:'x',to:'y',areas:null},{id:'ok',from:'2026-01-01',to:'2026-01-05',areas:['a1','zz']},{id:'emp',from:'2026-01-01',to:'2026-01-05',areas:['zz']}]");
+  ok(a.ev("checkData(false).some(x=>x.c==='pauses'&&x.n===3)"), 'kontrola spójności wykrywa 3 uszkodzone pauzy');
+  a.ev('checkData(true)');
+  ok(a.ev('S.pauses.length') === 1 && JSON.stringify(a.ev('S.pauses[0].areas')) === '["a1"]', 'naprawa usuwa uszkodzone i czyści nieistniejące listy');
+  a.ev("S.pauses=[{id:'pa',from:'2026-01-01',to:'2026-01-05',areas:['a2']},{id:'pb',from:'2026-02-01',to:'2026-02-05',areas:null}]");
+  a.ev("S.areas.push({id:'a3',name:'Trzecia',color:'#000'});S.pauses[0].areas=['a2','a3']");
+  a.ev("A.adel(null,{dataset:{id:'a3'}})"); a.d.getElementById('ad').click();
+  ok(JSON.stringify(a.ev("S.pauses.find(p=>p.id==='pa').areas")) === '["a2"]' && a.ev("S.pauses.some(p=>p.id==='pb'&&p.areas===null)"), 'usunięcie listy czyści ją z pauz, a pauza „wszystkie” zostaje');
+  const old = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': { ...mkState([]), schema: 2 } } });
+  ok(Array.isArray(old.ev('S.pauses')) && old.ev('S.pauses.length') === 0, 'migracja: starszy zapis dostaje pustą listę pauz');
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[24] „Zrobione”: tydzień z pauzą jest oznaczony, a porównanie wyłączone');
+try {
+  const log = [];
+  for (let d = -20; d <= 0; d++) log.push({ id: 'l' + d, tid: 'x' + d, area: 'a1', tpl: null, title: 'Z' + d, date: D(d), res: 'done', c: 2 });
+  const base = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': mkState([], { log }) } });
+  base.ev("tab='done';render()");
+  ok(!/stroke-dasharray/.test(base.d.getElementById('main').innerHTML) && /względem tych samych dni/.test(mainText(base)), 'bez pauzy: zwykłe słupki i porównanie z zeszłym tygodniem');
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': mkState([], { log, pauses: [PZ(-9, -8)] }) } });
+  a.ev("tab='done';render()");
+  const html = a.d.getElementById('main').innerHTML;
+  ok((html.match(/stroke-dasharray/g) || []).length >= 1, 'tydzień z pauzą ma przerywany słupek');
+  ok(/Przerywany słupek/.test(mainText(a)), 'jest legenda do przerywanego słupka');
+  const w = a.ev("(()=>{const w=[];for(let o=7;o>=0;o--)w.push(cnt(o,o===0));return JSON.stringify(w)})()"), w0 = base.ev("(()=>{const w=[];for(let o=7;o>=0;o--)w.push(cnt(o,o===0));return JSON.stringify(w)})()");
+  ok(w === w0, 'same liczby zrobionych nie zmieniają się przez pauzę (znaczek, a nie korekta)', w + ' vs ' + w0);
+  const cur = new Date(); const thisWeekPause = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': mkState([], { log, pauses: [PZ(0, 0)] }) } });
+  thisWeekPause.ev("tab='done';render()");
+  ok(/Tydzień z pauzą: bez porównania/.test(mainText(thisWeekPause)) && !/względem tych samych dni/.test(mainText(thisWeekPause)), 'pauza w bieżącym tygodniu: porównanie z poprzednim znika');
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
 console.log(`\nWynik: ${pass} ok, ${fail} błędów`);
 process.exit(fail ? 1 : 0);
