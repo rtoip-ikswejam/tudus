@@ -116,7 +116,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 .th-prev{margin-top:10px;padding-top:10px;border-top:1px solid var(--div)}
 .th-prev-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
 </style></head><body data-tab="prog">
-<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.16.1</div></div></div>
+<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.17.0</div></div></div>
 <script>(function(){var l;try{l=localStorage.getItem('kanban-lang')}catch(e){}if(!l)l=/^en/i.test(navigator.language||'')?'en':'pl';document.getElementById('spl').textContent=l==='en'?'Loading…':'Wczytywanie…';setTimeout(function(){var s=document.getElementById('splash');if(s)s.remove()},4000)})()</script>
 <header><div id="ab"></div><nav class="tabs"><button class="tab" data-a="tab" data-tab="todo">Do zrobienia</button><button class="tab" data-a="tab" data-tab="prog">Dzisiaj</button><button class="tab" data-a="tab" data-tab="done">Zrobione</button><button class="tab" data-a="tab" data-tab="stat">Statystyki</button><span id="test-badge" class="test-pill" style="display:none">TEST</span><button class="gear" data-a="tab" data-tab="set" aria-label="Ustawienia">⚙</button></nav></header>
 <main id="main"></main><div id="bar"></div><div id="mis"></div>
@@ -127,7 +127,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 <script>
 const IS_TEST=!!window.__IS_TEST;
 if(IS_TEST){const tb=document.getElementById('test-badge');if(tb)tb.style.display='inline-flex';}
-const V='1.16.1',SPLASH_MS=1000,SCHEMA=2,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
+const V='1.17.0',SPLASH_MS=1000,SCHEMA=3,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
 /* --- Dane testowe: jednokierunkowa kopia produkcja -> test --- */
 const PK='kanban-v1',TK='kanban-v1-test',TMK='kanban-v1-test-meta';
 const tmeta=()=>{try{return JSON.parse(localStorage.getItem(TMK))}catch(e){return null}};
@@ -159,7 +159,7 @@ let LANG=(()=>{try{const l=localStorage.getItem('kanban-lang');if(l&&LG[l])retur
 const tr=(k,p)=>{let s=(LG[LANG]&&LG[LANG][k])||k;if(p)for(const n in p)s=s.split('{'+n+'}').join(p[n]);return s};
 const LOC=()=>LANG==='en'?'en-GB':'pl-PL',dm=s=>new Date(s+'T12:00:00').toLocaleDateString(LOC(),{day:'numeric',month:'numeric'});
 const DN=d=>tr(['nd','pn','wt','śr','cz','pt','sb'][d]);
-let tab='prog',ideas=false,per=30,smore=null,sort=false,tsort=false,ssort=null,open=null,pos={},sopen=null,stsort=null,pendingSW=null,pfilter='all';
+let tab='prog',ideas=false,per=4,smore=null,sort=false,tsort=false,ssort=null,open=null,pos={},sopen=null,stsort=null,pendingSW=null,pfilter='all';
 const pad=n=>String(n).padStart(2,'0'),ds=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),today=()=>ds(new Date());
 const lum=h=>{const c=[1,3,5].map(i=>parseInt(h.substr(i,2),16)/255).map(v=>v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4));return .2126*c[0]+.7152*c[1]+.0722*c[2]};
 const ink=h=>{const L=lum(h);return 1.05/(L+.05)>=(L+.05)/.068?'#ffffff':'#1f2430'};
@@ -167,7 +167,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function load(){try{const s=JSON.parse(localStorage.getItem(K));if(s&&s.tasks)return migrate(s)}catch(e){}
 return migrate({schema:SCHEMA,tasks:[],log:[],last:'',reasons:SEEDR.map((n,i)=>({id:'r'+i,name:tr(n)}))})}
-function migrate(s){if(!s.areas||!s.areas.length)s.areas=[{id:'a1',name:tr('Prywatna')},{id:'a2',name:tr('Zawodowa')}];if(!s.areas.some(a=>a.id===s.area))s.area=s.areas[0].id;const d=s.areas[0].id;(s.tasks||[]).forEach(x=>{if(!x.area)x.area=d});(s.log||[]).forEach(x=>{if(!x.area)x.area=d});s.areas.forEach((a,i)=>{if(!a.color)a.color=PAL[i%PAL.length]});if(!s.ro){const m={};(s.log||[]).forEach(l=>{if(l.reason)m[l.reason]=(m[l.reason]||0)+1});(s.reasons=s.reasons||[]).sort((a,b)=>(m[b.id]||0)-(m[a.id]||0)||a.name.localeCompare(b.name,LANG));s.ro=1}if(!s.pm){(s.areas||[]).forEach(a=>{const l=(s.tasks||[]).filter(x=>x.area===a.id&&!x.tpl&&x.st==='todo').reverse(),z=x=>x.rep&&x.rep.k!=='none'||x.at;[...l.filter(x=>!z(x)),...l.filter(z)].forEach((x,i)=>x.po=i)});s.pm=1}if(typeof s.coins!=='number')s.coins=0;s.rate=s.rate||{d:2,f:1};s.shop=s.shop||[];s.buys=s.buys||[];s.recap=s.recap||[];s.schema=SCHEMA;return s}
+function migrate(s){if(!s.areas||!s.areas.length)s.areas=[{id:'a1',name:tr('Prywatna')},{id:'a2',name:tr('Zawodowa')}];if(!s.areas.some(a=>a.id===s.area))s.area=s.areas[0].id;const d=s.areas[0].id;(s.tasks||[]).forEach(x=>{if(!x.area)x.area=d});(s.log||[]).forEach(x=>{if(!x.area)x.area=d});s.areas.forEach((a,i)=>{if(!a.color)a.color=PAL[i%PAL.length]});if(!s.ro){const m={};(s.log||[]).forEach(l=>{if(l.reason)m[l.reason]=(m[l.reason]||0)+1});(s.reasons=s.reasons||[]).sort((a,b)=>(m[b.id]||0)-(m[a.id]||0)||a.name.localeCompare(b.name,LANG));s.ro=1}if(!s.pm){(s.areas||[]).forEach(a=>{const l=(s.tasks||[]).filter(x=>x.area===a.id&&!x.tpl&&x.st==='todo').reverse(),z=x=>x.rep&&x.rep.k!=='none'||x.at;[...l.filter(x=>!z(x)),...l.filter(z)].forEach((x,i)=>x.po=i)});s.pm=1}if(typeof s.coins!=='number')s.coins=0;if(!s.wk||typeof s.wk!=='object'||Array.isArray(s.wk))s.wk={};if(![0,2,3,4].includes(s.keep))s.keep=0;s.rate=s.rate||{d:2,f:1};s.shop=s.shop||[];s.buys=s.buys||[];s.recap=s.recap||[];s.schema=SCHEMA;return s}
 let S=load();
 const NEEDLANG=(()=>{try{if(localStorage.getItem('kanban-lang')!==null)return false}catch(e){return false}return S.tasks.length===0&&S.log.length===0})();
 const LNAME={pl:'Polski',en:'English'};
@@ -211,6 +211,8 @@ function checkData(fix){const out=[],add=(c,n,f)=>{if(n)out.push({c,n,f:!!f})};c
  S.tasks.forEach(t=>{if(!aid.has(t.area)){n++;if(fix)t.area=a0}});add('task-area',n,fix);
  n=0;S.log.forEach(l=>{if(!aid.has(l.area)){n++;if(fix)l.area=a0}});add('log-area',n,fix);
  n=0;S.log.forEach(l=>{if(l.reason&&!rid.has(l.reason)){n++;if(fix)l.reason=null}});add('log-reason',n,fix);
+ n=0;Object.keys(S.wk||{}).forEach(a=>{if(!aid.has(a)){n++;if(fix)delete S.wk[a]}});add('wk-area',n,fix);
+ n=0;{const ac=aggReasonCounts(S);Object.keys(ac).forEach(k=>{if(!rid.has(k)){n+=ac[k];if(fix)aggMergeReason(S,k)}})}add('wk-reason',n,fix);
  if(typeof S.coins!=='number'||!isFinite(S.coins)||S.coins<0||S.coins!==Math.floor(S.coins)){add('coins',1,fix);if(fix)S.coins=Math.max(0,Math.floor(+S.coins)||0)}
  n=0;S.tasks.forEach(t=>{if(t.steps!==undefined){const g=Array.isArray(t.steps)?t.steps.filter(q=>q&&q.id&&typeof q.t==='string'):[];if(!Array.isArray(t.steps)||g.length!==t.steps.length){n++;if(fix)t.steps=g}}});add('steps',n,fix);
  const seen=new Set();n=0;S.tasks.forEach(t=>{if(seen.has(t.id))n++;seen.add(t.id)});add('dup-id',n,false);
@@ -226,7 +228,7 @@ function dgReport(){const iso=t=>new Date(t).toISOString().slice(0,19).replace('
  'Service worker: '+JSON.stringify(DGST.sw||{}),
  'Mode: '+pwa+(IS_TEST?' (test)':'')+' | lang '+LANG+' | online '+navigator.onLine+' | UA '+String(navigator.userAgent).slice(0,140),
  'Storage: data '+Math.round(JSON.stringify(S).length/1024)+' KB | localStorage '+Math.round(lsChars()/1024)+' KB (~'+storagePct()+'% of 5 MB) | estimate '+(est?Math.round(est.usage/1024)+' KB of '+Math.round(est.quota/1048576)+' MB':'n/a')+' | persistent '+DGST.persist,
- 'Data: tasks '+S.tasks.length+' (todo '+cnt('todo')+', prog '+cnt('prog')+', idea '+cnt('idea')+', arch '+cnt('arch')+', done '+cnt('done')+', closed '+cnt('closed')+'), log '+S.log.length+', areas '+S.areas.length+', reasons '+S.reasons.length+', shop '+S.shop.length+', coins '+S.coins+', schema '+S.schema,
+ 'Data: tasks '+S.tasks.length+' (todo '+cnt('todo')+', prog '+cnt('prog')+', idea '+cnt('idea')+', arch '+cnt('arch')+', done '+cnt('done')+', closed '+cnt('closed')+'), log '+S.log.length+', wk '+aggWeeks(S)+'w, keep '+(S.keep||0)+', areas '+S.areas.length+', reasons '+S.reasons.length+', shop '+S.shop.length+', coins '+S.coins+', schema '+S.schema,
  'Consistency: '+(DGST.cons?(DGST.cons.out.length?DGST.cons.out.map(x=>x.c+':'+x.n+(x.f?'(fixed)':'')).join(', '):'ok'):'not run'),
  'Status: '+dgStatus(),'','Events (last 60):',...allEvents().slice(-60).map(e=>iso(e.t).slice(5)+' '+e.l+' '+e.src+' '+e.c+' '+(e.d||'')),'','Actions (last 30):',...DG.a.map(a=>iso(a.t).slice(5)+' '+a.a+' '+a.id)];return L.join('\n')}
 function dgCopyFallback(t){const x=document.createElement('textarea');x.value=t;x.style.position='fixed';x.style.opacity='0';document.body.append(x);x.select();try{document.execCommand('copy')}catch(e){}x.remove()}
@@ -328,17 +330,72 @@ function showRecap(){const rc=S.recap||[];if(!rc.length)return;const yd=ds(new D
 function roll(){const td=today();
  S.tasks.filter(x=>x.st==='prog'&&x.exp&&x.date<td).forEach(x=>{fail(x,x.date,'f');const l=S.log[S.log.length-1];(S.recap=S.recap||[]).push({t:x.t,d:x.date,c:-(l.c||0),n:prg(x).n||0,k:prg(x).cnt||0})});
   if(S.last!==td){const w=new Date().getDay();S.tasks.filter(t=>t.rep.k!=='none'&&t.st==='todo'&&(t.rep.k==='daily'||t.rep.days.includes(w))).forEach(t=>{if(!S.tasks.some(x=>x.tpl===t.id&&x.st==='prog'))toDay(t)})}
+ if(S.keep&&S.last!==td){const r=aggTry(S,td,S.keep);if(!r.ok)log('e','compact','auto '+r.err);else if(!r.none){S=r.c;S.cmp={at:Date.now(),ent:r.ent,tasks:r.tasks,saved:r.saved};log('i','compact','auto ent='+r.ent+' tasks='+r.tasks)}}
  sched();S.last=td;S.created=S.created||td;save();
  if(bkDays()>=14&&S.remind!==td){S.remind=td;save();setTimeout(()=>toast(tr('Minęło {n} dni od ostatniej kopii. Zrób eksport w Ustawieniach (⚙).',{n:bkDays()}),6000),700)}}
 const pend=()=>S.log.filter(l=>l.res==='fail'&&!l.reason);
-const rs=()=>{const m={};S.log.forEach(l=>l.reason&&(m[l.reason]=(m[l.reason]||0)+1));return S.reasons.map(q=>({...q,n:m[q.id]||0}))};
+const rs=()=>{const m={};S.log.forEach(l=>l.reason&&(m[l.reason]=(m[l.reason]||0)+1));const a=aggReasonCounts(S);Object.keys(a).forEach(k=>{m[k]=(m[k]||0)+a[k]});return S.reasons.map(q=>({...q,n:m[q.id]||0}))};
 const bkDays=()=>Math.floor((Date.now()-(S.lastBackup||Date.parse((S.created||today())+'T12:00:00')))/864e5);
 const rname=id=>(S.reasons.find(r=>r.id===id)||{name:tr('(usunięta)')}).name;
+/* AGG-BEGIN: agregacja starych wpisów do statystyk tygodniowych. Czyste funkcje (bez DOM i bez globalnego S), testowane w tools/agg.test.mjs */
+const AGG_PEND=8;
+const aDt=d=>{const p=d.split('-');return new Date(+p[0],+p[1]-1,+p[2],12)};
+const aSt=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const aMon=(d,back=0)=>{const x=aDt(d);x.setDate(x.getDate()-((x.getDay()+6)%7)-7*back);return aSt(x)};
+const aKind=l=>l.k||(l.dec==='todo'?'p':'f');
+const aElig=(l,cut,pcut)=>!!(l.date&&l.date<cut&&(l.res==='done'||l.reason||l.date<pcut));
+function aggAdd(s,l){const wk=aMon(l.date),A=s.wk[l.area]=s.wk[l.area]||{},w=A[wk]=A[wk]||{d:0,f:0,p:0,ce:0,cl:0,r:{}};
+ if(l.res==='done'){w.d++;if(l.c>0)w.ce+=l.c;return}
+ const k=aKind(l);w[k]++;if(l.c<0)w.cl-=l.c;
+ const rk=l.reason||'_',R=w.r[rk]=w.r[rk]||{},tk=String(l.title||'').trim().toLowerCase(),g=R[tk]=R[tk]||{t:l.title||'',p:0,f:0,l:''};
+ g[k]++;if(l.date>=g.l){g.l=l.date;g.t=l.title||''}}
+function aggTotals(s){const t={wk:JSON.parse(JSON.stringify(s.wk||{}))};(s.log||[]).forEach(l=>{if(l.date)aggAdd(t,l)});const o=[];
+ Object.keys(t.wk).sort().forEach(a=>Object.keys(t.wk[a]).sort().forEach(w=>{const x=t.wk[a][w];o.push([a,w,x.d,x.f,x.p,x.ce,x.cl].join('|'));
+  Object.keys(x.r).sort().forEach(rk=>Object.keys(x.r[rk]).sort().forEach(tk=>{const g=x.r[rk][tk];o.push(['r',a,w,rk,tk,g.p,g.f,g.l].join('|'))}))}));return o.join('\n')}
+function aggCompact(s,td,keep){s.wk=s.wk||{};const cut=aMon(td,keep-1),pcut=aMon(td,AGG_PEND),mv=[],rest=[];
+ (s.log||[]).forEach(l=>(aElig(l,cut,pcut)?mv:rest).push(l));mv.forEach(l=>aggAdd(s,l));s.log=rest;
+ const ref=new Set(rest.map(l=>l.tid)),n0=s.tasks.length;
+ s.tasks=s.tasks.filter(t=>!((t.st==='closed'||t.st==='done')&&t.date&&t.date<cut&&!ref.has(t.id)));
+ return{ent:mv.length,tasks:n0-s.tasks.length,weeks:new Set(mv.map(l=>aMon(l.date))).size,cut}}
+function aggTry(s,td,keep){try{const c=JSON.parse(JSON.stringify(s)),r=aggCompact(c,td,keep);
+ if(!r.ent&&!r.tasks)return{ok:true,none:true,ent:0,tasks:0,weeks:0,saved:0,c:s};
+ if(aggTotals(s)!==aggTotals(c))return{ok:false,err:'verify'};
+ return{ok:true,none:false,ent:r.ent,tasks:r.tasks,weeks:r.weeks,saved:JSON.stringify(s).length-JSON.stringify(c).length,c}}
+ catch(e){return{ok:false,err:String(e&&e.message||e).slice(0,80)}}}
+const aggPeek=(s,td,keep)=>{const cut=aMon(td,keep-1),pcut=aMon(td,AGG_PEND);return(s.log||[]).filter(l=>aElig(l,cut,pcut)).length};
+function aggFails(s,area,from){const o=[],A=(s.wk||{})[area]||{};Object.keys(A).forEach(w=>{if(w<from)return;const R=A[w].r;
+ Object.keys(R).forEach(rk=>Object.keys(R[rk]).forEach(tk=>{const g=R[rk][tk];['p','f'].forEach(k=>{for(let i=0;i<g[k];i++)o.push({k,reason:rk==='_'?null:rk,title:g.t,date:g.l,area,res:'fail'})})}))});return o}
+function aggReasonCounts(s){const m={};Object.values(s.wk||{}).forEach(A=>Object.values(A).forEach(w=>Object.keys(w.r).forEach(rk=>{if(rk==='_')return;Object.values(w.r[rk]).forEach(g=>{m[rk]=(m[rk]||0)+g.p+g.f})})));return m}
+function aggMergeReason(s,id){Object.values(s.wk||{}).forEach(A=>Object.values(A).forEach(w=>{const R=w.r;if(!R[id])return;const T=R._=R._||{};
+ Object.keys(R[id]).forEach(tk=>{const g=R[id][tk],h=T[tk]=T[tk]||{t:g.t,p:0,f:0,l:''};h.p+=g.p;h.f+=g.f;if(g.l>=h.l){h.l=g.l;h.t=g.t}});delete R[id]}))}
+const aggCountArea=(s,id)=>Object.values((s.wk||{})[id]||{}).reduce((n,w)=>n+w.d+w.f+w.p,0);
+const aggWeeks=s=>Object.values(s.wk||{}).reduce((n,A)=>n+Object.keys(A).length,0);
+const wkGet=(s,area,w)=>((s.wk||{})[area]||{})[w]||null;
+/* AGG-END */
+/* --- porządkowanie danych: sekcja w Ustawieniach --- */
+function keepBox(){const td=today(),nw=aggWeeks(S),kb=Math.round(lsChars()/1024);
+ let h=`<h3>${tr('Porządkowanie danych')}</h3><p class=mu>${tr('Wpisy starsze niż wybrany okres zamieniają się w statystyki tygodniowe (zrobione, porażki, przyczyny), więc wykresy zostają, a baza przestaje rosnąć.')}</p>`
+  +`<label style="margin-top:0">${tr('Szczegóły z ostatnich')}<select id=keepsel>${[[0,tr('bez porządkowania')],[2,tr('2 tygodnie')],[3,tr('3 tygodnie')],[4,tr('4 tygodnie')]].map(([v,n])=>`<option value=${v} ${(S.keep||0)===v?'selected':''}>${n}</option>`).join('')}</select></label>`
+  +`<p class=mu>${tr('W bazie: wpisy {l}, zadania {t}, tygodnie w statystykach {w}. Zajęte ok. {kb} KB ({p}% limitu).',{l:S.log.length,t:S.tasks.length,w:nw,kb,p:storagePct()})}</p>`;
+ if(S.cmp)h+=`<p class=mu>${tr('Ostatnie porządkowanie: {d}, zagregowano {n} wpisów, usunięto {t} zadań.',{d:dm(ds(new Date(S.cmp.at))),n:S.cmp.ent,t:S.cmp.tasks})}</p>`;
+ else if(!S.keep){const e=aggPeek(S,td,3);if(e)h+=`<p class=mu>${tr('Przy 3 tygodniach szczegółów zamieniłbym {n} wpisów na statystyki.',{n:e})}</p>`}
+ return h}
+function onKeep(v){const old=S.keep||0,td=today();
+ if(!v){S.keep=0;save();render();toast(tr('Porządkowanie wyłączone'));return}
+ const r=aggTry(S,td,v);
+ if(!r.ok){log('e','compact','preview '+r.err);dgSoon(true);toast(tr('Kontrola spójności nie przeszła, nic nie zmieniono.'),6000);render();return}
+ if(r.none){S.keep=v;save();render();toast(tr('Szczegóły z ostatnich {n} tygodni',{n:v}));return}
+ const first=!S.cmp,kb=Math.max(1,Math.round(r.saved/1024)),dl=$('dlg');
+ sheet(`<h3>${tr('Uporządkować dane?')}</h3><p>${tr('Szczegóły zostaną z ostatnich {w} tygodni. Starsze wpisy ({n}, z {k} tygodni) zamienią się w statystyki tygodniowe, a {t} zakończonych zadań zostanie usuniętych. Zwolnisz ok. {kb} KB.',{w:v,n:r.ent,k:r.weeks,t:r.tasks,kb})}</p><p class=mu>${tr('Wykresy i statystyki zostają. Pojedynczych starych wpisów nie da się już oglądać ani cofać. Porażki bez przyczyny z ostatnich 8 tygodni zostają do uzupełnienia.')}</p><div class=row><button class=sm id=kx>${tr('Anuluj')}</button></div><div class=row><button class="sm pri" id=kb1>${tr('Zapisz kopię i uporządkuj')}</button></div>`+(first?'':`<div class=row><button class=sm id=kb0>${tr('Uporządkuj bez kopii')}</button></div>`));
+ dl.onclick=null;dl.addEventListener('close',()=>render(),{once:true});
+ const go=bk=>{if(bk)A.exp();const q=aggTry(S,today(),v);if(!q.ok||q.none){log('e','compact','apply '+(q.err||'none'));dgSoon(true);dl.close();toast(tr('Kontrola spójności nie przeszła, nic nie zmieniono.'),6000);return}
+  S=q.c;S.keep=v;S.cmp={at:Date.now(),ent:q.ent,tasks:q.tasks,saved:q.saved};log('i','compact','manual ent='+q.ent+' tasks='+q.tasks+' saved='+q.saved);dgSoon(true);save();dl.close();toast(tr('Uporządkowano: {n} wpisów, zwolniono ok. {kb} KB',{n:q.ent,kb:Math.max(1,Math.round(q.saved/1024))}),4000)};
+ $('kx').onclick=()=>dl.close();$('kb1').onclick=()=>go(true);if($('kb0'))$('kb0').onclick=()=>go(false)}
 /* --- tygodnie --- */
 const wd0=()=>(new Date().getDay()+6)%7;
 const wstart=o=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate()-wd0()-7*o)};
 const wend=(o,part)=>{const s=wstart(o);return new Date(s.getFullYear(),s.getMonth(),s.getDate()+(part?wd0():6))};
-const cnt=(o,part,r='done')=>{const a=ds(wstart(o)),b=ds(wend(o,part));return S.log.filter(l=>l.res===r&&l.area===S.area&&l.date>=a&&l.date<=b).length};
+const cnt=(o,part,r='done')=>{const a=ds(wstart(o)),b=ds(wend(o,part));let n=S.log.filter(l=>l.res===r&&l.area===S.area&&l.date>=a&&l.date<=b).length;if(!part){const w=wkGet(S,S.area,a);if(w)n+=r==='done'?w.d:w.f+w.p}return n};
 /* --- widoki --- */
 const nowT=()=>{const n=new Date();return pad(n.getHours())+':'+pad(n.getMinutes())};
 const rt=x=>x.rep.k==='daily'?tr('codziennie'):x.rep.k==='days'?[1,2,3,4,5,6,0].filter(d=>x.rep.days.includes(d)).map(d=>DN(d)).join(', '):'';
@@ -382,7 +439,7 @@ function vDone(){const c0=cnt(0,1),c1=cnt(1,1),f0=cnt(0,1,'fail'),d=c0-c1,p=c0+f
  if(pendList.length)h+=`<h3 style="margin-top:24px">${tr('Bez przyczyny: nieudane i odłożone ({n})',{n:pendList.length})}</h3>`+pendList.map(l=>`<div class=c><div>${esc(l.title)}${l.cnt?` ${l.n}/${l.cnt}`:''} <span class=mu>${l.date}</span></div><select data-ch=r data-id="${l.id}"><option value="">${tr('Wybierz przyczynę')}</option>${rs().map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join('')}</select>${l.tpl?'':`<select data-ch=d data-id="${l.id}" style="margin-top:6px"><option value=todo ${l.dec==='todo'?'selected':''}>${tr('Zadanie wraca do „Do zrobienia”')}</option><option value=cancel ${l.dec==='cancel'?'selected':''}>${tr('Zadanie idzie do archiwum')}</option></select>`}</div>`).join('');
  if(ar.length)h+=`<h3 style="margin-top:24px">${tr('Archiwum: anulowane i nieudane ({n})',{n:ar.length})}</h3>`+ar.map(x=>`<div class=rb><span style="flex:1">${esc(x.t)}</span>${b('rs',x.id,tr('Przywróć'),'sm')}</div>`).join('');
  return h}
-function vStat(){const from=ds(new Date(Date.now()-per*864e5)),f=S.log.filter(l=>l.res==='fail'&&l.area===S.area&&l.date>=from);
+function vStat(){const from=ds(wstart(per-1)),f=S.log.filter(l=>l.res==='fail'&&l.area===S.area&&l.date>=from).concat(aggFails(S,S.area,from));
  const kd=l=>l.k||(l.dec==='todo'?'p':'f');
  const groups=a=>{const m={};a.forEach(l=>{const key=l.title.trim().toLowerCase(),g=m[key]=m[key]||{t:l.title,n:0,p:0,f:0,last:''};g.n++;kd(l)==='p'?g.p++:g.f++;if(l.date>=g.last){g.last=l.date;g.t=l.title}});return Object.values(m).sort((x,y)=>y.n-x.n||(x.last<y.last?1:x.last>y.last?-1:0)||x.t.localeCompare(y.t,LANG))};
  const by={};f.forEach(l=>{const k=l.reason||'_';(by[k]=by[k]||[]).push(l)});
@@ -390,7 +447,7 @@ function vStat(){const from=ds(new Date(Date.now()-per*864e5)),f=S.log.filter(l=
  const mx=Math.max(1,...Object.values(by).map(a=>a.length));
  const detail=(k,a)=>{const g=groups(a),all=smore===k,sh=all?g:g.slice(0,8);return`<div class=ds><div class=mu>↩ ${tr('odłożone')} · ✗ ${tr('porażki')}</div>`+sh.map(x=>`<div style="margin:8px 0"><div>${esc(x.t)}</div><div class=mu>×${x.n} (${[x.p?'↩'+x.p:'',x.f?'✗'+x.f:''].filter(Boolean).join(' ')}) · ${tr('ostatnio {d}',{d:dm(x.last)})}</div></div>`).join('')+(g.length>8&&!all?`<div class=acts>${b('smore',k,tr('Pokaż więcej ({n})',{n:g.length-8}),'sm')}</div>`:'')+'</div>'};
  const row=(k,name)=>`<div class=c><div class=r><div class=ti data-a=tgs data-id="${k}">${esc(name)}</div><b>${by[k].length}</b></div><div style="height:8px;border-radius:4px;background:var(--stat);width:${Math.max(4,Math.round(100*by[k].length/mx))}%;margin-top:2px"></div>${open===k?detail(k,by[k]):''}</div>`;
- return`<label style="margin-top:0">${tr('Okres')}<select id=per>${[[30,'30 dni'],[90,'90 dni'],[365,'Rok']].map(([v,t])=>`<option value=${v} ${per===v?'selected':''}>${tr(t)}</option>`).join('')}</select></label><h3>${tr('Najczęstsze powody porażek')}</h3><p class=mu>${tr('Porażki i odłożenia: {n}',{n:f.length})}</p>`+(f.length?rows.map(k=>row(k,rname(k))).join('')+(by._?row('_',tr('Bez wybranej przyczyny'))+`<p class=mu>${tr('Możesz je uzupełnić w Ustawieniach (⚙).')}</p>`:''):'<p class=mu>'+tr('Brak danych. Pojawią się, gdy przy nieudanych zadaniach wybierzesz przyczynę.')+'</p>')}
+ return`<label style="margin-top:0">${tr('Okres')}<select id=per>${[[4,'4 tygodnie'],[13,'13 tygodni'],[52,'Rok']].map(([v,t])=>`<option value=${v} ${per===v?'selected':''}>${tr(t)}</option>`).join('')}</select></label><h3>${tr('Najczęstsze powody porażek')}</h3><p class=mu>${tr('Porażki i odłożenia: {n}',{n:f.length})}</p>`+(f.length?rows.map(k=>row(k,rname(k))).join('')+(by._?row('_',tr('Bez wybranej przyczyny'))+`<p class=mu>${tr('Możesz je uzupełnić w Ustawieniach (⚙).')}</p>`:''):'<p class=mu>'+tr('Brak danych. Pojawią się, gdy przy nieudanych zadaniach wybierzesz przyczynę.')+'</p>')}
 function vSet(){
  const sh=(k,t,ns)=>`<h3 class=sh><span>${t}</span>${ns?'':`<button class=sm data-a=ssort data-id=${k}>${ssort===k?'✓<small>'+tr('gotowe')+'</small>':'⇅<small>'+tr('kolejność')+'</small>'}</button>`}</h3>`;
  const mvb=(k,id,d,t,dis)=>`<button data-a=sm data-k=${k} data-id="${id}" data-d=${d}${dis?' disabled':''}>${t}</button>`;
@@ -408,7 +465,7 @@ function vSet(){
 
  const curTh = THEMES.find(x => x.id === THEME) || THEMES[0];
  const themeSection = curTh ? `<h3>${tr('Wygląd aplikacji')}</h3><label>${tr('Wybierz skórkę')}</label><select id="thsel">${THEMES.map(t => `<option value="${t.id}" ${t.id === THEME ? 'selected' : ''}>${esc(t.name[LANG] || t.name.pl)}</option>`).join('')}</select><div class="th-box"><div class="mu">${esc(curTh.description[LANG] || curTh.description.pl)}</div><div class="th-prev"><small class="mu">${tr('Podgląd elementów:')}</small><div class="th-prev-row"><span class="bx on">✓</span><span style="flex:1">${tr('Przykładowe zadanie')}</span><button type="button" class="sm">${tr('Opcja')}</button><button type="button" class="sm pri">${tr('Akcja')}</button></div><div class="stp mu" style="margin-top:8px;padding-top:6px;font-size:13px">${tr('Linia podziału (divider) między elementami')}</div></div></div>` : '';
- h+=themeSection+`<h3>Język / Language</h3><select id=lg><option value=pl ${LANG==='pl'?'selected':''}>Polski</option><option value=en ${LANG==='en'?'selected':''}>English</option></select><h3>${tr('Diagnostyka')}</h3><div class=c><div class=r><div class=ti data-a=tab data-tab=diag>${tr('Wersje, aktualizacje, dziennik, raport')}<span class=dgd data-st="${dgStatus()}"></span></div><span class=mu>›</span></div></div><h3>${tr('Dane')}</h3><div class=row><button class=sm data-a=exp>${tr('Zapisz kopię danych')}</button><button class=sm data-a=imp>${tr('Wczytaj kopię danych')}</button></div><input type=file id=fi accept=".json,application/json" hidden><p class=mu>${S.lastBackup?(bkDays()===0?tr('Ostatnia kopia: dziś'):tr('Ostatnia kopia: {n} dni temu',{n:bkDays()})):tr('Kopii jeszcze nie robiono')}. ${tr('Kopia chroni dane przy zmianie telefonu lub wyczyszczeniu przeglądarki. Przypomnę po 14 dniach.')}</p><div class=foot><img src="icon-512.png" alt=""><div>Tuduś · plan, do, done.</div><div>${tr('Wersja aplikacji {v} · schemat danych {s}',{v:V+(IS_TEST?' [TEST]':''),s:SCHEMA})}</div></div>`;return`<div class=set>${h}</div>`}
+ h+=themeSection+`<h3>Język / Language</h3><select id=lg><option value=pl ${LANG==='pl'?'selected':''}>Polski</option><option value=en ${LANG==='en'?'selected':''}>English</option></select><h3>${tr('Diagnostyka')}</h3><div class=c><div class=r><div class=ti data-a=tab data-tab=diag>${tr('Wersje, aktualizacje, dziennik, raport')}<span class=dgd data-st="${dgStatus()}"></span></div><span class=mu>›</span></div></div><h3>${tr('Dane')}</h3><div class=row><button class=sm data-a=exp>${tr('Zapisz kopię danych')}</button><button class=sm data-a=imp>${tr('Wczytaj kopię danych')}</button></div><input type=file id=fi accept=".json,application/json" hidden><p class=mu>${S.lastBackup?(bkDays()===0?tr('Ostatnia kopia: dziś'):tr('Ostatnia kopia: {n} dni temu',{n:bkDays()})):tr('Kopii jeszcze nie robiono')}. ${tr('Kopia chroni dane przy zmianie telefonu lub wyczyszczeniu przeglądarki. Przypomnę po 14 dniach.')}</p>${keepBox()}<div class=foot><img src="icon-512.png" alt=""><div>Tuduś · plan, do, done.</div><div>${tr('Wersja aplikacji {v} · schemat danych {s}',{v:V+(IS_TEST?' [TEST]':''),s:SCHEMA})}</div></div>`;return`<div class=set>${h}</div>`}
 function ab(){$('ab').innerHTML=S.areas.map(a=>{const n=prog(a.id).length;return`<button class="ar${a.id===S.area?' on':''}" data-a=area data-id="${a.id}" style="--c:${a.color};--ct:${ink(a.color)}">${esc(a.name)}<span class=cn>${n}</span></button>`}).join('')}
 function bar(){const e=$('bar');e.className=tab==='prog'||tab==='todo'?'bar':'';
  const q=ph=>`<input id=qi placeholder="${ph}" enterkeyhint=done autocomplete=off style="flex:1;min-width:0"><button class=fab style="width:48px;height:48px;font-size:26px;flex:none" data-a=qa aria-label="${tr('Dodaj')}">+</button><button class=sm data-a=add aria-label="${tr('Pełny formularz')}">⋯<small>${tr('więcej')}</small></button>`;
@@ -487,12 +544,12 @@ const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=nul
   if(t){if(t.tpl){if(w==='prog'){t.st='prog';t.date=today();put(t)}else S.tasks=S.tasks.filter(y=>y!==t)}else{t.st=w;if(w==='prog'){t.date=today();put(t)}else place(t,'top')}}
   save();render()})},
  ra:()=>{const v=$('rn').value.trim();if(!v)return;S.reasons.push({id:uid(),name:v});save();render()},
- rd:(x,el)=>{const q=S.reasons.find(r=>r.id===el.dataset.id);if(!q)return;const u=S.log.filter(l=>l.reason===q.id).length;ask(tr('Usunąć przyczynę „{n}”?',{n:esc(q.name)})+(u?' '+tr('Użyta: {u}. Wpisy wrócą do sekcji „Bez przyczyny”.',{u}):''),[[tr('Usuń'),'y']],()=>{S.log.forEach(l=>{if(l.reason===q.id)l.reason=null});S.reasons=S.reasons.filter(r=>r.id!==q.id);open=null;save();render();toast(tr('Przyczyna usunięta'))})},
+ rd:(x,el)=>{const q=S.reasons.find(r=>r.id===el.dataset.id);if(!q)return;const u=S.log.filter(l=>l.reason===q.id).length+(aggReasonCounts(S)[q.id]||0);ask(tr('Usunąć przyczynę „{n}”?',{n:esc(q.name)})+(u?' '+tr('Użyta: {u}. Wpisy wrócą do sekcji „Bez przyczyny”.',{u}):''),[[tr('Usuń'),'y']],()=>{S.log.forEach(l=>{if(l.reason===q.id)l.reason=null});aggMergeReason(S,q.id);S.reasons=S.reasons.filter(r=>r.id!==q.id);open=null;save();render();toast(tr('Przyczyna usunięta'))})},
  rrn:(x,el)=>{const q=S.reasons.find(r=>r.id===el.dataset.id);sheet(`<h3>${tr('Nazwa przyczyny')}</h3><input id=an value="${esc(q.name)}"><div class=row><button class=sm id=ax>${tr('Anuluj')}</button><button class="sm pri" id=as>${tr('Zapisz')}</button></div>`);$('dlg').onclick=null;$('ax').onclick=()=>$('dlg').close();$('as').onclick=()=>{const v=$('an').value.trim();if(v){q.name=v;save();$('dlg').close();render()}}},
- adel:(x,el)=>{const a=S.areas.find(q=>q.id===el.dataset.id);if(!a||S.areas.length<2)return;const ts=S.tasks.filter(t=>t.area===a.id&&!t.tpl&&t.st!=='done'),np=ts.filter(t=>t.st==='prog').length,nr=ts.filter(t=>t.rep.k!=='none').length,nh=S.log.filter(l=>l.area===a.id).length;
+ adel:(x,el)=>{const a=S.areas.find(q=>q.id===el.dataset.id);if(!a||S.areas.length<2)return;const ts=S.tasks.filter(t=>t.area===a.id&&!t.tpl&&t.st!=='done'),np=ts.filter(t=>t.st==='prog').length,nr=ts.filter(t=>t.rep.k!=='none').length,nh=S.log.filter(l=>l.area===a.id).length+aggCountArea(S,a.id);
   sheet(`<h3>${tr('Usunąć listę „{n}” razem z danymi?',{n:esc(a.name)})}</h3><p>${tr('Zadania: {t} (w Dzisiaj: {p}, powtarzalne: {r}). Wpisy historii: {h}.',{t:ts.length,p:np,r:nr,h:nh})}</p><p class=mu>${tr('Tego nie da się cofnąć. Kopia danych to jedyny sposób na powrót.')}</p><div class=row><button class=sm id=ax>${tr('Anuluj')}</button><button class=sm id=ab2>${tr('Zapisz kopię teraz')}</button></div><div class=row><button class="sm dng" id=ad>${tr('Usuń listę i dane')}</button></div>`);
   $('dlg').onclick=null;$('ax').onclick=()=>$('dlg').close();$('ab2').onclick=()=>A.exp();
-  $('ad').onclick=()=>{S.tasks=S.tasks.filter(t=>t.area!==a.id);S.log=S.log.filter(l=>l.area!==a.id);S.areas=S.areas.filter(q=>q.id!==a.id);if(S.area===a.id){S.area=S.areas[0].id;tab='prog'}open=null;ssort=null;$('dlg').close();save();render();toast(tr('Lista usunięta'))}},
+  $('ad').onclick=()=>{S.tasks=S.tasks.filter(t=>t.area!==a.id);S.log=S.log.filter(l=>l.area!==a.id);delete S.wk[a.id];S.areas=S.areas.filter(q=>q.id!==a.id);if(S.area===a.id){S.area=S.areas[0].id;tab='prog'}open=null;ssort=null;$('dlg').close();save();render();toast(tr('Lista usunięta'))}},
  tgs:(x,el)=>{open=open===el.dataset.id?null:el.dataset.id;render()},
  ssort:(x,el)=>{ssort=ssort===el.dataset.id?null:el.dataset.id;open=null;render()},
  sm:(x,el)=>{const arr=el.dataset.k==='areas'?S.areas:S.reasons,i=arr.findIndex(q=>q.id===el.dataset.id),d=+el.dataset.d,j=d===-99?0:Math.max(0,Math.min(arr.length-1,i+d));if(i<0||j===i)return;const [q]=arr.splice(i,1);arr.splice(j,0,q);save();render()},
@@ -505,6 +562,7 @@ document.addEventListener('input',e=>{if(e.target.id==='q'){const v=e.target.val
 document.addEventListener('change',e=>{const t=e.target;
  if(t.id==='rd'||t.id==='rf'){S.rate[t.id==='rd'?'d':'f']=Math.max(0,Math.min(99,Math.floor(+t.value)||0));save();render();return}
  if(t.id==='per'){per=+t.value;smore=null;open=null;render();return}
+ if(t.id==='keepsel'){onKeep(+t.value);return}
  if(t.id==='thsel'){applyTheme(t.value);render();return}
  if(t.id==='lg'){LANG=t.value;try{localStorage.setItem('kanban-lang',LANG)}catch(x){}render();return}
  if(t.dataset.ch){const l=S.log.find(y=>y.id===t.dataset.id);if(!l)return;
