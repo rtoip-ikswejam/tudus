@@ -74,6 +74,11 @@ def check_dir(d):
         if unk: warn(f'{name}: {len(unk)} tekstów w tr() bez tłumaczenia EN, np.: {unk[:3]}')
         else: ok('wszystkie teksty w tr() mają tłumaczenie EN')
 
+    # 4b. blok agregacji (testowany osobno) musi mieć oba znaczniki
+    if 'AGG-BEGIN' in html and 'AGG-END' not in html: err(f'{name}: blok AGG ma znacznik początku bez końca')
+    ms = re.search(r'SCHEMA=(\d+)', html)
+    if 'AGG-BEGIN' in html and (not ms or int(ms.group(1)) < 3): err(f'{name}: agregacja wymaga SCHEMA>=3')
+
     # 5. izolacja środowiska testowego
     if d == 'test':
         if "K=IS_TEST?'kanban-v1-test':'kanban-v1'" not in html: err('test: klucz danych K nie przełącza się na kanban-v1-test')
