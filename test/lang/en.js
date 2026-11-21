@@ -337,5 +337,10 @@
 "Zadania cykliczne i z datą są wstrzymane. Dodaj ręcznie to, czego potrzebujesz.": "Repeating and dated tasks are on hold. Add by hand whatever you need.",
 "po terminie · {d}": "overdue · {d}",
 "Tydzień z pauzą: bez porównania z poprzednim.": "A week with a pause: no comparison with the previous one.",
-"Przerywany słupek: tydzień z pauzą.": "Dashed bar: a week with a pause."
+"Przerywany słupek: tydzień z pauzą.": "Dashed bar: a week with a pause.",
+"Doodle dnia": "Doodle of the day",
+"Raz dziennie krótka scena z postacią przy pracy i zdanie motywujące, oparte o Twoje wyniki.": "Once a day a short scene with someone at work and a motivating line based on your results.",
+"Pokazuj raz dziennie": "Show once a day",
+"Zobacz doodle dnia": "See today's doodle",
+"Nie udało się wczytać doodle. Spróbuj, gdy będziesz online.": "Could not load the doodle. Try again when you are online."
 };

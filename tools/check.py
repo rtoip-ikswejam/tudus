@@ -80,6 +80,24 @@ def check_dir(d):
     ms = re.search(r'SCHEMA=(\d+)', html)
     if 'AGG-BEGIN' in html and (not ms or int(ms.group(1)) < 3): err(f'{name}: agregacja wymaga SCHEMA>=3')
 
+    # 4c. doodle: manifest wskazuje istniejące moduły, silnik i teksty
+    if exists(pre + 'doodle/manifest.json'):
+        try:
+            man = json.loads(rd(pre + 'doodle/manifest.json'))
+            fl = [man.get('engine', 'engine.js')] + [x['file'] for k in ('tla', 'postacie', 'pogoda') for x in man.get(k, [])] + ['teksty/pl.js', 'teksty/en.js']
+            miss = [f for f in fl if not exists(pre + 'doodle/' + f)]
+            if miss: err(f'{name}: manifest doodle wskazuje brakujące pliki: {miss}')
+            else:
+                good = all(node_check(pre + 'doodle/' + f, rd(pre + 'doodle/' + f)) is not False for f in fl)
+                if good: ok(f'doodle: {len(fl)} plików modułów istnieje i ma poprawną składnię')
+            for k in ('postacie', 'pogoda'):
+                for x in man.get(k, []):
+                    bad = [s for s in (x.get('seasons') or []) if s not in [t['id'] for t in man.get('tla', [])]]
+                    if bad: err(f"{name}: doodle {k}/{x['id']} wymienia nieznane tła: {bad}")
+            sw_t = rd(pre + 'sw.js')
+            if 'doodle/manifest.json' not in sw_t: err(f'{name}: sw.js nie zapisuje w cache doodle/manifest.json')
+        except Exception as e: err(f'{name}: doodle/manifest.json: {e}')
+
     # 5. izolacja środowiska testowego
     if d == 'test':
         if "K=IS_TEST?'kanban-v1-test':'kanban-v1'" not in html: err('test: klucz danych K nie przełącza się na kanban-v1-test')

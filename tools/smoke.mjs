@@ -23,7 +23,7 @@ class Loader extends ResourceLoader {
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const today = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); };
 
-export async function boot(sub, { ls = {}, failSet = [] } = {}) {
+export async function boot(sub, { ls = {}, failSet = [], failFetch = false } = {}) {
   const errors = [];
   const vc = new VirtualConsole();
   vc.on('jsdomError', e => errors.push(String(e.message || e)));
@@ -43,6 +43,12 @@ export async function boot(sub, { ls = {}, failSet = [] } = {}) {
       }
       w.matchMedia = w.matchMedia || (() => ({ matches: false, addEventListener() {}, removeEventListener() {} }));
       w.scrollTo = () => {};
+      w.fetch = u => {
+        if (failFetch) return Promise.reject(new Error('offline'));
+        const url = new URL(u, w.location.href), f = path.join(ROOT, decodeURIComponent(url.pathname.slice(BASE.length)));
+        try { const txt = fs.readFileSync(f, 'utf8'); return Promise.resolve({ ok: true, json: () => Promise.resolve(JSON.parse(txt)), text: () => Promise.resolve(txt) }); }
+        catch { return Promise.resolve({ ok: false }); }
+      };
       w.URL.createObjectURL = () => 'blob:test'; w.URL.revokeObjectURL = () => {};
       const D = w.HTMLDialogElement.prototype;
       D.showModal = function () { this.setAttribute('open', ''); };
@@ -56,7 +62,7 @@ export async function boot(sub, { ls = {}, failSet = [] } = {}) {
 }
 
 export const mkTask = (o) => ({ id: 't' + Math.random().toString(36).slice(2, 7), area: 'a1', t: 'Zad', d: '', time: '', rep: { k: 'none', days: [] }, imp: false, cnt: 1, exp: false, st: 'prog', date: today(), ...o });
-export const mkState = (tasks, extra = {}) => ({ schema: 2, tasks, log: [], last: today(), reasons: [], areas: [{ id: 'a1', name: 'Prywatna', color: '#2a9d8f' }, { id: 'a2', name: 'Zawodowa', color: '#3976be' }], area: 'a1', ...extra });
+export const mkState = (tasks, extra = {}) => ({ schema: 2, tasks, log: [], last: today(), reasons: [], areas: [{ id: 'a1', name: 'Prywatna', color: '#2a9d8f' }, { id: 'a2', name: 'Zawodowa', color: '#3976be' }], area: 'a1', dd: { on: false }, ...extra });
 
 let pass = 0, fail = 0;
 const ok = (c, name, info = '') => { c ? pass++ : fail++; console.log((c ? '  ok   ' : '  FAIL ') + name + (c || !info ? '' : '  → ' + info)); };
@@ -483,6 +489,87 @@ try {
   const cur = new Date(); const thisWeekPause = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': mkState([], { log, pauses: [PZ(0, 0)] }) } });
   thisWeekPause.ev("tab='done';render()");
   ok(/Tydzień z pauzą: bez porównania/.test(mainText(thisWeekPause)) && !/względem tych samych dni/.test(mainText(thisWeekPause)), 'pauza w bieżącym tygodniu: porównanie z poprzednim znika');
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+// ---------- doodle dnia ----------
+const ddState = (extra = {}) => oldState({ created: D(-200), dd: { on: true }, ...extra });
+const ddMan = JSON.parse(fs.readFileSync(path.join(ROOT, 'test/doodle/manifest.json'), 'utf8'));
+const dlgOf = a => a.d.getElementById('dlg');
+const ddCard = a => dlgOf(a).querySelector('.ddw');
+
+console.log('\n[25] Doodle: po starcie pokazuje się raz dziennie, scena i tekst, znika sam');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': ddState() } });
+  await sleep(800);
+  ok(dlgOf(a).hasAttribute('open') && !!ddCard(a), 'po starcie otwiera się karta doodle');
+  ok(!!ddCard(a) && !!ddCard(a).querySelector('svg.dd-svg') && ddCard(a).querySelectorAll('svg polygon').length > 300, 'jest scena SVG (wiele wielokątów)');
+  const txt = ddCard(a) ? ddCard(a).querySelector('.ddt').textContent : '';
+  ok(txt.length > 20 && !/[{}]/.test(txt), 'jest zdanie motywujące bez nierozwiniętych placeholderów', txt);
+  ok(!!ddCard(a) && ddCard(a).querySelector('.ddn').textContent.length > 2, 'pod sceną jest nazwa postaci', ddCard(a) && ddCard(a).querySelector('.ddn').textContent);
+  ok(a.ev('S.dd.shown') === D(0) && a.ev('S.dd.sd') === D(0), 'zapisano, że dzisiejszy doodle był pokazany');
+  const sc = a.ev('S.dd.scene'); ok(sc && ddMan.tla.some(x => x.id === sc.tlo) && ddMan.postacie.some(x => x.id === sc.hero), 'zapisana scena odwołuje się do modułów z manifestu', JSON.stringify(sc));
+  ok(a.ev('S.dd.recent.length') === 1 && a.ev('S.dd.seen[S.dd.scene.hero]') === 1, 'zapisano historię (ostatnie postacie) i oznaczono jako widziane');
+  ok(a.errors.length === 0, 'brak błędów skryptu', a.errors.join(' | '));
+  await sleep(7200);
+  ok(!dlgOf(a).hasAttribute('open'), 'karta zamyka się sama po kilku sekundach');
+  const b = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': ddState({ dd: { on: true, shown: D(0) } }) } });
+  await sleep(800); ok(!dlgOf(b).hasAttribute('open'), 'tego samego dnia drugi raz się nie pokazuje');
+  const c = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': ddState({ dd: { on: true, shown: D(-1) } }) } });
+  await sleep(800); ok(dlgOf(c).hasAttribute('open') && !!ddCard(c), 'następnego dnia pokazuje się znowu');
+  dlgOf(c).click(); ok(!dlgOf(c).hasAttribute('open'), 'stuknięcie w kartę zamyka ją od razu');
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[26] Doodle: powtórka w Ustawieniach i przełącznik');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': ddState({ dd: { on: false } }) } });
+  await sleep(600); ok(!dlgOf(a).hasAttribute('open'), 'przy wyłączonym doodle nic nie wyskakuje');
+  a.ev("tab='set';render()");
+  ok(/Doodle dnia/.test(mainText(a)) && !!a.d.querySelector('[data-a=ddreplay]') && !a.d.getElementById('ddon').checked, 'w Ustawieniach jest sekcja Doodle dnia z wyłączonym przełącznikiem');
+  a.d.querySelector('[data-a=ddreplay]').click(); await sleep(700);
+  ok(dlgOf(a).hasAttribute('open') && !!ddCard(a), 'przycisk pokazuje doodle mimo wyłączenia automatu');
+  const s1 = ddCard(a).innerHTML; ok(a.ev('S.dd.shown') === undefined, 'powtórka nie oznacza dnia jako „pokazanego”');
+  dlgOf(a).click(); a.ev("tab='set';render()"); a.d.querySelector('[data-a=ddreplay]').click(); await sleep(500);
+  ok(ddCard(a).innerHTML === s1, 'druga powtórka: identyczna scena i tekst jak pierwsza');
+  dlgOf(a).click();
+  const cb = a.d.getElementById('ddon'); cb.checked = true; cb.dispatchEvent(new a.w.Event('change', { bubbles: true }));
+  ok(a.ev('S.dd.on') === true, 'przełącznik „Pokazuj raz dziennie” zapisuje ustawienie');
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[27] Doodle po oknie „Tracisz monety”, nie przed nim');
+try {
+  const st = ddState({ last: D(-1), coins: 10 }); st.tasks.push(mkTask({ id: 'e1', t: 'Wygasa', st: 'prog', exp: true, date: D(-1), ord: 0 }));
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': st } });
+  await sleep(500);
+  ok(dlgOf(a).hasAttribute('open') && !!a.d.getElementById('ok2') && !ddCard(a), 'najpierw okno z wygasłymi zadaniami, bez doodle');
+  a.d.getElementById('ok2').click(); await sleep(1100);
+  ok(dlgOf(a).hasAttribute('open') && !!ddCard(a), 'po zamknięciu okna pojawia się doodle');
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[28] Doodle bez dostępu do plików (offline bez cache): bez błędów i bez zaznaczania dnia');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': ddState() }, failFetch: true });
+  await sleep(800);
+  ok(a.errors.length === 0, 'brak błędów skryptu', a.errors.join(' | '));
+  ok(!dlgOf(a).hasAttribute('open') && a.ev('S.dd.shown') === undefined, 'nic nie wyskakuje, a dzień nie jest oznaczony (spróbuje ponownie przy następnym otwarciu)');
+  ok(a.ev('!!document.getElementById("main").textContent'), 'aplikacja działa normalnie');
+  a.ev("tab='set';render()"); a.d.querySelector('[data-a=ddreplay]').click(); await sleep(500);
+  ok(/Nie udało się wczytać doodle/.test(a.d.body.textContent), 'powtórka w Ustawieniach informuje, że nie udało się wczytać');
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[29] Doodle w pauzie i po angielsku');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': ddState({ pauses: [PZ(-2, 3)] }) } });
+  await sleep(800);
+  const tx = ddCard(a) ? ddCard(a).querySelector('.ddt').textContent : '';
+  ok(/pauz|Odpoczyn|Czas wolny/i.test(tx) && !/[{}]/.test(tx), 'w pauzie komunikat jest o odpoczynku, bez porównań', tx);
+  const e = await boot('test', { ls: { 'kanban-lang': 'en', 'kanban-v1': ddState() } });
+  await sleep(800);
+  const te = ddCard(e) ? ddCard(e).querySelector('.ddt').textContent : '';
+  ok(te.length > 20 && !/[ąćęłńóśźż]/i.test(te) && !/Wczoraj|zadań|zadania|tydzień/i.test(te), 'po angielsku komunikat jest po angielsku', te);
+  const nm = ddCard(e) ? ddCard(e).querySelector('.ddn').textContent : '';
+  ok(/^(Miner|Blacksmith|Archaeologist|Angler|Reading Owl)$/.test(nm), 'nazwa postaci po angielsku', nm);
+  dlgOf(e).click(); e.ev("tab='set';render()");
+  ok(/Doodle of the day/.test(mainText(e)) && /Show once a day/.test(mainText(e)), 'sekcja w Ustawieniach po angielsku');
 } catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
 
 console.log(`\nWynik: ${pass} ok, ${fail} błędów`);

@@ -1,0 +1,144 @@
+{
+ "v": 1,
+ "engine": "engine.js",
+ "tla": [
+  {
+   "id": "wiosna",
+   "file": "tla/wiosna.js",
+   "w": 1,
+   "since": "1.19.0"
+  },
+  {
+   "id": "lato",
+   "file": "tla/lato.js",
+   "w": 1,
+   "since": "1.19.0"
+  },
+  {
+   "id": "jesien",
+   "file": "tla/jesien.js",
+   "w": 1,
+   "since": "1.19.0"
+  },
+  {
+   "id": "zima",
+   "file": "tla/zima.js",
+   "w": 1,
+   "since": "1.19.0"
+  }
+ ],
+ "postacie": [
+  {
+   "id": "gornik",
+   "file": "postacie/gornik.js",
+   "w": 1,
+   "since": "1.19.0"
+  },
+  {
+   "id": "kowal",
+   "file": "postacie/kowal.js",
+   "w": 1,
+   "since": "1.19.0"
+  },
+  {
+   "id": "archeolog",
+   "file": "postacie/archeolog.js",
+   "w": 1,
+   "since": "1.19.0"
+  },
+  {
+   "id": "wedkarz",
+   "file": "postacie/wedkarz.js",
+   "w": 1,
+   "since": "1.19.0",
+   "seasons": [
+    "wiosna",
+    "lato"
+   ]
+  },
+  {
+   "id": "sowa",
+   "file": "postacie/sowa.js",
+   "w": 1,
+   "since": "1.19.0"
+  }
+ ],
+ "pogoda": [
+  {
+   "id": "spokojny",
+   "file": "pogoda/spokojny.js",
+   "w": 1,
+   "since": "1.19.0",
+   "seasons": [
+    "wiosna",
+    "lato",
+    "jesien",
+    "zima"
+   ]
+  },
+  {
+   "id": "deszcz",
+   "file": "pogoda/deszcz.js",
+   "w": 1,
+   "since": "1.19.0",
+   "seasons": [
+    "wiosna",
+    "lato",
+    "jesien"
+   ]
+  },
+  {
+   "id": "snieg",
+   "file": "pogoda/snieg.js",
+   "w": 1,
+   "since": "1.19.0",
+   "seasons": [
+    "zima"
+   ]
+  },
+  {
+   "id": "slonce",
+   "file": "pogoda/slonce.js",
+   "w": 1,
+   "since": "1.19.0",
+   "seasons": [
+    "wiosna",
+    "lato",
+    "jesien"
+   ]
+  },
+  {
+   "id": "tecza",
+   "file": "pogoda/tecza.js",
+   "w": 1,
+   "since": "1.19.0",
+   "seasons": [
+    "wiosna",
+    "lato",
+    "jesien"
+   ]
+  }
+ ],
+ "wejscia": [
+  {
+   "id": "z-lewej",
+   "w": 1
+  },
+  {
+   "id": "z-prawej",
+   "w": 1
+  },
+  {
+   "id": "z-dolu",
+   "w": 1
+  },
+  {
+   "id": "z-gory",
+   "w": 1
+  },
+  {
+   "id": "po-luku",
+   "w": 1
+  }
+ ]
+}

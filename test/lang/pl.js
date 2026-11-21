@@ -337,5 +337,10 @@
 "Zadania cykliczne i z datą są wstrzymane. Dodaj ręcznie to, czego potrzebujesz.": "Zadania cykliczne i z datą są wstrzymane. Dodaj ręcznie to, czego potrzebujesz.",
 "po terminie · {d}": "po terminie · {d}",
 "Tydzień z pauzą: bez porównania z poprzednim.": "Tydzień z pauzą: bez porównania z poprzednim.",
-"Przerywany słupek: tydzień z pauzą.": "Przerywany słupek: tydzień z pauzą."
+"Przerywany słupek: tydzień z pauzą.": "Przerywany słupek: tydzień z pauzą.",
+"Doodle dnia": "Doodle dnia",
+"Raz dziennie krótka scena z postacią przy pracy i zdanie motywujące, oparte o Twoje wyniki.": "Raz dziennie krótka scena z postacią przy pracy i zdanie motywujące, oparte o Twoje wyniki.",
+"Pokazuj raz dziennie": "Pokazuj raz dziennie",
+"Zobacz doodle dnia": "Zobacz doodle dnia",
+"Nie udało się wczytać doodle. Spróbuj, gdy będziesz online.": "Nie udało się wczytać doodle. Spróbuj, gdy będziesz online."
 };
