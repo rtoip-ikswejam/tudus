@@ -184,6 +184,17 @@ console.log('\n=== Silnik, teksty i moduły ===');
     } }
   ok(bad.length === 0, `${combos} kombinacji scen: poprawny SVG, brak zdublowanych id i martwych odwołań`, bad.slice(0, 3).join(' ; '));
   ok(maxEl <= 1300 && maxKB <= 250, `rozmiar sceny w granicach: max ${maxEl} elementów, ${maxKB.toFixed(0)} KB`, `${maxEl} el., ${maxKB.toFixed(0)} KB`);
+  // tempo animacji: reguły CSS i poprawne okresy w każdej scenie
+  const eng = fs.readFileSync(path.join(dir, 'engine.js'), 'utf8');
+  ok(/\.dd-svg \.a,\.dd-svg \.fa\{animation-duration:calc\(var\(--t\)\*var\(--dds,1\)\)\}/.test(eng) && /\.dd-still[^{]*\{animation:none!important\}/.test(eng), 'CSS: mnożnik tempa (--dds) i tryb statyczny (.dd-still) są zdefiniowane');
+  let badT = [], minT = 1e9, nAnim = 0;
+  for (const t of man.tla) for (const p of man.postacie) { if (p.seasons && !p.seasons.includes(t.id)) continue;
+    for (const w of man.pogoda) { if (w.seasons && !w.seasons.includes(t.id)) continue;
+      const svg = Dd.svg({ tlo: t.id, hero: p.id, wea: w.id, entry: 'z-lewej' });
+      for (const m of svg.matchAll(/style="([^"]*--k:[^"]*)"/g)) { nAnim++; const tm = m[1].match(/--t:([^;"]+)/); if (!tm || !/^[0-9.]+s$/.test(tm[1])) { badT.push(`${t.id}/${p.id}/${w.id}: ${m[1].slice(0, 50)}`); continue; } minT = Math.min(minT, parseFloat(tm[1])); }
+    } }
+  ok(badT.length === 0, `każdy z ${nAnim} animowanych elementów ma okres w sekundach (inaczej calc() nie zadziała)`, badT.slice(0, 2).join(' ; '));
+  ok(minT * 1.6 >= 1.4, `przy domyślnym tempie ×1,6 najkrótsza pętla trwa ${(minT * 1.6).toFixed(2)} s (próg 1,4 s); okres surowy ${minT} s`, String(minT));
   ok(Dd.svg({ tlo: 'nie-ma', hero: 'gornik', wea: 'deszcz', entry: '' }) === '' && Dd.svg({ tlo: 'zima', hero: 'x', wea: 'snieg', entry: '' }) === '', 'nieznane id: pusty wynik zamiast wyjątku');
   const w1 = Dd.svg({ tlo: 'wiosna', hero: 'gornik', wea: 'tecza', entry: 'z-lewej' }), w2 = Dd.svg({ tlo: 'wiosna', hero: 'gornik', wea: 'tecza', entry: 'z-lewej' });
   ok(w1 === w2, 'ta sama scena daje identyczny SVG (powtórka w Ustawieniach wygląda tak samo)');

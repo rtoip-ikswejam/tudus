@@ -342,5 +342,19 @@
 "Raz dziennie krótka scena z postacią przy pracy i zdanie motywujące, oparte o Twoje wyniki.": "Once a day a short scene with someone at work and a motivating line based on your results.",
 "Pokazuj raz dziennie": "Show once a day",
 "Zobacz doodle dnia": "See today's doodle",
-"Nie udało się wczytać doodle. Spróbuj, gdy będziesz online.": "Could not load the doodle. Try again when you are online."
+"Nie udało się wczytać doodle. Spróbuj, gdy będziesz online.": "Could not load the doodle. Try again when you are online.",
+"Tempo animacji": "Animation speed",
+"Statycznie": "Still",
+"Wolno": "Slow",
+"Normalnie": "Normal",
+"Szybko": "Fast",
+"Własne": "Custom",
+"Podgląd scen (test)": "Scene preview (test)",
+"Tło": "Background",
+"Postać": "Character",
+"Pogoda": "Weather",
+"Wejście": "Entrance",
+"Losuj": "Random",
+"Użyj tego tempa": "Use this speed",
+"Zapisano tempo animacji.": "Animation speed saved."
 };

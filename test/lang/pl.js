@@ -342,5 +342,19 @@
 "Raz dziennie krótka scena z postacią przy pracy i zdanie motywujące, oparte o Twoje wyniki.": "Raz dziennie krótka scena z postacią przy pracy i zdanie motywujące, oparte o Twoje wyniki.",
 "Pokazuj raz dziennie": "Pokazuj raz dziennie",
 "Zobacz doodle dnia": "Zobacz doodle dnia",
-"Nie udało się wczytać doodle. Spróbuj, gdy będziesz online.": "Nie udało się wczytać doodle. Spróbuj, gdy będziesz online."
+"Nie udało się wczytać doodle. Spróbuj, gdy będziesz online.": "Nie udało się wczytać doodle. Spróbuj, gdy będziesz online.",
+"Tempo animacji": "Tempo animacji",
+"Statycznie": "Statycznie",
+"Wolno": "Wolno",
+"Normalnie": "Normalnie",
+"Szybko": "Szybko",
+"Własne": "Własne",
+"Podgląd scen (test)": "Podgląd scen (test)",
+"Tło": "Tło",
+"Postać": "Postać",
+"Pogoda": "Pogoda",
+"Wejście": "Wejście",
+"Losuj": "Losuj",
+"Użyj tego tempa": "Użyj tego tempa",
+"Zapisano tempo animacji.": "Zapisano tempo animacji."
 };

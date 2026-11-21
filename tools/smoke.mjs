@@ -572,5 +572,60 @@ try {
   ok(/Doodle of the day/.test(mainText(e)) && /Show once a day/.test(mainText(e)), 'sekcja w Ustawieniach po angielsku');
 } catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
 
+console.log('\n[30] Doodle: tempo animacji i ponowne zaznaczenie opcji');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': ddState({ dd: { on: true, shown: D(0) } }) } });
+  ok(a.ev('S.dd.speed') === 1.6, 'domyślne tempo to ×1,6 (wolniej niż w oryginale)');
+  a.ev("tab='set';render()");
+  const sel = a.d.getElementById('ddspeed');
+  ok(!!sel && [...sel.options].map(o => o.textContent).join() === 'Statycznie,Wolno,Normalnie,Szybko' && sel.value === '1.6', 'w Ustawieniach jest wybór tempa (Statycznie / Wolno / Normalnie / Szybko)');
+  const setSpeed = v => { const s = a.d.getElementById('ddspeed'); s.value = String(v); s.dispatchEvent(new a.w.Event('change', { bubbles: true })); };
+  setSpeed(2.4); await sleep(700);
+  ok(a.ev('S.dd.speed') === 2.4 && dlgOf(a).hasAttribute('open') && /--dds:\s*2\.4/.test(ddCard(a).querySelector('.ddc').getAttribute('style')), 'zmiana tempa zapisuje je i od razu pokazuje podgląd z nowym tempem (×2,4)');
+  dlgOf(a).click(); a.ev("tab='set';render()");
+  setSpeed(0); await sleep(700);
+  ok(a.ev('S.dd.speed') === 0 && ddCard(a).querySelector('.ddc').classList.contains('dd-still'), 'Statycznie: karta dostaje klasę dd-still (bez ruchu)');
+  dlgOf(a).click(); a.ev("S.dd.speed=2;tab='set';render()");
+  ok([...a.d.getElementById('ddspeed').options].some(o => /Własne ×2/.test(o.textContent) && o.selected), 'tempo spoza listy (np. z pracowni) jest pokazane jako „Własne”');
+  // ponowne zaznaczenie opcji pokazuje doodle od razu
+  a.ev("S.dd.on=true;S.dd.shown=today();tab='set';render()");
+  const cb = a.d.getElementById('ddon'); cb.checked = false; cb.dispatchEvent(new a.w.Event('change', { bubbles: true })); await sleep(500);
+  ok(a.ev('S.dd.on') === false && !dlgOf(a).hasAttribute('open'), 'odznaczenie wyłącza i niczego nie pokazuje');
+  cb.checked = true; cb.dispatchEvent(new a.w.Event('change', { bubbles: true })); await sleep(900);
+  ok(a.ev('S.dd.on') === true && dlgOf(a).hasAttribute('open') && !!ddCard(a), 'ponowne zaznaczenie od razu pokazuje doodle (nawet jeśli dziś już było)');
+  ok(a.ev('S.dd.shown') === D(0), 'po takim pokazie dzień jest oznaczony jako pokazany');
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[31] Doodle: pracownia scen (tylko wersja testowa)');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': ddState({ dd: { on: false } }) } });
+  a.ev("tab='set';render()");
+  const b = a.d.querySelector('[data-a=ddlab]'); ok(!!b, 'w wersji testowej jest przycisk „Podgląd scen (test)”');
+  b.click(); await sleep(900);
+  const cnt = id => a.d.getElementById(id) ? a.d.getElementById(id).options.length : -1;
+  ok(dlgOf(a).hasAttribute('open') && cnt('dlt') === ddMan.tla.length && cnt('dlh') === ddMan.postacie.length && cnt('dlw') === ddMan.pogoda.length && cnt('dle') === ddMan.wejscia.length, 'pracownia ma listy: tła, postaci, pogody i wejścia z manifestu');
+  const pv = () => a.d.getElementById('ddlp');
+  ok(pv().querySelectorAll('polygon').length > 300, 'od razu pokazuje scenę');
+  const before = pv().innerHTML, h = a.d.getElementById('dlh'); h.value = [...h.options].map(o => o.value).find(v => v !== h.value); h.dispatchEvent(new a.w.Event('change', { bubbles: true }));
+  ok(pv().innerHTML !== before, 'zmiana postaci przerysowuje scenę');
+  const s = a.d.getElementById('dls'); s.value = '3'; s.dispatchEvent(new a.w.Event('change', { bubbles: true }));
+  ok(/--dds:\s*3/.test(pv().getAttribute('style')) && !pv().classList.contains('dd-still'), 'tempo ×3 ustawia mnożnik na podglądzie');
+  s.value = '0'; s.dispatchEvent(new a.w.Event('change', { bubbles: true }));
+  ok(pv().classList.contains('dd-still'), 'tempo „Statycznie” zatrzymuje ruch na podglądzie');
+  s.value = '2'; s.dispatchEvent(new a.w.Event('change', { bubbles: true }));
+  a.d.getElementById('dlu').click(); ok(a.ev('S.dd.speed') === 2, '„Użyj tego tempa” zapisuje wybraną wartość jako ustawienie');
+  const snap = [a.d.getElementById('dlt').value, a.d.getElementById('dlh').value, a.d.getElementById('dlw').value].join();
+  let changed = false; for (let i = 0; i < 12 && !changed; i++) { a.d.getElementById('dlr').click(); changed = [a.d.getElementById('dlt').value, a.d.getElementById('dlh').value, a.d.getElementById('dlw').value].join() !== snap; }
+  ok(changed && pv().querySelectorAll('polygon').length > 300, '„Losuj” zmienia kombinację i rysuje scenę');
+  ok(a.ev('S.dd.shown') === undefined && a.ev('S.dd.sd') === undefined, 'pracownia nie rusza stanu „doodle dnia” (scena dnia, historia, oznaczenie pokazu)');
+  a.d.getElementById('dlx').click(); ok(!dlgOf(a).hasAttribute('open'), 'przycisk „Zamknij” zamyka pracownię');
+  ok(a.errors.length === 0, 'brak błędów skryptu', a.errors.join(' | '));
+  // produkcja (jeśli już ma doodle): pracowni nie ma
+  if (fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').includes('ddLab')) {
+    const r = await boot('', { ls: { 'kanban-lang': 'pl', 'kanban-v1': ddState({ dd: { on: false } }) } });
+    r.ev("tab='set';render()"); ok(!r.d.querySelector('[data-a=ddlab]') && !!r.d.getElementById('ddspeed'), 'w produkcji jest wybór tempa, ale nie ma pracowni scen');
+  }
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
 console.log(`\nWynik: ${pass} ok, ${fail} błędów`);
 process.exit(fail ? 1 : 0);

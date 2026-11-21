@@ -290,5 +290,11 @@ const BASE_CSS=`/* animacje – wszystkie ruchome części */
 @media (prefers-reduced-motion:reduce){.a,.fa,.isle,.sw,.entry{animation:none!important}}
 
 @keyframes owl-page{0%,100%{transform:scaleX(1)}38%{transform:scaleX(1)}55%{transform:scaleX(-1)}70%{transform:scaleX(-1)}86%{transform:scaleX(1)}}
-@keyframes owl-rise{0%{opacity:0;transform:translate(0,0) scale(.6)}25%{opacity:1}100%{opacity:0;transform:translate(3px,-22px) scale(1)}}`;
+@keyframes owl-rise{0%{opacity:0;transform:translate(0,0) scale(.6)}25%{opacity:1}100%{opacity:0;transform:translate(3px,-22px) scale(1)}}
+/* tempo: --dds mnoży okresy wszystkich animacji (ustawiane na kontenerze karty), .dd-still wyłącza ruch */
+.dd-svg .a,.dd-svg .fa{animation-duration:calc(var(--t)*var(--dds,1))}
+.dd-svg .isle{animation-duration:calc(6s*var(--dds,1))}
+.dd-svg .sw{animation-duration:calc(4s*var(--dds,1))}
+.dd-still .a,.dd-still .fa,.dd-still .isle,.dd-still .sw{animation:none!important}
+`;
 })(typeof window!=='undefined'?window:globalThis);
