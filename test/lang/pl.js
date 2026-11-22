@@ -356,5 +356,12 @@
 "Wejście": "Wejście",
 "Losuj": "Losuj",
 "Użyj tego tempa": "Użyj tego tempa",
-"Zapisano tempo animacji.": "Zapisano tempo animacji."
+"Zapisano tempo animacji.": "Zapisano tempo animacji.",
+"Bilans list": "Bilans list",
+"Ostatnie 7 dni względem zwykłego tempa każdej listy.": "Ostatnie 7 dni względem zwykłego tempa każdej listy.",
+"Za mało danych, żeby porównać listy.": "Za mało danych, żeby porównać listy.",
+"Wszystko idzie równo: {l} swojej normy.": "Wszystko idzie równo: {l} swojej normy.",
+"{a} idzie najlepiej ({p}% swojej normy).": "{a} idzie najlepiej ({p}% swojej normy).",
+"pauza": "pauza",
+"za mało danych": "za mało danych"
 };

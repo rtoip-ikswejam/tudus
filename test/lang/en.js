@@ -356,5 +356,12 @@
 "Wejście": "Entrance",
 "Losuj": "Random",
 "Użyj tego tempa": "Use this speed",
-"Zapisano tempo animacji.": "Animation speed saved."
+"Zapisano tempo animacji.": "Animation speed saved.",
+"Bilans list": "List balance",
+"Ostatnie 7 dni względem zwykłego tempa każdej listy.": "Last 7 days compared with each list's usual pace.",
+"Za mało danych, żeby porównać listy.": "Not enough data to compare the lists.",
+"Wszystko idzie równo: {l} swojej normy.": "Everything is on an even keel: {l} of their usual pace.",
+"{a} idzie najlepiej ({p}% swojej normy).": "{a} is doing best ({p}% of its usual pace).",
+"pauza": "pause",
+"za mało danych": "not enough data"
 };

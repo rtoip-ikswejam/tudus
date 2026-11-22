@@ -8,6 +8,7 @@ Dwie kontrole, które powinny przejść **przed** każdym wydaniem (na GitHubie 
 | Testy agregacji | `node tools/agg.test.mjs` | rdzeń porządkowania danych bez interfejsu: sumy przed = po (także niezależnym liczeniem tygodni), idempotencja, porażki bez przyczyny, czyszczenie zadań, granice tygodni (DST, przełom roku), pomiar rozmiaru |
 | Testy pauzy | `node tools/pause.test.mjs` | rdzeń pauzy bez interfejsu: granice dat (DST, przełom roku), listy objęte pauzą, nakładanie się pauz, walidacja, wybór zadań z datą do przeglądu |
 | Testy doodle | `node tools/doodle.test.mjs` | logika komunikatów A/B/C (warunki, liczby, wagi, pauza, nowy użytkownik), wybór sceny (ograniczenia, brak powtórek, bonus „nowość”), odmiana PL/EN, kompletność tekstów, poprawność każdej kombinacji sceny (SVG, id, rozmiar), brak plików spoza manifestu |
+| Testy bilansu | `node tools/balance.test.mjs` | wskaźnik względem własnej normy, granice okna 7 dni, pauza, mała próbka, próg „równo”, niezależność od dnia tygodnia, zgodność po porządkowaniu danych |
 | Test dymny | `cd tools && npm install && node smoke.mjs` | uruchamia aplikację (produkcję i `/test/`) w jsdom: start bez błędów, kopię danych prod → test, brak miejsca przy kopiowaniu, odświeżenie kopii, liczniki, kolejność zadań, interfejs EN |
 
 Ograniczenia: jsdom nie ma service workera ani prawdziwego localStorage z limitem 5 MB, więc aktualizacje offline i przepełnienie trzeba nadal sprawdzić ręcznie na telefonie (Ustawienia → Diagnostyka).

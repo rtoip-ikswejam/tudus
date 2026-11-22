@@ -627,5 +627,53 @@ try {
   }
 } catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
 
+// ---------- bilans list ----------
+const m0off = -((new Date().getDay() + 6) % 7); // przesunięcie dzisiejszego poniedziałku względem dziś
+function balLog(a1 = { norm: 10, rec: 12 }, a2 = { norm: 4, rec: 2 }) {
+  const log = []; let n = 0;
+  const put = (area, off) => log.push({ id: 'b' + (++n), tid: 'bt' + n, area, tpl: null, title: 'x', date: D(off), res: 'done', c: 2 });
+  for (const [area, v] of [['a1', a1], ['a2', a2]]) {
+    const perDay = v.norm / 5; // pierwsze 5 dni tygodnia po norm/5 (zaokrąglenie w górę/dół)
+    for (let i = 0; i < 28; i++) { const off = m0off - 35 + i, k = i % 7; if (k < 5) { const cnt = Math.floor(v.norm / 5) + (k < v.norm % 5 ? 1 : 0); for (let c = 0; c < cnt; c++) put(area, off); } }
+    for (let c = 0; c < v.rec; c++) put(area, -7 + (c % 6)); // ostatnie 7 dni: -7..-2
+  }
+  return log;
+}
+const balState = (extra = {}, logArgs = []) => mkState([], { log: balLog(...logArgs), created: D(-200), ...extra });
+
+console.log('\n[32] Bilans list: pasek na górze „Zrobione”');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': balState() } });
+  a.ev("tab='done';render()");
+  const card = a.d.querySelector('#main .balbar') && a.d.querySelector('#main .balbar').parentElement;
+  ok(!!card && a.d.getElementById('main').firstElementChild === card, 'karta „Bilans list” jest pierwsza w „Zrobione”');
+  const segs = [...a.d.querySelectorAll('.balseg')];
+  ok(segs.length === 2, 'pasek ma dwa kolory (po jednym na listę)');
+  ok(segs.map(s => s.style.flexGrow).join() === '120,50', 'szerokości są proporcjonalne do wskaźnika (120 i 50)', segs.map(s => s.style.flexGrow).join());
+  ok(/Prywatna 120%/.test(segs[0].textContent) && /Zawodowa 50%/.test(segs[1].textContent), 'etykiety w segmentach: nazwa i procent');
+  ok(/#2a9d8f|rgb\(42, 157, 143\)/i.test(segs[0].getAttribute('style')) && /color:\s*(#[0-9a-f]{6}|rgb)/i.test(segs[0].getAttribute('style')), 'segment ma kolor listy i kontrastowy kolor tekstu');
+  ok(/Prywatna idzie najlepiej \(120% swojej normy\)\. Zawodowa 50%\./.test(card.textContent), 'zdanie wskazuje najlepszą listę i podaje pozostałe', card.textContent.slice(0, 160));
+  ok(/Ostatnie 7 dni względem zwykłego tempa/.test(card.textContent) && !card.querySelector('.balchip'), 'podpis wyjaśnia, że to własna norma; brak plakietek, gdy obie listy są porównywalne');
+  ok(a.errors.length === 0, 'brak błędów skryptu', a.errors.join(' | '));
+  // pauza jednej z list
+  const p = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': balState({ pauses: [PZ(-1, 3, ['a2'])] }) } });
+  p.ev("tab='done';render()");
+  ok(!p.d.querySelector('.balbar') && /Zawodowa: pauza/.test(p.d.querySelector('.balchip') ? p.d.querySelector('.balchips').textContent : '') && /Za mało danych, żeby porównać listy/.test(mainText(p)), 'lista w pauzie: plakietka „pauza”, brak paska i spokojny komunikat zamiast porównania');
+  // mała próbka
+  const f = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': balState({}, [{ norm: 10, rec: 10 }, { norm: 2, rec: 5 }]) } });
+  f.ev("tab='done';render()");
+  ok(!f.d.querySelector('.balbar') && /Zawodowa: za mało danych/.test(f.d.querySelector('.balchips') ? f.d.querySelector('.balchips').textContent : ''), 'lista z normą poniżej progu: „za mało danych”, bez procentów');
+  // jedna lista: bez karty
+  const o = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': balState({ areas: [{ id: 'a1', name: 'Prywatna', color: '#2a9d8f' }] }) } });
+  o.ev("tab='done';render()"); ok(!/Bilans list/.test(mainText(o)), 'przy jednej liście karta się nie pokazuje');
+  // równo
+  const e = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': balState({}, [{ norm: 10, rec: 10 }, { norm: 10, rec: 10 }]) } });
+  e.ev("tab='done';render()"); ok(/Wszystko idzie równo: Prywatna 100%, Zawodowa 100% swojej normy\./.test(mainText(e)), 'oba na 100%: zdanie „idzie równo”', mainText(e).slice(0, 120));
+  // angielski
+  const en = await boot('test', { ls: { 'kanban-lang': 'en', 'kanban-v1': balState() } });
+  en.ev("tab='done';render()");
+  ok(/List balance/.test(mainText(en)) && /is doing best \(120% of its usual pace\)/.test(mainText(en)), 'po angielsku: „List balance … is doing best”', mainText(en).slice(0, 140));
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
 console.log(`\nWynik: ${pass} ok, ${fail} błędów`);
 process.exit(fail ? 1 : 0);
