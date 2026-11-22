@@ -77,6 +77,7 @@ input,textarea,select{width:100%;font:inherit;padding:10px;border-radius:var(--r
 label{display:block;margin:10px 0 0;font-size:14px;color:var(--mu)}label.ck{display:inline-flex;align-items:center;gap:4px;margin-right:8px}label.ck input{width:auto}
 dialog{width:min(440px,94vw);border:1px solid var(--ln);border-radius:var(--r-dlg);background:var(--bg);color:var(--fg);padding:16px}dialog::backdrop{background:#0008}
 .ddw{text-align:center}.ddc{border-radius:14px;overflow:hidden;line-height:0}.ddc svg{width:100%;height:auto;max-height:230px;display:block;margin:0 auto}.ddt{font-size:17px;font-weight:600;margin:12px 4px 4px;line-height:1.35}.ddn{margin:0 0 6px;font-size:13px}.ddlab{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin-top:10px;text-align:left}.ddlab .row{grid-column:1/-1}
+.balbar{display:flex;gap:2px;border-radius:8px;overflow:hidden;height:30px;margin-top:8px}.balseg{display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:12px;font-weight:600;padding:0 6px}.balchips{margin-top:6px}.balchip{display:inline-block;background:var(--ln);color:var(--mu);border-radius:10px;padding:2px 8px;margin:2px 4px 2px 0;font-size:12px}
 .row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.row .sm{flex:1}
 .rb{display:flex;align-items:center;gap:8px;margin:6px 0}.rb i{height:18px;background:var(--stat);border-radius:4px;min-width:3px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:9;font-size:14px;max-width:90vw}
@@ -117,7 +118,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 .th-prev{margin-top:10px;padding-top:10px;border-top:1px solid var(--div)}
 .th-prev-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
 </style></head><body data-tab="prog">
-<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.20.0</div></div></div>
+<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.21.0</div></div></div>
 <script>(function(){var l;try{l=localStorage.getItem('kanban-lang')}catch(e){}if(!l)l=/^en/i.test(navigator.language||'')?'en':'pl';document.getElementById('spl').textContent=l==='en'?'Loading…':'Wczytywanie…';setTimeout(function(){var s=document.getElementById('splash');if(s)s.remove()},4000)})()</script>
 <header><div id="ab"></div><nav class="tabs"><button class="tab" data-a="tab" data-tab="todo">Do zrobienia</button><button class="tab" data-a="tab" data-tab="prog">Dzisiaj</button><button class="tab" data-a="tab" data-tab="done">Zrobione</button><button class="tab" data-a="tab" data-tab="stat">Statystyki</button><span id="test-badge" class="test-pill" style="display:none">TEST</span><button class="gear" data-a="tab" data-tab="set" aria-label="Ustawienia">⚙</button></nav></header>
 <main id="main"></main><div id="bar"></div><div id="mis"></div>
@@ -128,7 +129,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 <script>
 const IS_TEST=!!window.__IS_TEST;
 if(IS_TEST){const tb=document.getElementById('test-badge');if(tb)tb.style.display='inline-flex';}
-const V='1.20.0',SPLASH_MS=1000,SCHEMA=3,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
+const V='1.21.0',SPLASH_MS=1000,SCHEMA=3,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
 /* --- Dane testowe: jednokierunkowa kopia produkcja -> test --- */
 const PK='kanban-v1',TK='kanban-v1-test',TMK='kanban-v1-test-meta';
 const tmeta=()=>{try{return JSON.parse(localStorage.getItem(TMK))}catch(e){return null}};
@@ -382,6 +383,19 @@ const pauseActive=(s,area,td)=>(s.pauses||[]).filter(p=>p.from<=td&&td<=p.to&&(!
 function pauseOk(p){return !!p&&typeof p.id==='string'&&/^\d{4}-\d\d-\d\d$/.test(p.from)&&/^\d{4}-\d\d-\d\d$/.test(p.to)&&p.from<=p.to&&(p.areas==null||(Array.isArray(p.areas)&&p.areas.length>0))}
 function pauseHeld(s,p){const ar=new Set(p.areas||(s.areas||[]).map(a=>a.id));return(s.tasks||[]).filter(t=>t.st==='todo'&&t.at&&!t.tpl&&(!t.rep||t.rep.k==='none')&&ar.has(t.area)&&t.at>=p.from&&t.at<=p.to)}
 /* PAUSE-END */
+/* BALANCE-BEGIN: bilans list: jak idzie każdej liście względem jej własnej normy (ostatnie 7 dni kontra średnia z 4 pełnych tygodni sprzed ostatniego). Czyste funkcje (bez DOM), testowane w tools/balance.test.mjs. Wymaga bloków AGG i PAUSE */
+const BAL_MIN=3;
+function balStats(s,td){const done=(s.log||[]).filter(l=>l.res==='done'&&l.date),m0=aMon(td),r0=aAdd(td,-7),r1=aAdd(td,-1),mons=[2,3,4,5].map(i=>aAdd(m0,-7*i));
+ return(s.areas||[]).map(a=>{
+  const pd=(from,n)=>{let c=0;for(let i=0;i<n;i++)if(pauseOn(s,a.id,aAdd(from,i)))c++;return c};
+  const wk=mon=>{let n=0;const e=aAdd(mon,6);done.forEach(l=>{if(l.area===a.id&&l.date>=mon&&l.date<=e)n++});const w=((s.wk||{})[a.id]||{})[mon];return n+(w?w.d:0)};
+  const rec=done.filter(l=>l.area===a.id&&l.date>=r0&&l.date<=r1).length,recP=pd(r0,7);
+  const nd=28-mons.reduce((n,m)=>n+pd(m,7),0),norm=nd>=7?mons.reduce((n,m)=>n+wk(m),0)/nd*7:0;
+  let st='ok',idx=null;
+  if(pauseOn(s,a.id,td)||recP>=4)st='pause';else if(norm<BAL_MIN)st='few';else idx=Math.round(rec/(7-recP)*7/norm*100);
+  return{id:a.id,name:a.name,color:a.color,rec,norm,idx,st}})}
+function balSummary(st){const ok=st.filter(x=>x.st==='ok');if(ok.length<2)return{k:'none',ok};const so=[...ok].sort((a,b)=>b.idx-a.idx);return{k:so[0].idx-so[so.length-1].idx<=10?'even':'best',top:so[0],ok:so}}
+/* BALANCE-END */
 /* DOODLE-BEGIN: komunikat dnia (A: dzień, B: tydzień, C: zachęta) i wybór sceny. Czyste funkcje (bez DOM), testowane w tools/doodle.test.mjs. Wymaga bloków AGG i PAUSE */
 const ddHash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0};
 const ddRng=seed=>{let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}};
@@ -512,6 +526,14 @@ async function ddLab(){if(DD.busy)return;DD.busy=true;
   $('dlu').onclick=()=>{S.dd.speed=+$('dls').value;save();toast(tr('Zapisano tempo animacji.'))};
   $('dlx').onclick=()=>dl.close();
  }catch(e){toast(tr('Nie udało się wczytać doodle. Spróbuj, gdy będziesz online.'),5000)}finally{DD.busy=false}}
+/* --- bilans list: karta w „Zrobione” --- */
+function balCard(){if((S.areas||[]).length<2)return'';
+ const st=balStats(S,today()),sm=balSummary(st);
+ const lst=sm.ok.map(x=>`${esc(x.name)} ${x.idx}%`).join(', ');
+ const seg=sm.ok.map(x=>`<div class=balseg style="flex:${Math.max(x.idx,6)};background:${esc(x.color)};color:${ink(x.color)}" title="${esc(x.name)} ${x.idx}%">${esc(x.name)} ${x.idx}%</div>`).join('');
+ const txt=sm.k==='none'?tr('Za mało danych, żeby porównać listy.'):sm.k==='even'?tr('Wszystko idzie równo: {l} swojej normy.',{l:lst}):tr('{a} idzie najlepiej ({p}% swojej normy).',{a:esc(sm.top.name),p:sm.top.idx})+' '+sm.ok.slice(1).map(x=>`${esc(x.name)} ${x.idx}%`).join(', ')+'.';
+ const chips=st.filter(x=>x.st!=='ok').map(x=>`<span class=balchip>${esc(x.name)}: ${x.st==='pause'?tr('pauza'):tr('za mało danych')}</span>`).join('');
+ return `<div class=c style="margin-bottom:14px"><div class=ti>${tr('Bilans list')}</div>${sm.k==='none'?'':`<div class=balbar role=img aria-label="${txt.replace(/"/g,'&quot;')}">${seg}</div>`}<div style="margin-top:6px">${txt}</div>${chips?`<div class=balchips>${chips}</div>`:''}<div class=mu style="margin-top:4px">${tr('Ostatnie 7 dni względem zwykłego tempa każdej listy.')}</div></div>`}
 /* --- tygodnie --- */
 const wd0=()=>(new Date().getDay()+6)%7;
 const wstart=o=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate()-wd0()-7*o)};
@@ -553,7 +575,7 @@ function vDone(){const c0=cnt(0,1),c1=cnt(1,1),f0=cnt(0,1,'fail'),d=c0-c1,p=c0+f
  const w=[];for(let o=7;o>=0;o--)w.push(cnt(o,o===0));const mx=Math.max(1,...w);
  const pzs=w.map((_,i)=>pauseWeekDays(S,S.area,ds(wstart(7-i)))>0),pzCmp=pauseWeekDays(S,S.area,ds(wstart(0)))+pauseWeekDays(S,S.area,ds(wstart(1)))>0;
  const svg=`<svg viewBox="0 0 320 90" width="100%" role="img" aria-label="${tr('Zrobione zadania w ostatnich 8 tygodniach')}">${w.map((v,i)=>{const h=Math.round(56*v/mx);return`<rect x="${i*40+6}" y="${72-h}" width="28" height="${h}" rx="4" fill="var(--done)" opacity="${i===7?1:.4}"${pzs[i]?' fill-opacity=".25" stroke="var(--done)" stroke-width="1.5" stroke-dasharray="3 2"':''}/><text x="${i*40+20}" y="${66-h}" text-anchor="middle" font-size="11" fill="var(--mu)">${v}</text>`}).join('')}<text x="6" y="86" font-size="10" fill="var(--mu)">${tr('8 tygodni temu')}</text><text x="314" y="86" font-size="10" text-anchor="end" fill="var(--mu)">${tr('ten tydzień')}</text></svg>`;
- let h=`<div class=c style="margin-bottom:14px"><div class=big>${c0}</div><div>${tr('zrobione w tym tygodniu')}</div><div class=mu>${tr('skuteczność {p} (zrobione wobec nieudanych i odłożonych)',{p})}</div><div class=mu>${pzCmp?tr('Tydzień z pauzą: bez porównania z poprzednim.'):tr('{d} względem tych samych dni zeszłego tygodnia (tam: {c})',{d:(d>=0?'▲ +':'▼ ')+d,c:c1})}</div>${svg}${pzs.some(Boolean)?`<div class=mu>${tr('Przerywany słupek: tydzień z pauzą.')}</div>`:''}</div><div class=c style="margin-bottom:14px"><div class=r><div class=ti><span class=big style="font-size:32px">🪙 ${S.coins}</span><span class=mu> ${tr('Saldo')}</span></div><button class="sm pri" data-a=shop>${tr('Sklepik')}</button></div></div>`;
+ let h=balCard()+`<div class=c style="margin-bottom:14px"><div class=big>${c0}</div><div>${tr('zrobione w tym tygodniu')}</div><div class=mu>${tr('skuteczność {p} (zrobione wobec nieudanych i odłożonych)',{p})}</div><div class=mu>${pzCmp?tr('Tydzień z pauzą: bez porównania z poprzednim.'):tr('{d} względem tych samych dni zeszłego tygodnia (tam: {c})',{d:(d>=0?'▲ +':'▼ ')+d,c:c1})}</div>${svg}${pzs.some(Boolean)?`<div class=mu>${tr('Przerywany słupek: tydzień z pauzą.')}</div>`:''}</div><div class=c style="margin-bottom:14px"><div class=r><div class=ti><span class=big style="font-size:32px">🪙 ${S.coins}</span><span class=mu> ${tr('Saldo')}</span></div><button class="sm pri" data-a=shop>${tr('Sklepik')}</button></div></div>`;
  const a=ds(new Date(Date.now()-6*864e5)),l=S.log.filter(x=>x.res==='done'&&x.area===S.area&&x.date>=a).sort((x,y)=>x.date<y.date?1:-1);
  if(!l.length)h+='<p class=empty>'+tr('W ostatnich 7 dniach nic jeszcze nie zrobiono. Pierwsze ✓ pojawi się tutaj.')+'</p>';else{
  let cur='';l.forEach(x=>{if(x.date!==cur){cur=x.date;const dd=new Date(x.date+'T12:00:00');h+=`<div class=day>${x.date===today()?tr('Dziś'):x.date===ds(new Date(Date.now()-864e5))?tr('Wczoraj'):dd.toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'short'})}</div>`}

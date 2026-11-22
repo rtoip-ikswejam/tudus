@@ -675,5 +675,16 @@ try {
   ok(/List balance/.test(mainText(en)) && /is doing best \(120% of its usual pace\)/.test(mainText(en)), 'po angielsku: „List balance … is doing best”', mainText(en).slice(0, 140));
 } catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
 
+console.log('\n[33] Produkcja po promocji: bilans list działa także w głównej wersji');
+try {
+  if (!fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').includes('balCard')) console.log('  --   pominięto: katalog główny nie ma jeszcze bilansu list');
+  else {
+    const r = await boot('', { ls: { 'kanban-lang': 'pl', 'kanban-v1': balState() } });
+    r.ev("tab='done';render()");
+    ok(r.errors.length === 0, 'produkcja: brak błędów skryptu', r.errors.join(' | '));
+    ok(!!r.d.querySelector('#main .balbar') && /Prywatna idzie najlepiej \(120% swojej normy\)/.test(mainText(r)), 'produkcja: karta bilansu pokazuje najlepszą listę');
+  }
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
 console.log(`\nWynik: ${pass} ok, ${fail} błędów`);
 process.exit(fail ? 1 : 0);
