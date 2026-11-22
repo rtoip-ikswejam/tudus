@@ -176,7 +176,7 @@ D.svg=sc=>{
   D.css();
   const V=D.VIEW;CROP=[V[0]-24,V[1]-24,V[0]+V[2]+24,V[1]+V[3]+24];
   try{
-    const deco=S.deco().sort((a,b)=>a[0]-b[0]),idx=S.idx||0,hx=3.5,hy=3.5;
+    const hide=hero.hide||[],deco=S.deco().filter(a=>!(a[2]&&hide.includes(a[2]))).sort((a,b)=>a[0]-b[0]),idx=S.idx||0,hx=3.5,hy=3.5;
     const back=deco.filter(a=>a[0]<7.5).map(a=>a[1]).join(''),front=deco.filter(a=>a[0]>=7.5).map(a=>a[1]).join('');
     const motes=[...Array(8)].map((_,i)=>`<rect class="a" style="--k:tw;--t:${2+i%4}s;--o:50% 50%;animation-delay:-${i*.6}s" x="${V[0]+(i*61)%V[2]}" y="${V[1]+(i*37)%70}" width="3" height="3" fill="#fff"/>`).join('');
     const ec=ENT[sc.entry]||'';

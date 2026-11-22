@@ -3,7 +3,7 @@ const {W,H,OX,OY,sx,sy,pt,sh,hs,poly,bx,bxv,bxTiles,q,P,ln,A,AP,sd,boot,bucket,S
 const S={t:['#f7fafd','#e8f0f8'],p:['#e3ecf6','#cddced'],stone:(x,y)=>x==y||x==y+1,lq:(x,y)=>x>=1&&x<=2&&y>=5&&y<=6,lc:['#c4e4f7','#b3d8f0'],lz:-.08,
  s:'#e5edf6',d:'#c7d4e4',r:'#9eaec4',sky:['#5a7fb3','#dbe9f7'],
  deco:()=>[
-  [3.0,igloo(3.9,.1)],
+  [3.0,igloo(3.9,.1),'igloo'],
   [4.5,pine(1.2,1.0,'#2a7d52')],
   [10.5,pine(.9,6.0,'#2c7a56')],
   [6.4,pot(6.8,2.2,'#2a7d52','#f9c9dc')],

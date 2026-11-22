@@ -567,7 +567,7 @@ try {
   const te = ddCard(e) ? ddCard(e).querySelector('.ddt').textContent : '';
   ok(te.length > 20 && !/[ąćęłńóśźż]/i.test(te) && !/Wczoraj|zadań|zadania|tydzień/i.test(te), 'po angielsku komunikat jest po angielsku', te);
   const nm = ddCard(e) ? ddCard(e).querySelector('.ddn').textContent : '';
-  ok(/^(Miner|Blacksmith|Archaeologist|Angler|Reading Owl)$/.test(nm), 'nazwa postaci po angielsku', nm);
+  ok(/^(Miner|Blacksmith|Archaeologist|Angler|Reading Owl|Treasure Dwarf|Clerk with a Stamp|Postman|Builder|Sweeping Snowman)$/.test(nm), 'nazwa postaci po angielsku', nm);
   dlgOf(e).click(); e.ev("tab='set';render()");
   ok(/Doodle of the day/.test(mainText(e)) && /Show once a day/.test(mainText(e)), 'sekcja w Ustawieniach po angielsku');
 } catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }

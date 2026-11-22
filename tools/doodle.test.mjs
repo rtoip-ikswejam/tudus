@@ -195,6 +195,14 @@ console.log('\n=== Silnik, teksty i moduły ===');
     } }
   ok(badT.length === 0, `każdy z ${nAnim} animowanych elementów ma okres w sekundach (inaczej calc() nie zadziała)`, badT.slice(0, 2).join(' ; '));
   ok(minT * 1.6 >= 1.4, `przy domyślnym tempie ×1,6 najkrótsza pętla trwa ${(minT * 1.6).toFixed(2)} s (próg 1,4 s); okres surowy ${minT} s`, String(minT));
+  // postać może ukryć element tła po znaczniku (bałwan: bez igloo)
+  const bal = Dd.get('postacie', 'balwan'), zima = Dd.get('tla', 'zima'), scB = { tlo: 'zima', hero: 'balwan', wea: 'snieg', entry: '' };
+  ok(Array.isArray(bal.hide) && bal.hide.includes('igloo') && zima.deco().some(d => d[2] === 'igloo'), 'bałwan prosi o ukrycie igloo, a zimowe tło oznacza igloo znacznikiem');
+  const withHide = Dd.svg(scB).length; const keep = bal.hide; bal.hide = []; const noHide = Dd.svg(scB).length; bal.hide = keep;
+  ok(noHide > withHide + 2000, `ukrycie działa: scena bez igloo jest mniejsza (${(withHide / 1024).toFixed(0)} KB zamiast ${(noHide / 1024).toFixed(0)} KB)`);
+  ok(Dd.get('postacie', 'balwan') && man.postacie.find(p => p.id === 'balwan').seasons.join() === 'jesien,zima', 'bałwan występuje tylko jesienią i zimą (liście i śnieg do zamiatania)');
+  const jt = fs.readFileSync(path.join(dir, 'postacie/budowniczy.js'), 'utf8');
+  ok(/A\('jack-shake','1\.6'/.test(jt) && !/A\('jack-shake','\.\d/.test(jt), 'młot pneumatyczny: spokojny cykl 1,6 s zamiast szybkich drgań');
   ok(Dd.svg({ tlo: 'nie-ma', hero: 'gornik', wea: 'deszcz', entry: '' }) === '' && Dd.svg({ tlo: 'zima', hero: 'x', wea: 'snieg', entry: '' }) === '', 'nieznane id: pusty wynik zamiast wyjątku');
   const w1 = Dd.svg({ tlo: 'wiosna', hero: 'gornik', wea: 'tecza', entry: 'z-lewej' }), w2 = Dd.svg({ tlo: 'wiosna', hero: 'gornik', wea: 'tecza', entry: 'z-lewej' });
   ok(w1 === w2, 'ta sama scena daje identyczny SVG (powtórka w Ustawieniach wygląda tak samo)');

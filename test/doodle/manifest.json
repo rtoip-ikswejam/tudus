@@ -61,6 +61,40 @@
    "file": "postacie/sowa.js",
    "w": 1,
    "since": "1.19.0"
+  },
+  {
+   "id": "krasnal",
+   "file": "postacie/krasnal.js",
+   "w": 1,
+   "since": "1.20.0"
+  },
+  {
+   "id": "urzednik",
+   "file": "postacie/urzednik.js",
+   "w": 1,
+   "since": "1.20.0"
+  },
+  {
+   "id": "listonosz",
+   "file": "postacie/listonosz.js",
+   "w": 1,
+   "since": "1.20.0"
+  },
+  {
+   "id": "budowniczy",
+   "file": "postacie/budowniczy.js",
+   "w": 1,
+   "since": "1.20.0"
+  },
+  {
+   "id": "balwan",
+   "file": "postacie/balwan.js",
+   "w": 1,
+   "since": "1.20.0",
+   "seasons": [
+    "jesien",
+    "zima"
+   ]
   }
  ],
  "pogoda": [
