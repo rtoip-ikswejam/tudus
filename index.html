@@ -76,6 +76,7 @@ h3{margin:18px 0 8px;font-size:15px}.day{margin:16px 0 6px;font-size:14px;color:
 input,textarea,select{width:100%;font:inherit;padding:10px;border-radius:var(--r-btn);border:1px solid var(--ln);background:var(--cd);color:var(--fg)}
 label{display:block;margin:10px 0 0;font-size:14px;color:var(--mu)}label.ck{display:inline-flex;align-items:center;gap:4px;margin-right:8px}label.ck input{width:auto}
 dialog{width:min(440px,94vw);border:1px solid var(--ln);border-radius:var(--r-dlg);background:var(--bg);color:var(--fg);padding:16px}dialog::backdrop{background:#0008}
+.ddw{text-align:center}.ddc{border-radius:14px;overflow:hidden;line-height:0}.ddc svg{width:100%;height:auto;max-height:230px;display:block;margin:0 auto}.ddt{font-size:17px;font-weight:600;margin:12px 4px 4px;line-height:1.35}.ddn{margin:0 0 6px;font-size:13px}.ddlab{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin-top:10px;text-align:left}.ddlab .row{grid-column:1/-1}
 .row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.row .sm{flex:1}
 .rb{display:flex;align-items:center;gap:8px;margin:6px 0}.rb i{height:18px;background:var(--stat);border-radius:4px;min-width:3px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:9;font-size:14px;max-width:90vw}
@@ -116,7 +117,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 .th-prev{margin-top:10px;padding-top:10px;border-top:1px solid var(--div)}
 .th-prev-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
 </style></head><body data-tab="prog">
-<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.18.0</div></div></div>
+<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.20.0</div></div></div>
 <script>(function(){var l;try{l=localStorage.getItem('kanban-lang')}catch(e){}if(!l)l=/^en/i.test(navigator.language||'')?'en':'pl';document.getElementById('spl').textContent=l==='en'?'Loading…':'Wczytywanie…';setTimeout(function(){var s=document.getElementById('splash');if(s)s.remove()},4000)})()</script>
 <header><div id="ab"></div><nav class="tabs"><button class="tab" data-a="tab" data-tab="todo">Do zrobienia</button><button class="tab" data-a="tab" data-tab="prog">Dzisiaj</button><button class="tab" data-a="tab" data-tab="done">Zrobione</button><button class="tab" data-a="tab" data-tab="stat">Statystyki</button><span id="test-badge" class="test-pill" style="display:none">TEST</span><button class="gear" data-a="tab" data-tab="set" aria-label="Ustawienia">⚙</button></nav></header>
 <main id="main"></main><div id="bar"></div><div id="mis"></div>
@@ -127,7 +128,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 <script>
 const IS_TEST=!!window.__IS_TEST;
 if(IS_TEST){const tb=document.getElementById('test-badge');if(tb)tb.style.display='inline-flex';}
-const V='1.18.0',SPLASH_MS=1000,SCHEMA=3,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
+const V='1.20.0',SPLASH_MS=1000,SCHEMA=3,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
 /* --- Dane testowe: jednokierunkowa kopia produkcja -> test --- */
 const PK='kanban-v1',TK='kanban-v1-test',TMK='kanban-v1-test-meta';
 const tmeta=()=>{try{return JSON.parse(localStorage.getItem(TMK))}catch(e){return null}};
@@ -167,7 +168,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function load(){try{const s=JSON.parse(localStorage.getItem(K));if(s&&s.tasks)return migrate(s)}catch(e){}
 return migrate({schema:SCHEMA,tasks:[],log:[],last:'',reasons:SEEDR.map((n,i)=>({id:'r'+i,name:tr(n)}))})}
-function migrate(s){if(!s.areas||!s.areas.length)s.areas=[{id:'a1',name:tr('Prywatna')},{id:'a2',name:tr('Zawodowa')}];if(!s.areas.some(a=>a.id===s.area))s.area=s.areas[0].id;const d=s.areas[0].id;(s.tasks||[]).forEach(x=>{if(!x.area)x.area=d});(s.log||[]).forEach(x=>{if(!x.area)x.area=d});s.areas.forEach((a,i)=>{if(!a.color)a.color=PAL[i%PAL.length]});if(!s.ro){const m={};(s.log||[]).forEach(l=>{if(l.reason)m[l.reason]=(m[l.reason]||0)+1});(s.reasons=s.reasons||[]).sort((a,b)=>(m[b.id]||0)-(m[a.id]||0)||a.name.localeCompare(b.name,LANG));s.ro=1}if(!s.pm){(s.areas||[]).forEach(a=>{const l=(s.tasks||[]).filter(x=>x.area===a.id&&!x.tpl&&x.st==='todo').reverse(),z=x=>x.rep&&x.rep.k!=='none'||x.at;[...l.filter(x=>!z(x)),...l.filter(z)].forEach((x,i)=>x.po=i)});s.pm=1}if(typeof s.coins!=='number')s.coins=0;if(!s.wk||typeof s.wk!=='object'||Array.isArray(s.wk))s.wk={};if(![0,2,3,4].includes(s.keep))s.keep=0;if(!Array.isArray(s.pauses))s.pauses=[];s.rate=s.rate||{d:2,f:1};s.shop=s.shop||[];s.buys=s.buys||[];s.recap=s.recap||[];s.schema=SCHEMA;return s}
+function migrate(s){if(!s.areas||!s.areas.length)s.areas=[{id:'a1',name:tr('Prywatna')},{id:'a2',name:tr('Zawodowa')}];if(!s.areas.some(a=>a.id===s.area))s.area=s.areas[0].id;const d=s.areas[0].id;(s.tasks||[]).forEach(x=>{if(!x.area)x.area=d});(s.log||[]).forEach(x=>{if(!x.area)x.area=d});s.areas.forEach((a,i)=>{if(!a.color)a.color=PAL[i%PAL.length]});if(!s.ro){const m={};(s.log||[]).forEach(l=>{if(l.reason)m[l.reason]=(m[l.reason]||0)+1});(s.reasons=s.reasons||[]).sort((a,b)=>(m[b.id]||0)-(m[a.id]||0)||a.name.localeCompare(b.name,LANG));s.ro=1}if(!s.pm){(s.areas||[]).forEach(a=>{const l=(s.tasks||[]).filter(x=>x.area===a.id&&!x.tpl&&x.st==='todo').reverse(),z=x=>x.rep&&x.rep.k!=='none'||x.at;[...l.filter(x=>!z(x)),...l.filter(z)].forEach((x,i)=>x.po=i)});s.pm=1}if(typeof s.coins!=='number')s.coins=0;if(!s.wk||typeof s.wk!=='object'||Array.isArray(s.wk))s.wk={};if(![0,2,3,4].includes(s.keep))s.keep=0;if(!Array.isArray(s.pauses))s.pauses=[];if(!s.dd||typeof s.dd!=='object'||Array.isArray(s.dd))s.dd={};if(typeof s.dd.on!=='boolean')s.dd.on=true;if(typeof s.dd.speed!=='number'||!(s.dd.speed>=0&&s.dd.speed<=5))s.dd.speed=1.6;s.rate=s.rate||{d:2,f:1};s.shop=s.shop||[];s.buys=s.buys||[];s.recap=s.recap||[];s.schema=SCHEMA;return s}
 let S=load();
 const NEEDLANG=(()=>{try{if(localStorage.getItem('kanban-lang')!==null)return false}catch(e){return false}return S.tasks.length===0&&S.log.length===0})();
 const LNAME={pl:'Polski',en:'English'};
@@ -229,7 +230,7 @@ function dgReport(){const iso=t=>new Date(t).toISOString().slice(0,19).replace('
  'Service worker: '+JSON.stringify(DGST.sw||{}),
  'Mode: '+pwa+(IS_TEST?' (test)':'')+' | lang '+LANG+' | online '+navigator.onLine+' | UA '+String(navigator.userAgent).slice(0,140),
  'Storage: data '+Math.round(JSON.stringify(S).length/1024)+' KB | localStorage '+Math.round(lsChars()/1024)+' KB (~'+storagePct()+'% of 5 MB) | estimate '+(est?Math.round(est.usage/1024)+' KB of '+Math.round(est.quota/1048576)+' MB':'n/a')+' | persistent '+DGST.persist,
- 'Data: tasks '+S.tasks.length+' (todo '+cnt('todo')+', prog '+cnt('prog')+', idea '+cnt('idea')+', arch '+cnt('arch')+', done '+cnt('done')+', closed '+cnt('closed')+'), log '+S.log.length+', wk '+aggWeeks(S)+'w, keep '+(S.keep||0)+', pauses '+(S.pauses||[]).length+', areas '+S.areas.length+', reasons '+S.reasons.length+', shop '+S.shop.length+', coins '+S.coins+', schema '+S.schema,
+ 'Data: tasks '+S.tasks.length+' (todo '+cnt('todo')+', prog '+cnt('prog')+', idea '+cnt('idea')+', arch '+cnt('arch')+', done '+cnt('done')+', closed '+cnt('closed')+'), log '+S.log.length+', wk '+aggWeeks(S)+'w, keep '+(S.keep||0)+', doodle '+(S.dd&&S.dd.on?'on':'off')+', pauses '+(S.pauses||[]).length+', areas '+S.areas.length+', reasons '+S.reasons.length+', shop '+S.shop.length+', coins '+S.coins+', schema '+S.schema,
  'Consistency: '+(DGST.cons?(DGST.cons.out.length?DGST.cons.out.map(x=>x.c+':'+x.n+(x.f?'(fixed)':'')).join(', '):'ok'):'not run'),
  'Status: '+dgStatus(),'','Events (last 60):',...allEvents().slice(-60).map(e=>iso(e.t).slice(5)+' '+e.l+' '+e.src+' '+e.c+' '+(e.d||'')),'','Actions (last 30):',...DG.a.map(a=>iso(a.t).slice(5)+' '+a.a+' '+a.id)];return L.join('\n')}
 function dgCopyFallback(t){const x=document.createElement('textarea');x.value=t;x.style.position='fixed';x.style.opacity='0';document.body.append(x);x.select();try{document.execCommand('copy')}catch(e){}x.remove()}
@@ -323,11 +324,11 @@ function postponeSheet(x){const o=[[1,'Jutro'],[2,'Za 2 dni'],[7,'Za tydzień']]
  sheet(`<h3>${tr('Odłożyć do kiedy?')}</h3><div class=row><button class="sm pri" id=pn0>${tr('Bez terminu')}</button></div><div class=row>${o.map(([d,l],i)=>`<button class=sm id=pq${i}>${tr(l)}<small>${dm(d)}</small></button>`).join('')}</div><label>${tr('Wybierz datę')}<input id=pd type=date min="${addDays(1)}"></label><div class=row><button class=sm id=px>${tr('Anuluj')}</button><button class="sm pri" id=pg>${tr('Odłóż')}</button></div>`);
  $('dlg').onclick=null;$('px').onclick=()=>$('dlg').close();$('pn0').onclick=()=>{$('dlg').close();postpone(x,null)};o.forEach(([d],i)=>{$('pq'+i).onclick=()=>{$('dlg').close();postpone(x,d)}});$('pg').onclick=()=>{const v=$('pd').value;if(!v||v<=today())return $('pd').focus();$('dlg').close();postpone(x,v)}}
 function sched(){const td=today();S.tasks.filter(t=>t.st==='todo'&&t.at&&t.at<=td&&t.rep.k==='none'&&!t.tpl&&!pauseOn(S,t.area,td)).forEach(t=>{const lt=t.at<td&&pauseOn(S,t.area,t.at)?t.at:null;delete t.at;toDay(t);if(lt){t.late=lt;put(t)}})}
-function showRecap(){const rc=S.recap||[];if(!rc.length)return;const yd=ds(new Date(Date.now()-864e5)),tot=rc.reduce((a,i)=>a+i.c,0),all=rc.every(i=>i.d===yd);
+function showRecap(){const rc=S.recap||[];if(!rc.length){ddMaybeShow();return}const yd=ds(new Date(Date.now()-864e5)),tot=rc.reduce((a,i)=>a+i.c,0),all=rc.every(i=>i.d===yd);
  const items=rc.slice().sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:a.t.localeCompare(b.t,LANG));
  const ttl=tot>0?`${esc(tr('Tracisz {c}',{c:tot}))} <i class="coin gray"></i> ${tr(all?'za wczoraj':'za minione dni')}`:tr('Wygasłe zadania');
  $('dlg').onclick=null;sheet(`<h3>${ttl}</h3><p class=mu>${tr('Wygasły, bo nie zostały zrobione w swoim dniu:')}</p>`+items.map(i=>`<div class=rb style="margin:8px 0"><span style="flex:1">${esc(i.t)}${i.k?' '+i.n+'/'+i.k:''}<span class=mu>${i.d!==yd?' · '+dm(i.d):''}</span></span>${i.c>0?`<span>−${i.c} <i class="coin gray" style="width:18px;height:18px;margin-left:2px"></i></span>`:''}</div>`).join('')+`<div class=row><button class="sm pri" id=ok2>OK</button></div>`);
- const clr=()=>{S.recap=[];save();$('dlg').onclose=null};$('ok2').onclick=()=>{clr();$('dlg').close()};$('dlg').onclose=clr}
+ const clr=()=>{S.recap=[];save();$('dlg').onclose=null;setTimeout(ddMaybeShow,350)};$('ok2').onclick=()=>{clr();$('dlg').close()};$('dlg').onclose=clr}
 function roll(){const td=today();
  S.tasks.filter(x=>x.st==='prog'&&x.exp&&x.date<td).forEach(x=>{if(pauseOn(S,x.area,x.date)){if(x.tpl)x.st='closed';else x.date=td;return}fail(x,x.date,'f');const l=S.log[S.log.length-1];(S.recap=S.recap||[]).push({t:x.t,d:x.date,c:-(l.c||0),n:prg(x).n||0,k:prg(x).cnt||0})});
   if(S.last!==td)genRep(false);
@@ -381,6 +382,42 @@ const pauseActive=(s,area,td)=>(s.pauses||[]).filter(p=>p.from<=td&&td<=p.to&&(!
 function pauseOk(p){return !!p&&typeof p.id==='string'&&/^\d{4}-\d\d-\d\d$/.test(p.from)&&/^\d{4}-\d\d-\d\d$/.test(p.to)&&p.from<=p.to&&(p.areas==null||(Array.isArray(p.areas)&&p.areas.length>0))}
 function pauseHeld(s,p){const ar=new Set(p.areas||(s.areas||[]).map(a=>a.id));return(s.tasks||[]).filter(t=>t.st==='todo'&&t.at&&!t.tpl&&(!t.rep||t.rep.k==='none')&&ar.has(t.area)&&t.at>=p.from&&t.at<=p.to)}
 /* PAUSE-END */
+/* DOODLE-BEGIN: komunikat dnia (A: dzień, B: tydzień, C: zachęta) i wybór sceny. Czyste funkcje (bez DOM), testowane w tools/doodle.test.mjs. Wymaga bloków AGG i PAUSE */
+const ddHash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0};
+const ddRng=seed=>{let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}};
+const ddClamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+function ddStats(s,td){const ar=(s.areas||[]).map(a=>a.id),anyP=d=>ar.some(a=>pauseOn(s,a,d)),allP=d=>ar.length>0&&ar.every(a=>pauseOn(s,a,d));
+ const done=(s.log||[]).filter(l=>l.res==='done'&&l.date),day=d=>done.filter(l=>l.date===d).length;
+ const wkDone=mon=>{let n=0;const e=aAdd(mon,6);done.forEach(l=>{if(l.date>=mon&&l.date<=e)n++});Object.values(s.wk||{}).forEach(A=>{if(A[mon])n+=A[mon].d});return n};
+ const wkPaused=mon=>{let n=0;for(let i=0;i<7;i++)if(anyP(aAdd(mon,i)))n++;return n};
+ const y1=aAdd(td,-1),y2=aAdd(td,-2),m0=aMon(td),mons=[1,2,3,4].map(i=>aAdd(m0,-7*i));
+ const tot28=mons.reduce((n,m)=>n+wkDone(m),0),pd=mons.reduce((n,m)=>n+wkPaused(m),0);
+ const total=done.length+Object.values(s.wk||{}).reduce((n,A)=>n+Object.values(A).reduce((m,w)=>m+w.d,0),0);
+ const pz=(s.pauses||[]).filter(p=>p.from<=td&&td<=p.to).sort((a,b)=>a.to<b.to?1:-1)[0];
+ return{y:day(y1),d:day(y2),yP:anyP(y1)||anyP(y2),w1:wkDone(mons[0]),w2:wkDone(mons[1]),wP:wkPaused(mons[0])+wkPaused(mons[1])>0,
+  avg:(28-pd)>=7?tot28/(28-pd):0,total,paused:allP(td),back:allP(y1)&&!allP(td),to:pz?pz.to:null,created:s.created||td}}
+function ddOpts(st){const ref=Math.ceil(st.avg),c=st.y===0?{t:'C0',p:{n:ddClamp(ref,1,3)}}:st.y<ref?{t:'C',p:{y:st.y,a:Math.max(1,Math.round(st.avg)),n:ddClamp(ref-st.y,1,3)}}:{t:'C2',p:{y:st.y,n:ddClamp(Math.ceil(st.avg/4),1,3)}};
+ const el=[];
+ if(!st.yP&&st.y>st.d&&st.y>0)el.push([{t:'A',p:{y:st.y,d:st.d,x:st.y-st.d}},2]);
+ if(!st.wP&&st.w1>st.w2&&st.w1>0)el.push([{t:'B',p:{w1:st.w1,w2:st.w2,x:st.w1-st.w2}},2]);
+ el.push([c,1]);return el}
+function ddMsg(s,td,salt=''){const st=ddStats(s,td),rng=ddRng(ddHash(td+'m'+salt)),r=rng();
+ if(st.paused)return{t:'P',r,p:{to:st.to}};
+ if(st.back)return{t:'R',r,p:{}};
+ if(st.total<3||st.created>aAdd(td,-3))return{t:'N',r,p:{}};
+ const el=ddOpts(st);
+ if(el.length===1)return{t:el[0][0].t,r,p:el[0][0].p};
+ let x=rng()*el.reduce((n,e)=>n+e[1],0);for(const e of el){x-=e[1];if(x<0)return{t:e[0].t,r,p:e[0].p}}
+ return{t:el[el.length-1][0].t,r,p:el[el.length-1][0].p}}
+function ddScene(man,dd,td){dd=dd||{};const rng=ddRng(ddHash(td+'s')),seen=dd.seen||{},rec=Array.isArray(dd.recent)?dd.recent:[];
+ const pk=(items,exc)=>{const a=items.filter(i=>!exc||!exc.includes(i.id)),pool=a.length?a:items;if(!pool.length)return null;
+  const ws=pool.map(i=>(i.w||1)*(seen[i.id]?1:3));let x=rng()*ws.reduce((n,w)=>n+w,0);for(let i=0;i<pool.length;i++){x-=ws[i];if(x<0)return pool[i]}return pool[pool.length-1]};
+ const tl=pk(man.tla||[]);if(!tl)return null;
+ const okS=i=>!i.seasons||i.seasons.includes(tl.id),hp=(man.postacie||[]).filter(okS),nExc=Math.min(7,Math.max(0,hp.length-1));
+ const hero=pk(hp,nExc?rec.slice(-nExc):[]),wp=(man.pogoda||[]).filter(okS),wea=pk(wp.length?wp:(man.pogoda||[])),en=pk(man.wejscia||[]);
+ if(!hero||!wea)return null;
+ return{tlo:tl.id,hero:hero.id,wea:wea.id,entry:en?en.id:''}}
+/* DOODLE-END */
 /* --- porządkowanie danych: sekcja w Ustawieniach --- */
 function keepBox(){const td=today(),nw=aggWeeks(S),kb=Math.round(lsChars()/1024);
  let h=`<h3>${tr('Porządkowanie danych')}</h3><p class=mu>${tr('Wpisy starsze niż wybrany okres zamieniają się w statystyki tygodniowe (zrobione, porażki, przyczyny), więc wykresy zostają, a baza przestaje rosnąć.')}</p>`
@@ -433,6 +470,48 @@ function reviewHeld(ids,np){const ts=ids.map(i=>S.tasks.find(x=>x.id===i)).filte
   dl.onchange=null;dl.close();save();render();toast(tr('Zadania z datą zaktualizowane.'))}}
 function endPause(id){const p=S.pauses.find(x=>x.id===id);if(!p)return;
  ask(tr('Zakończyć pauzę teraz? Zadania z datą i cykliczne wrócą jeszcze dziś.'),[[tr('Zakończ pauzę'),'y']],()=>{const before=pausedNow();p.to=aAdd(today(),-1);if(p.to<p.from)S.pauses=S.pauses.filter(x=>x!==p);afterPauseChange(before);toast(tr('Pauza zakończona.'))})}
+/* --- doodle dnia: ładowanie modułów, karta, powtórka --- */
+const DD={man:null,p:null,busy:false};
+const ddScript=src=>new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>no(new Error(src));document.head.appendChild(s)});
+function ddInit(){if(DD.p)return DD.p;DD.p=fetch('doodle/manifest.json').then(r=>{if(!r.ok)throw new Error('manifest');return r.json()}).then(m=>{DD.man=m;return window.Doodle?m:ddScript('doodle/'+m.engine).then(()=>m)});DD.p.catch(()=>{DD.p=null});return DD.p}
+function ddNeed(sc,m){const f=[],add=(k,id)=>{const it=(m[k]||[]).find(x=>x.id===id);if(it&&!Doodle.has(k,id))f.push(ddScript('doodle/'+it.file))};add('tla',sc.tlo);add('postacie',sc.hero);add('pogoda',sc.wea);return Promise.all(f)}
+async function ddEnsure(){const td=today(),d=S.dd;if(d.sd===td&&d.scene&&d.msg)return d;
+ const msg=ddMsg(S,td);let sc=null;try{sc=ddScene(await ddInit(),d,td)}catch(e){}
+ if(!sc)return{sd:null,scene:null,msg};
+ d.sd=td;d.scene=sc;d.msg=msg;d.recent=(Array.isArray(d.recent)?d.recent:[]).concat(sc.hero).slice(-7);d.seen=d.seen||{};[sc.tlo,sc.hero,sc.wea].forEach(i=>{d.seen[i]=1});save();return d}
+async function ddShow(replay){if(DD.busy)return;DD.busy=true;
+ try{const d=await ddEnsure();let svg='',txt='',cap='';
+  try{if(d.scene){const man=DD.man||await ddInit();await ddNeed(d.scene,man);svg=Doodle.svg(d.scene);cap=Doodle.name('postacie',d.scene.hero,LANG)}}catch(e){log('w','doodle','scene '+e.message);dgSoon(false)}
+  try{if(window.Doodle){if(!Doodle.hasTexts(LANG))await ddScript('doodle/teksty/'+LANG+'.js');const p=Object.assign({},d.msg.p);if(p.to)p.to=dm(p.to);txt=Doodle.text(LANG,d.msg.t,d.msg.r,p)}}catch(e){}
+  const dl=$('dlg');
+  if(!svg&&!txt){if(replay)toast(tr('Nie udało się wczytać doodle. Spróbuj, gdy będziesz online.'),5000);return}
+  if(dl.open)return;
+  const sky=svg?Doodle.sky(d.scene):null;
+  const sp=typeof S.dd.speed==='number'?S.dd.speed:1.6;
+  sheet(`<div class=ddw>${svg?`<div class="ddc${sp===0?' dd-still':''}" style="--dds:${sp||1};background:linear-gradient(${sky[0]},${sky[1]})">${svg}</div>`:''}${txt?`<p class=ddt>${esc(txt)}</p>`:''}${cap?`<p class="mu ddn">${esc(cap)}</p>`:''}<div class=row><button class="sm pri" id=ddok>OK</button></div></div>`);
+  if(!replay){S.dd.shown=today();save()}
+  let tm=null;const fin=()=>{clearTimeout(tm);dl.onclick=null;dl.removeEventListener('close',fin)};dl.onclick=()=>dl.close();dl.addEventListener('close',fin);
+  if(!replay)tm=setTimeout(()=>{if(dl.open&&dl.querySelector('.ddw'))dl.close()},7000);
+ }finally{DD.busy=false}}
+function ddMaybeShow(){if(!S.dd.on||S.dd.shown===today()||DD.busy||$('dlg').open)return;ddShow(false)}
+const DDS=[[0,'Statycznie'],[2.4,'Wolno'],[1.6,'Normalnie'],[1,'Szybko']];
+function ddBox(){const sp=S.dd.speed,cust=!DDS.some(o=>o[0]===sp);
+ return `<h3>${tr('Doodle dnia')}</h3><p class=mu>${tr('Raz dziennie krótka scena z postacią przy pracy i zdanie motywujące, oparte o Twoje wyniki.')}</p><div><label class=ck><input type=checkbox id=ddon ${S.dd.on?'checked':''}>${tr('Pokazuj raz dziennie')}</label></div>`
+  +`<label style="margin-top:6px">${tr('Tempo animacji')}<select id=ddspeed>${DDS.map(([v,n])=>`<option value=${v} ${v===sp?'selected':''}>${tr(n)}</option>`).join('')}${cust?`<option value=${sp} selected>${tr('Własne')} ×${sp}</option>`:''}</select></label>`
+  +`<div class=row><button class="sm pri" data-a=ddreplay>${tr('Zobacz doodle dnia')}</button>${IS_TEST?`<button class=sm data-a=ddlab>${tr('Podgląd scen (test)')}</button>`:''}</div>`}
+async function ddLab(){if(DD.busy)return;DD.busy=true;
+ try{const man=await ddInit();await Promise.all(['tla','postacie','pogoda'].flatMap(k=>man[k].filter(x=>!Doodle.has(k,x.id)).map(x=>ddScript('doodle/'+x.file))));
+  const nm=(k,x)=>esc(Doodle.name(k,x.id,LANG)),opt=(k)=>man[k].map(x=>`<option value="${x.id}">${nm(k,x)}</option>`).join(''),sp0=typeof S.dd.speed==='number'?S.dd.speed:1.6;
+  const speeds=[[0,tr('Statycznie')],[1,'×1'],[1.3,'×1.3'],[1.6,'×1.6'],[2,'×2'],[2.4,'×2.4'],[3,'×3']];if(!speeds.some(o=>o[0]===sp0))speeds.push([sp0,'×'+sp0]);
+  const sc0=(S.dd&&S.dd.scene)||ddScene(man,{},today())||{tlo:man.tla[0].id,hero:man.postacie[0].id,wea:man.pogoda[0].id,entry:(man.wejscia[0]||{}).id};
+  sheet(`<div class=ddw><div class=ddc id=ddlp></div><div class=ddlab><label>${tr('Tło')}<select id=dlt>${opt('tla')}</select></label><label>${tr('Postać')}<select id=dlh>${opt('postacie')}</select></label><label>${tr('Pogoda')}<select id=dlw>${opt('pogoda')}</select></label><label>${tr('Wejście')}<select id=dle>${(man.wejscia||[]).map(x=>`<option value="${x.id}">${esc(x.id)}</option>`).join('')}</select></label><label>${tr('Tempo animacji')}<select id=dls>${speeds.map(([v,n])=>`<option value="${v}">${n}</option>`).join('')}</select></label><div class=row><button class=sm id=dlr>${tr('Losuj')}</button><button class=sm id=dlu>${tr('Użyj tego tempa')}</button><button class="sm pri" id=dlx>${tr('Zamknij')}</button></div></div></div>`);
+  const dl=$('dlg');dl.onclick=null;$('dlt').value=sc0.tlo;$('dlh').value=sc0.hero;$('dlw').value=sc0.wea;if(sc0.entry)$('dle').value=sc0.entry;$('dls').value=String(sp0);
+  const rd=()=>{const sc={tlo:$('dlt').value,hero:$('dlh').value,wea:$('dlw').value,entry:$('dle').value},sp=+$('dls').value,sky=Doodle.sky(sc),el=$('ddlp');el.className='ddc'+(sp===0?' dd-still':'');el.style.cssText=`--dds:${sp||1};background:linear-gradient(${sky[0]},${sky[1]})`;el.innerHTML=Doodle.svg(sc)};
+  ['dlt','dlh','dlw','dle','dls'].forEach(id=>{$(id).onchange=rd});rd();
+  $('dlr').onclick=()=>{const pick=a=>a[Math.floor(Math.random()*a.length)].id;$('dlt').value=pick(man.tla);$('dlh').value=pick(man.postacie);$('dlw').value=pick(man.pogoda);if((man.wejscia||[]).length)$('dle').value=pick(man.wejscia);rd()};
+  $('dlu').onclick=()=>{S.dd.speed=+$('dls').value;save();toast(tr('Zapisano tempo animacji.'))};
+  $('dlx').onclick=()=>dl.close();
+ }catch(e){toast(tr('Nie udało się wczytać doodle. Spróbuj, gdy będziesz online.'),5000)}finally{DD.busy=false}}
 /* --- tygodnie --- */
 const wd0=()=>(new Date().getDay()+6)%7;
 const wstart=o=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate()-wd0()-7*o)};
@@ -509,7 +588,7 @@ function vSet(){
 
  const curTh = THEMES.find(x => x.id === THEME) || THEMES[0];
  const themeSection = curTh ? `<h3>${tr('Wygląd aplikacji')}</h3><label>${tr('Wybierz skórkę')}</label><select id="thsel">${THEMES.map(t => `<option value="${t.id}" ${t.id === THEME ? 'selected' : ''}>${esc(t.name[LANG] || t.name.pl)}</option>`).join('')}</select><div class="th-box"><div class="mu">${esc(curTh.description[LANG] || curTh.description.pl)}</div><div class="th-prev"><small class="mu">${tr('Podgląd elementów:')}</small><div class="th-prev-row"><span class="bx on">✓</span><span style="flex:1">${tr('Przykładowe zadanie')}</span><button type="button" class="sm">${tr('Opcja')}</button><button type="button" class="sm pri">${tr('Akcja')}</button></div><div class="stp mu" style="margin-top:8px;padding-top:6px;font-size:13px">${tr('Linia podziału (divider) między elementami')}</div></div></div>` : '';
- h+=themeSection+`<h3>Język / Language</h3><select id=lg><option value=pl ${LANG==='pl'?'selected':''}>Polski</option><option value=en ${LANG==='en'?'selected':''}>English</option></select><h3>${tr('Diagnostyka')}</h3><div class=c><div class=r><div class=ti data-a=tab data-tab=diag>${tr('Wersje, aktualizacje, dziennik, raport')}<span class=dgd data-st="${dgStatus()}"></span></div><span class=mu>›</span></div></div><h3>${tr('Dane')}</h3><div class=row><button class=sm data-a=exp>${tr('Zapisz kopię danych')}</button><button class=sm data-a=imp>${tr('Wczytaj kopię danych')}</button></div><input type=file id=fi accept=".json,application/json" hidden><p class=mu>${S.lastBackup?(bkDays()===0?tr('Ostatnia kopia: dziś'):tr('Ostatnia kopia: {n} dni temu',{n:bkDays()})):tr('Kopii jeszcze nie robiono')}. ${tr('Kopia chroni dane przy zmianie telefonu lub wyczyszczeniu przeglądarki. Przypomnę po 14 dniach.')}</p>${pauseBox()}${keepBox()}<div class=foot><img src="icon-512.png" alt=""><div>Tuduś · plan, do, done.</div><div>${tr('Wersja aplikacji {v} · schemat danych {s}',{v:V+(IS_TEST?' [TEST]':''),s:SCHEMA})}</div></div>`;return`<div class=set>${h}</div>`}
+ h+=themeSection+`<h3>Język / Language</h3><select id=lg><option value=pl ${LANG==='pl'?'selected':''}>Polski</option><option value=en ${LANG==='en'?'selected':''}>English</option></select><h3>${tr('Diagnostyka')}</h3><div class=c><div class=r><div class=ti data-a=tab data-tab=diag>${tr('Wersje, aktualizacje, dziennik, raport')}<span class=dgd data-st="${dgStatus()}"></span></div><span class=mu>›</span></div></div><h3>${tr('Dane')}</h3><div class=row><button class=sm data-a=exp>${tr('Zapisz kopię danych')}</button><button class=sm data-a=imp>${tr('Wczytaj kopię danych')}</button></div><input type=file id=fi accept=".json,application/json" hidden><p class=mu>${S.lastBackup?(bkDays()===0?tr('Ostatnia kopia: dziś'):tr('Ostatnia kopia: {n} dni temu',{n:bkDays()})):tr('Kopii jeszcze nie robiono')}. ${tr('Kopia chroni dane przy zmianie telefonu lub wyczyszczeniu przeglądarki. Przypomnę po 14 dniach.')}</p>${ddBox()}${pauseBox()}${keepBox()}<div class=foot><img src="icon-512.png" alt=""><div>Tuduś · plan, do, done.</div><div>${tr('Wersja aplikacji {v} · schemat danych {s}',{v:V+(IS_TEST?' [TEST]':''),s:SCHEMA})}</div></div>`;return`<div class=set>${h}</div>`}
 function ab(){$('ab').innerHTML=S.areas.map(a=>{const n=prog(a.id).length;return`<button class="ar${a.id===S.area?' on':''}" data-a=area data-id="${a.id}" style="--c:${a.color};--ct:${ink(a.color)}">${esc(a.name)}<span class=cn>${n}</span></button>`}).join('')}
 function bar(){const e=$('bar');e.className=tab==='prog'||tab==='todo'?'bar':'';
  const q=ph=>`<input id=qi placeholder="${ph}" enterkeyhint=done autocomplete=off style="flex:1;min-width:0"><button class=fab style="width:48px;height:48px;font-size:26px;flex:none" data-a=qa aria-label="${tr('Dodaj')}">+</button><button class=sm data-a=add aria-label="${tr('Pełny formularz')}">⋯<small>${tr('więcej')}</small></button>`;
@@ -546,6 +625,7 @@ const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=nul
  gotest:()=>enterTestMode(),
  exittest:()=>exitTestMode(),
  refreshtest:()=>refreshTestData(),
+ ddreplay:()=>ddShow(true),ddlab:()=>ddLab(),
  pznew:()=>pauseSheet(null),pzedit:(x,el)=>pauseSheet(el.dataset.id),pzend:(x,el)=>endPause(el.dataset.id),pzdel:(x,el)=>{S.pauses=S.pauses.filter(q=>q.id!==el.dataset.id);save();render()},
  dchk:()=>{runCheck()},
  dinst:()=>{navigator.serviceWorker.getRegistration().then(r=>{if(r&&r.waiting){pendingSW=r.waiting;log('i','install-now','skip-waiting requested');r.waiting.postMessage('skip')}}).catch(()=>{})},
@@ -607,6 +687,8 @@ document.addEventListener('input',e=>{if(e.target.id==='q'){const v=e.target.val
 document.addEventListener('change',e=>{const t=e.target;
  if(t.id==='rd'||t.id==='rf'){S.rate[t.id==='rd'?'d':'f']=Math.max(0,Math.min(99,Math.floor(+t.value)||0));save();render();return}
  if(t.id==='per'){per=+t.value;smore=null;open=null;render();return}
+ if(t.id==='ddon'){S.dd.on=t.checked;if(t.checked)delete S.dd.shown;save();if(t.checked)ddShow(false);return}
+ if(t.id==='ddspeed'){S.dd.speed=+t.value;save();ddShow(true);return}
  if(t.id==='keepsel'){onKeep(+t.value);return}
  if(t.id==='thsel'){applyTheme(t.value);render();return}
  if(t.id==='lg'){LANG=t.value;try{localStorage.setItem('kanban-lang',LANG)}catch(x){}render();return}
