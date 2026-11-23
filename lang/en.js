@@ -363,5 +363,16 @@
 "Wszystko idzie równo: {l} swojej normy.": "Everything is on an even keel: {l} of their usual pace.",
 "{a} idzie najlepiej ({p}% swojej normy).": "{a} is doing best ({p}% of its usual pace).",
 "pauza": "pause",
-"za mało danych": "not enough data"
+"za mało danych": "not enough data",
+"Listy i przyczyny": "Lists and reasons",
+"Listy: {a} · przyczyny: {r}": "Lists: {a} · reasons: {r}",
+"+{d} / −{f} · nagrody: {n}": "+{d} / −{f} · rewards: {n}",
+"trwa do {d}": "until {d}",
+"zaplanowana: {d}": "planned: {d}",
+"doodle": "doodle",
+"wł.": "on",
+"wył.": "off",
+"Wygląd i język": "Appearance and language",
+"Aplikacja i diagnostyka": "App and diagnostics",
+"Kopia zapasowa": "Backup"
 };

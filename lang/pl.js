@@ -363,5 +363,16 @@
 "Wszystko idzie równo: {l} swojej normy.": "Wszystko idzie równo: {l} swojej normy.",
 "{a} idzie najlepiej ({p}% swojej normy).": "{a} idzie najlepiej ({p}% swojej normy).",
 "pauza": "pauza",
-"za mało danych": "za mało danych"
+"za mało danych": "za mało danych",
+"Listy i przyczyny": "Listy i przyczyny",
+"Listy: {a} · przyczyny: {r}": "Listy: {a} · przyczyny: {r}",
+"+{d} / −{f} · nagrody: {n}": "+{d} / −{f} · nagrody: {n}",
+"trwa do {d}": "trwa do {d}",
+"zaplanowana: {d}": "zaplanowana: {d}",
+"doodle": "doodle",
+"wł.": "wł.",
+"wył.": "wył.",
+"Wygląd i język": "Wygląd i język",
+"Aplikacja i diagnostyka": "Aplikacja i diagnostyka",
+"Kopia zapasowa": "Kopia zapasowa"
 };
