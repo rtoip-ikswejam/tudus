@@ -686,5 +686,66 @@ try {
   }
 } catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
 
+// ---------- Ustawienia: grupy ----------
+console.log('\n[34] Ustawienia: sześć zwijanych grup, logiczny podział');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': mkState([mkTask({ t: 'x' })], { created: D(-200) }) } });
+  a.ev("tab='set';render()");
+  const groups = () => [...a.d.querySelectorAll('#main details.sg')];
+  const g = k => a.d.querySelector(`#main details.sg[data-g=${k}]`);
+  const inG = (k, sel) => !!(g(k) && g(k).querySelector(sel));
+  ok(groups().map(x => x.dataset.g).join() === 'lists,coins,pause,look,data,app', 'kolejność grup: listy, monety, pauza, wygląd i język, dane, aplikacja');
+  ok(groups().every(x => !x.open), 'domyślnie wszystkie grupy są zwinięte (widać spis sześciu pozycji)');
+  const titles = groups().map(x => x.querySelector('summary b').textContent.trim());
+  ok(titles.join('|') === 'Listy i przyczyny|Monety i sklepik|Pauza|Wygląd i język|Dane|Aplikacja i diagnostyka', 'tytuły grup', titles.join('|'));
+  const subs = Object.fromEntries(groups().map(x => [x.dataset.g, x.querySelector('summary small').textContent.trim()]));
+  ok(/Listy: 2 · przyczyny: \d+/.test(subs.lists) && /^\+\d+ \/ −\d+ · nagrody: \d+$/.test(subs.coins) && subs.pause === 'brak' && /Polski · doodle: (wł|wył)\./.test(subs.look) && subs.data === 'Kopii jeszcze nie robiono' && /^v1\.\d+\.\d+ \[TEST\]$/.test(subs.app), 'podtytuły streszczają stan każdej grupy bez otwierania', JSON.stringify(subs));
+  // zawartość: wszystko, co dotyczy wyglądu, razem; wszystko, co dotyczy danych, razem
+  ok(inG('lists', '#an2') && inG('lists', '#rn'), 'grupa „Listy i przyczyny”: dodawanie listy i przyczyny');
+  ok(inG('coins', '#rd') && inG('coins', '#rf') && inG('coins', '#sn'), 'grupa „Monety i sklepik”: stawki i nowa nagroda');
+  ok(inG('pause', '[data-a=pznew]'), 'grupa „Pauza”: planowanie pauzy');
+  ok(inG('look', '#thsel') && inG('look', '#lg') && inG('look', '#ddon') && inG('look', '#ddspeed') && inG('look', '[data-a=ddreplay]'), 'grupa „Wygląd i język”: skórka, język, doodle i tempo animacji razem');
+  ok(inG('data', '[data-a=exp]') && inG('data', '[data-a=imp]') && inG('data', '#keepsel'), 'grupa „Dane”: zapis, wczytanie kopii i porządkowanie danych razem');
+  ok(inG('app', '[data-a=tab][data-tab=diag]'), 'grupa „Aplikacja i diagnostyka”: diagnostyka');
+  ok(!inG('look', '[data-a=exp]') && !inG('data', '#thsel') && !inG('data', '#ddon'), 'wygląd i dane nie mieszają się nawzajem');
+  ok(!g('coins').querySelector('h3') || !/Monety i sklepik/.test(g('coins').querySelector('h3').textContent), 'w grupach jednosekcyjnych nie ma zdublowanego nagłówka');
+  // zachowanie przy przerysowaniu
+  g('data').open = true; g('data').dispatchEvent(new a.w.Event('toggle')); 
+  a.ev("render()");
+  ok(g('data').open && groups().filter(x => x.open).length === 1, 'otwarta grupa zostaje otwarta po przerysowaniu, pozostałe zwinięte');
+  g('look').open = true; g('look').dispatchEvent(new a.w.Event('toggle'));
+  const cb = a.d.getElementById('ddon'); cb.checked = false; cb.dispatchEvent(new a.w.Event('change', { bubbles: true }));
+  ok(groups().filter(x => x.open).map(x => x.dataset.g).sort().join() === 'data,look', 'zmiana ustawienia w grupie nie zwija grup (otwarte: dane i wygląd)');
+  g('data').open = false; g('data').dispatchEvent(new a.w.Event('toggle')); a.ev('render()');
+  ok(!g('data').open && g('look').open, 'zwinięcie grupy też jest zapamiętane');
+  // wersja testowa: banner na wierzchu, poza grupami
+  const first = a.d.querySelector('#main .set').firstElementChild;
+  ok(first.tagName !== 'DETAILS' && !!first.querySelector('[data-a=exittest]'), 'w wersji testowej banner środowiska jest na samej górze, poza grupami');
+  ok(!inG('app', '[data-a=exittest]'), 'banner testowy nie jest zdublowany w grupie aplikacji');
+  ok(!!a.d.querySelector('#main details.sg[data-g=app] summary .dgd'), 'wskaźnik stanu diagnostyki jest widoczny także na zwiniętej grupie');
+  // stopka poza grupami
+  ok(!!a.d.querySelector('#main .set > .foot') && !a.d.querySelector('#main details .foot'), 'stopka z wersją jest pod grupami');
+  // pauza i podtytuł
+  a.ev("S.pauses=[{id:'pp',from:'" + D(-1) + "',to:'" + D(3) + "',areas:null}];render()");
+  ok(/^trwa do /.test(g('pause').querySelector('summary small').textContent.trim()), 'trwająca pauza widoczna w podtytule grupy „Pauza”');
+  a.ev("S.pauses=[{id:'pp',from:'" + D(5) + "',to:'" + D(9) + "',areas:null}];render()");
+  ok(/^zaplanowana: /.test(g('pause').querySelector('summary small').textContent.trim()), 'zaplanowana pauza także');
+  a.ev("S.lastBackup=Date.now();render()");
+  ok(g('data').querySelector('summary small').textContent.trim() === 'Ostatnia kopia: dziś', 'podtytuł „Dane” pokazuje wiek ostatniej kopii');
+  ok(a.errors.length === 0, 'brak błędów skryptu', a.errors.join(' | '));
+  // angielski
+  const e = await boot('test', { ls: { 'kanban-lang': 'en', 'kanban-v1': mkState([mkTask({ t: 'x' })], { created: D(-200) }) } });
+  e.ev("tab='set';render()");
+  const et = [...e.d.querySelectorAll('#main details.sg summary b')].map(x => x.textContent.trim()).join('|');
+  ok(et === 'Lists and reasons|Coins and shop|Pause|Appearance and language|Data|App and diagnostics', 'po angielsku tytuły grup', et);
+  // wersja główna (po promocji): wyrzutnia testu wewnątrz grupy aplikacji, nie na wierzchu
+  if (fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').includes('class=sgt')) {
+    const r = await boot('', { ls: { 'kanban-lang': 'pl', 'kanban-v1': mkState([mkTask({ t: 'x' })], { created: D(-200) }) } });
+    r.ev("tab='set';render()");
+    const rf = r.d.querySelector('#main .set').firstElementChild;
+    ok(rf.tagName === 'DETAILS' && !!r.d.querySelector('#main details.sg[data-g=app] [data-a=gotest]'), 'produkcja: „Środowisko testowe” jest w grupie aplikacji, a na wierzchu są grupy');
+  }
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
 console.log(`\nWynik: ${pass} ok, ${fail} błędów`);
 process.exit(fail ? 1 : 0);
