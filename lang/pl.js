@@ -374,5 +374,8 @@
 "wył.": "wył.",
 "Wygląd i język": "Wygląd i język",
 "Aplikacja i diagnostyka": "Aplikacja i diagnostyka",
-"Kopia zapasowa": "Kopia zapasowa"
+"Kopia zapasowa": "Kopia zapasowa",
+"za mało historii (dni sprzed ostatniego tygodnia: {d}, potrzeba {m})": "za mało historii (dni sprzed ostatniego tygodnia: {d}, potrzeba {m})",
+"za mało zadań w zwykłym tygodniu ({x} zamiast co najmniej {m})": "za mało zadań w zwykłym tygodniu ({x} zamiast co najmniej {m})",
+"Wstępnie: historia jest jeszcze krótka, wynik się ustabilizuje.": "Wstępnie: historia jest jeszcze krótka, wynik się ustabilizuje."
 };
