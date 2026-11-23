@@ -14,7 +14,7 @@ function load(file) {
   const bl = n => (src.match(new RegExp('/\\* ' + n + '-BEGIN[\\s\\S]*?/\\* ' + n + '-END \\*/')) || [null])[0];
   const [a, p, b] = [bl('AGG'), bl('PAUSE'), bl('BALANCE')];
   if (!a || !p || !b) return null;
-  return new Function(a + p + b + '\nreturn{aAdd,aMon,aggTry,balStats,balSummary,BAL_MIN};')();
+  return new Function(a + p + b + '\nreturn{aAdd,aMon,aggTry,balStats,balSummary,BAL_MIN,BAL_DAYS};')();
 }
 
 const TD = '2026-11-18'; // środa. Okno „ostatnie 7 dni”: 11-11..11-17. Norma: tygodnie od 10-12 do 11-08 (28 dni).
@@ -57,6 +57,47 @@ console.log('\n=== Wskaźnik względem własnej normy ===');
   ok(A.balSummary(A.balStats(s4, TD)).k === 'even', '100% i 90% (różnica 10 punktów) mieści się w „równo”', JSON.stringify(A.balStats(s4, TD).map(x => x.idx)));
   const s5 = mk(A, { a1: { norm: 20, rec: 20 }, a2: { norm: 20, rec: 17 } });
   ok(A.balSummary(A.balStats(s5, TD)).k === 'best', '100% i 85%: wskazuje lepszą');
+}
+
+console.log('\n=== Krótka historia (dwa tygodnie używania aplikacji) ===');
+{
+  const TD2 = '2026-11-23'; // poniedziałek; dane od 09.11 (W2) i z W1 (16–22.11)
+  const areas = [{ id: 'a1', name: 'Prywatne', color: '#2a9d8f' }, { id: 'a2', name: 'Zawodowe', color: '#3976be' }];
+  // stałe tempo „po k zadań dziennie” od dnia `start`
+  const steady = (perDay1, perDay2, start, end = '2026-11-22') => {
+    const log = []; for (const [id, k] of [['a1', perDay1], ['a2', perDay2]]) for (let d = start; d <= end; d = add(A, d, 1)) for (let i = 0; i < k; i++) log.push(L(id, d));
+    return { areas, log, wk: {}, pauses: [], tasks: [] };
+  };
+  let st = A.balStats(steady(2, 1, '2026-11-09'), TD2);
+  ok(st.every(x => x.st === 'ok') && st[0].idx === 100 && st[1].idx === 100, 'dwa pełne tygodnie danych: obie listy się porównują, tempo stałe = 100%', JSON.stringify(st.map(x => [x.st, x.idx, x.days])));
+  ok(st.every(x => x.days === 7 && x.prelim === true), 'norma opiera się na 7 dniach historii i jest oznaczona jako wstępna');
+  ok(Math.abs(st[0].norm - 14) < 1e-9 && Math.abs(st[1].norm - 7) < 1e-9, 'norma = rzeczywiste tempo tygodniowe (14 i 7), a nie jedna czwarta (poprzedni błąd)', st.map(x => x.norm).join());
+  st = A.balStats(steady(4, 2, '2026-11-09'), TD2);
+  ok(st[0].idx === 100 && st[1].idx === 100, 'większe liczby (4 i 2 dziennie) też dają 100%, a nie 400% jak wcześniej');
+  // start w środku tygodnia: dni sprzed startu nie są zerami
+  const byStart = ['2026-11-09', '2026-11-10', '2026-11-11'].map(s0 => A.balStats(steady(2, 1, s0), TD2));
+  ok(byStart.every(r => r.every(x => x.st === 'ok' && x.idx === 100)), 'start w poniedziałek, wtorek i środę: za każdym razem 100% (norma liczona od pierwszego dnia, bez zer sprzed startu)', JSON.stringify(byStart.map(r => r.map(x => x.days))));
+  const days = byStart.map(r => r[0].days).join();
+  ok(days === '7,6,5', 'liczba dni historii: 7, 6, 5', days);
+  // za krótko: start w czwartek (4 dni przed ostatnim tygodniem)
+  st = A.balStats(steady(2, 1, '2026-11-12'), TD2);
+  ok(st.every(x => x.st === 'few' && x.why === 'hist' && x.days === 4), 'start w czwartek: tylko 4 dni historii (<5), powód „hist”, bez udawania wyniku', JSON.stringify(st.map(x => [x.st, x.why, x.days])));
+  ok(A.balSummary(st).k === 'none', 'wtedy karta mówi „za mało danych”, ale znamy powód');
+  st = A.balStats(steady(2, 1, '2026-11-17'), TD2);
+  ok(st.every(x => x.why === 'hist' && x.days === 0), 'dane tylko z ostatniego tygodnia: 0 dni historii');
+  // długa historia, ale mało zadań: inny powód
+  const sl = mk(A, { a1: { norm: 2, rec: 2 }, a2: { norm: 10, rec: 10 } });
+  const stl = A.balStats(sl, TD);
+  ok(stl.find(x => x.id === 'a1').why === 'low' && stl.find(x => x.id === 'a2').why === null, 'mało zadań przy długiej historii: powód „low”, druga lista bez powodu');
+  ok(stl.find(x => x.id === 'a1').prelim === false && stl.find(x => x.id === 'a1').days === 28, 'długa historia nie jest wstępna (28 dni)');
+  // pierwsza aktywność z agregatów tygodniowych
+  const big = steady(2, 1, '2026-11-09'); big.schema = 3; big.reasons = [];
+  const rr = A.aggTry(big, TD2, 2);
+  ok(rr.ok && !rr.none && JSON.stringify(A.balStats(rr.c, TD2)) === JSON.stringify(A.balStats(big, TD2)), 'po porządkowaniu danych bilans krótkiej historii jest identyczny (pierwszy ślad czytany z agregatów)', JSON.stringify([rr.ok, rr.none]));
+  // niezależność od dnia tygodnia: stałe tempo, start 14 dni przed poniedziałkiem
+  const res = [];
+  for (let d = 0; d < 7; d++) { const td = add(A, TD2, d), m0 = A.aMon(td); res.push(A.balStats(steady(2, 1, add(A, m0, -14), add(A, td, -1)), td).map(x => x.st + ':' + x.idx).join('/')); }
+  ok(res.every(r => /^ok:\d+\/ok:\d+$/.test(r)), 'dwa tygodnie historii: w każdy dzień tygodnia lista się porównuje (bez „za mało danych”)', res.join(' | '));
 }
 
 console.log('\n=== Niezależność od dnia tygodnia ===');

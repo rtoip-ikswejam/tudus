@@ -374,5 +374,8 @@
 "wył.": "off",
 "Wygląd i język": "Appearance and language",
 "Aplikacja i diagnostyka": "App and diagnostics",
-"Kopia zapasowa": "Backup"
+"Kopia zapasowa": "Backup",
+"za mało historii (dni sprzed ostatniego tygodnia: {d}, potrzeba {m})": "not enough history (days before last week: {d}, need {m})",
+"za mało zadań w zwykłym tygodniu ({x} zamiast co najmniej {m})": "too few tasks in a usual week ({x} instead of at least {m})",
+"Wstępnie: historia jest jeszcze krótka, wynik się ustabilizuje.": "Preliminary: the history is still short, the result will settle."
 };

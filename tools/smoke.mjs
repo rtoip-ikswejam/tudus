@@ -662,7 +662,7 @@ try {
   // mała próbka
   const f = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': balState({}, [{ norm: 10, rec: 10 }, { norm: 2, rec: 5 }]) } });
   f.ev("tab='done';render()");
-  ok(!f.d.querySelector('.balbar') && /Zawodowa: za mało danych/.test(f.d.querySelector('.balchips') ? f.d.querySelector('.balchips').textContent : ''), 'lista z normą poniżej progu: „za mało danych”, bez procentów');
+  ok(!f.d.querySelector('.balbar') && /Zawodowa: za mało zadań w zwykłym tygodniu/.test(f.d.querySelector('.balchips') ? f.d.querySelector('.balchips').textContent : ''), 'lista z normą poniżej progu: plakietka z powodem, bez procentów');
   // jedna lista: bez karty
   const o = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': balState({ areas: [{ id: 'a1', name: 'Prywatna', color: '#2a9d8f' }] }) } });
   o.ev("tab='done';render()"); ok(!/Bilans list/.test(mainText(o)), 'przy jednej liście karta się nie pokazuje');
@@ -745,6 +745,34 @@ try {
     const rf = r.d.querySelector('#main .set').firstElementChild;
     ok(rf.tagName === 'DETAILS' && !!r.d.querySelector('#main details.sg[data-g=app] [data-a=gotest]'), 'produkcja: „Środowisko testowe” jest w grupie aplikacji, a na wierzchu są grupy');
   }
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[35] Bilans list: krótka historia (dwa tygodnie) i powody w plakietkach');
+try {
+  const twoWeeks = (a1perDay, a2perDay, a2startOff) => { // dane od poniedziałku sprzed dwóch tygodni do wczoraj
+    const log = []; let n = 0; const put = (area, off) => log.push({ id: 'h' + (++n), tid: 'ht' + n, area, tpl: null, title: 'x', date: D(off), res: 'done', c: 2 });
+    for (let off = m0off - 14; off <= -1; off++) { for (let k = 0; k < a1perDay; k++) put('a1', off); if (off >= a2startOff) for (let k = 0; k < a2perDay; k++) put('a2', off); }
+    return mkState([], { log, created: D(-30) });
+  };
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': twoWeeks(2, 1, m0off - 14) } });
+  a.ev("tab='done';render()");
+  ok(!!a.d.querySelector('#main .balbar') && !/Za mało danych, żeby porównać/.test(mainText(a)), 'po dwóch tygodniach danych pasek się pokazuje (wcześniej było „za mało danych”)', mainText(a).slice(0, 120));
+  ok(/Wstępnie: historia jest jeszcze krótka/.test(mainText(a)), 'z notką, że wynik jest wstępny');
+  ok(a.ev("balStats(S,today()).every(x=>x.st==='ok')"), 'obie listy mają wskaźnik');
+  // druga lista zaczęła dopiero w zeszłym tygodniu: powód podany w plakietce
+  const b = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': twoWeeks(2, 1, m0off - 6) } });
+  b.ev("tab='done';render()");
+  const chip = b.d.querySelector('.balchip') ? b.d.querySelector('.balchips').textContent : '';
+  ok(!b.d.querySelector('.balbar') && /Zawodowa: za mało historii \(dni sprzed ostatniego tygodnia: 0, potrzeba 5\)/.test(chip), 'lista bez historii: plakietka mówi, czego brakuje (dni historii i próg)', chip);
+  ok(/Za mało danych, żeby porównać listy/.test(mainText(b)), 'a karta spokojnie mówi, że nie ma jeszcze z czym porównywać');
+  // długa historia, ale mało zadań: inny powód
+  const c = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': balState({}, [{ norm: 10, rec: 10 }, { norm: 2, rec: 5 }]) } });
+  c.ev("tab='done';render()");
+  const chip2 = c.d.querySelector('.balchips') ? c.d.querySelector('.balchips').textContent : '';
+  ok(/Zawodowa: za mało zadań w zwykłym tygodniu \(2 zamiast co najmniej 3\)/.test(chip2), 'mało zadań przy długiej historii: plakietka podaje normę (2) i próg (3)', chip2);
+  const en = await boot('test', { ls: { 'kanban-lang': 'en', 'kanban-v1': twoWeeks(2, 1, m0off - 6) } });
+  en.ev("tab='done';render()");
+  ok(/not enough history \(days before last week: 0, need 5\)/.test(en.d.querySelector('.balchips') ? en.d.querySelector('.balchips').textContent : ''), 'po angielsku plakietka też podaje powód');
 } catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
 
 console.log(`\nWynik: ${pass} ok, ${fail} błędów`);
