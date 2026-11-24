@@ -119,7 +119,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 .th-prev{margin-top:10px;padding-top:10px;border-top:1px solid var(--div)}
 .th-prev-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
 </style></head><body data-tab="prog">
-<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.22.1</div></div></div>
+<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.22.2</div></div></div>
 <script>(function(){var l;try{l=localStorage.getItem('kanban-lang')}catch(e){}if(!l)l=/^en/i.test(navigator.language||'')?'en':'pl';document.getElementById('spl').textContent=l==='en'?'Loading…':'Wczytywanie…';setTimeout(function(){var s=document.getElementById('splash');if(s)s.remove()},4000)})()</script>
 <header><div id="ab"></div><nav class="tabs"><button class="tab" data-a="tab" data-tab="todo">Do zrobienia</button><button class="tab" data-a="tab" data-tab="prog">Dzisiaj</button><button class="tab" data-a="tab" data-tab="done">Zrobione</button><button class="tab" data-a="tab" data-tab="stat">Statystyki</button><span id="test-badge" class="test-pill" style="display:none">TEST</span><button class="gear" data-a="tab" data-tab="set" aria-label="Ustawienia">⚙</button></nav></header>
 <main id="main"></main><div id="bar"></div><div id="mis"></div>
@@ -130,7 +130,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 <script>
 const IS_TEST=!!window.__IS_TEST;
 if(IS_TEST){const tb=document.getElementById('test-badge');if(tb)tb.style.display='inline-flex';}
-const V='1.22.1',SPLASH_MS=1000,SCHEMA=3,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
+const V='1.22.2',SPLASH_MS=1000,SCHEMA=3,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
 /* --- Dane testowe: jednokierunkowa kopia produkcja -> test --- */
 const PK='kanban-v1',TK='kanban-v1-test',TMK='kanban-v1-test-meta';
 const tmeta=()=>{try{return JSON.parse(localStorage.getItem(TMK))}catch(e){return null}};
@@ -409,15 +409,17 @@ function ddStats(s,td){const ar=(s.areas||[]).map(a=>a.id),anyP=d=>ar.some(a=>pa
  const wkDone=mon=>{let n=0;const e=aAdd(mon,6);done.forEach(l=>{if(l.date>=mon&&l.date<=e)n++});Object.values(s.wk||{}).forEach(A=>{if(A[mon])n+=A[mon].d});return n};
  const wkPaused=mon=>{let n=0;for(let i=0;i<7;i++)if(anyP(aAdd(mon,i)))n++;return n};
  const y1=aAdd(td,-1),y2=aAdd(td,-2),m0=aMon(td),mons=[1,2,3,4].map(i=>aAdd(m0,-7*i));
- const tot28=mons.reduce((n,m)=>n+wkDone(m),0),pd=mons.reduce((n,m)=>n+wkPaused(m),0);
+ let first=null;(s.log||[]).forEach(l=>{if(l.date&&(!first||l.date<first))first=l.date});Object.values(s.wk||{}).forEach(A=>Object.keys(A).forEach(m=>{if(!first||m<first)first=m}));
+ /* średnia dzienna: tylko dni od pierwszego śladu aktywności (dni sprzed używania aplikacji nie są „zerami”), bez dni pauzy */
+ let nd=0,nt=0;mons.forEach(m=>{for(let i=0;i<7;i++){const d=aAdd(m,i);if(first&&d>=first&&!anyP(d))nd++}if(first&&aAdd(m,6)>=first)nt+=wkDone(m)});
  const total=done.length+Object.values(s.wk||{}).reduce((n,A)=>n+Object.values(A).reduce((m,w)=>m+w.d,0),0);
  const pz=(s.pauses||[]).filter(p=>p.from<=td&&td<=p.to).sort((a,b)=>a.to<b.to?1:-1)[0];
  return{y:day(y1),d:day(y2),yP:anyP(y1)||anyP(y2),w1:wkDone(mons[0]),w2:wkDone(mons[1]),wP:wkPaused(mons[0])+wkPaused(mons[1])>0,
-  avg:(28-pd)>=7?tot28/(28-pd):0,total,paused:allP(td),back:allP(y1)&&!allP(td),to:pz?pz.to:null,created:s.created||td}}
+  avg:nd>=7?nt/nd:0,yOk:!!first&&first<=y2,wOk:!!first&&first<=mons[1],total,paused:allP(td),back:allP(y1)&&!allP(td),to:pz?pz.to:null,created:s.created||td}}
 function ddOpts(st){const ref=Math.ceil(st.avg),c=st.y===0?{t:'C0',p:{n:ddClamp(ref,1,3)}}:st.y<ref?{t:'C',p:{y:st.y,a:Math.max(1,Math.round(st.avg)),n:ddClamp(ref-st.y,1,3)}}:{t:'C2',p:{y:st.y,n:ddClamp(Math.ceil(st.avg/4),1,3)}};
  const el=[];
- if(!st.yP&&st.y>st.d&&st.y>0)el.push([{t:'A',p:{y:st.y,d:st.d,x:st.y-st.d}},2]);
- if(!st.wP&&st.w1>st.w2&&st.w1>0)el.push([{t:'B',p:{w1:st.w1,w2:st.w2,x:st.w1-st.w2}},2]);
+ if(st.yOk&&!st.yP&&st.y>st.d&&st.y>0)el.push([{t:'A',p:{y:st.y,d:st.d,x:st.y-st.d}},2]);
+ if(st.wOk&&!st.wP&&st.w1>st.w2&&st.w1>0)el.push([{t:'B',p:{w1:st.w1,w2:st.w2,x:st.w1-st.w2}},2]);
  el.push([c,1]);return el}
 function ddMsg(s,td,salt=''){const st=ddStats(s,td),rng=ddRng(ddHash(td+'m'+salt)),r=rng();
  if(st.paused)return{t:'P',r,p:{to:st.to}};

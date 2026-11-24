@@ -775,5 +775,17 @@ try {
   ok(/not enough history \(days before last week: 0, need 5\)/.test(en.d.querySelector('.balchips') ? en.d.querySelector('.balchips').textContent : ''), 'po angielsku plakietka też podaje powód');
 } catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
 
+console.log('\n[36] Doodle: krótka historia (dwa tygodnie) nie zaniża średniej w komunikacie');
+try {
+  const log = []; let n = 0;
+  for (let off = m0off - 14; off <= -1; off++) { const k = off === -1 ? 3 : 4; for (let i = 0; i < k; i++) log.push({ id: 'q' + (++n), tid: 'qt' + n, area: 'a1', tpl: null, title: 'x', date: D(off), res: 'done', c: 2 }); }
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': mkState([], { log, created: D(-30), dd: { on: true } }) } });
+  await sleep(800);
+  const m = a.ev('S.dd.msg');
+  ok(m && m.t === 'C' && m.p.y === 3 && m.p.a === 4 && m.p.n === 1, 'wczoraj 3 przy rzeczywistej średniej 4: zapisany komunikat C ze średnią 4 (a nie 2)', JSON.stringify(m));
+  const tx = ddCard(a) ? ddCard(a).querySelector('.ddt').textContent : '';
+  ok(!/normalny poziom/.test(tx) && tx.length > 20, 'tekst nie twierdzi, że 3 to „normalny poziom”', tx);
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
 console.log(`\nWynik: ${pass} ok, ${fail} błędów`);
 process.exit(fail ? 1 : 0);

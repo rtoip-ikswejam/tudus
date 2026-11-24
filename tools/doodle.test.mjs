@@ -85,6 +85,47 @@ console.log('\n=== Pauza i nowy użytkownik ===');
   ok(L.ddMsg(mk({}), TD).t !== 'N', 'stary użytkownik z danymi: nie N');
 }
 
+console.log('\n=== Krótka historia (dwa tygodnie używania aplikacji) ===');
+{
+  const TD2 = '2026-11-23'; // poniedziałek
+  const shortState = (start, perDay = 4, { yesterday = perDay, dayBefore = perDay, end = '2026-11-22' } = {}) => {
+    const log = [];
+    for (let d = start; d <= end; d = addDays(d, 1)) { const k = d === addDays(TD2, -1) ? yesterday : d === addDays(TD2, -2) ? dayBefore : perDay; log.push(...done(d, 'a1', k)); }
+    return { areas: [{ id: 'a1' }], tasks: [], log, wk: {}, pauses: [], created: addDays(TD2, -30) };
+  };
+  let st = L.ddStats(shortState('2026-11-09'), TD2);
+  ok(Math.abs(st.avg - 4) < 1e-9, 'stałe 4 zadania dziennie od dwóch tygodni: średnia = 4 (wcześniej wychodziło 2)', String(st.avg));
+  const s3 = shortState('2026-11-09', 4, { yesterday: 3 });
+  const o3 = L.ddOpts(L.ddStats(s3, TD2));
+  ok(o3.length === 1 && o3[0][0].t === 'C' && o3[0][0].p.a === 4 && o3[0][0].p.y === 3 && o3[0][0].p.n === 1, 'wczoraj 3 przy średniej 4: komunikat C („średnia 4, jeszcze 1”), a nie „normalny poziom”', JSON.stringify(o3.map(o => o[0])));
+  ok(L.ddMsg(s3, TD2).t === 'C', 'a wybrany komunikat to C');
+  // zbyt krótka historia: mniej niż 7 dni bazy → brak średniej, bez zgadywania
+  st = L.ddStats(shortState('2026-11-20'), TD2);
+  ok(st.avg === 0, 'pierwsze dane sprzed 3 dni: baza krótsza niż 7 dni, średnia 0 (bez zgadywania)', String(st.avg));
+  // A: nie chwal względem dnia sprzed używania aplikacji
+  const first1 = { areas: [{ id: 'a1' }], tasks: [], log: done('2026-11-22', 'a1', 5), wk: {}, pauses: [], created: addDays(TD2, -30) };
+  const sA = L.ddStats(first1, TD2);
+  ok(sA.y === 5 && sA.d === 0 && sA.yOk === false && !L.ddOpts(sA).some(o => o[0].t === 'A'), 'pierwszy ślad dopiero wczoraj: porównanie z przedwczoraj (0) nie jest pochwałą A');
+  const sA2 = L.ddStats(shortState('2026-11-21', 4, { yesterday: 6, dayBefore: 2 }), TD2);
+  ok(sA2.yOk === true && L.ddOpts(sA2).some(o => o[0].t === 'A'), 'pierwszy ślad dwa dni temu: pochwała A jest dozwolona');
+  // B: nie chwal względem tygodnia, który zaczął się przed pierwszą aktywnością
+  const mkB = start => { const log = []; for (let d = start; d <= '2026-11-22'; d = addDays(d, 1)) log.push(...done(d, 'a1', d >= '2026-11-16' ? 6 : 2)); return { areas: [{ id: 'a1' }], tasks: [], log, wk: {}, pauses: [], created: addDays(TD2, -30) }; };
+  const bFull = L.ddStats(mkB('2026-11-09'), TD2), bPart = L.ddStats(mkB('2026-11-11'), TD2);
+  ok(bFull.wOk && L.ddOpts(bFull).some(o => o[0].t === 'B' && o[0].p.w1 === 42 && o[0].p.w2 === 14), 'poprzedni tydzień w całości po starcie: pochwała B (42 vs 14) jest dozwolona', JSON.stringify(L.ddOpts(bFull).map(o => o[0].t)));
+  ok(!bPart.wOk && !L.ddOpts(bPart).some(o => o[0].t === 'B') && bPart.w1 > bPart.w2, 'start w środę poprzedniego tygodnia: tydzień niepełny, więc bez pochwały B, mimo że liczba jest większa');
+  // po porządkowaniu danych (keep=2) wynik jest identyczny: pierwszy ślad czytany z agregatów
+  const base = shortState('2026-11-09'); base.schema = 3; base.reasons = [];
+  const r = L.aggTry(base, TD2, 2);
+  ok(r.ok && !r.none && JSON.stringify(L.ddStats(r.c, TD2)) === JSON.stringify(L.ddStats(base, TD2)), 'po porządkowaniu danych statystyki krótkiej historii są identyczne', JSON.stringify([r.ok, r.none]));
+  // niezależność od dnia tygodnia
+  const avgs = [];
+  for (let d = 0; d < 7; d++) { const td = addDays(TD2, d), m0 = L.aMon(td); const lg = []; for (let x = addDays(m0, -14); x <= addDays(td, -1); x = addDays(x, 1)) lg.push(...done(x, 'a1', 4)); avgs.push(L.ddStats({ areas: [{ id: 'a1' }], tasks: [], log: lg, wk: {}, pauses: [], created: addDays(TD2, -30) }, td).avg); }
+  ok(avgs.every(x => Math.abs(x - 4) < 1e-9), 'dwa tygodnie historii: średnia = 4 w każdy dzień tygodnia', avgs.join());
+  // pauza w bazie nie zaniża średniej
+  const sp = shortState('2026-11-09'); sp.pauses = [{ id: 'p', from: '2026-11-10', to: '2026-11-12', areas: null }]; sp.log = sp.log.filter(l => !(l.date >= '2026-11-10' && l.date <= '2026-11-12'));
+  ok(Math.abs(L.ddStats(sp, TD2).avg - 4) < 1e-9, 'dni pauzy w bazie są pomijane: średnia nadal 4');
+}
+
 console.log('\n=== Losowanie komunikatów: deterministyczne i z wagami ===');
 {
   const s = mk({ y: 7, d: 5 });
