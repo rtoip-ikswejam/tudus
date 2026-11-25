@@ -13,7 +13,7 @@ function load(file) {
   const src = fs.readFileSync(path.join(ROOT, file), 'utf8');
   const m = src.match(/\/\* AGG-BEGIN[\s\S]*?\/\* AGG-END \*\//);
   if (!m) return null;
-  return new Function(m[0] + '\nreturn{aMon,aggAdd,aggTotals,aggCompact,aggTry,aggPeek,aggFails,aggReasonCounts,aggMergeReason,aggCountArea,aggWeeks,wkGet,AGG_PEND};')();
+  return new Function(m[0] + '\nreturn{aMon,aggAdd,aggTotals,aggCompact,aggTry,aggPeek,aggFails,aggReasonCounts,aggMergeReason,aggCountArea,aggWeeks,wkGet,aggSpr,AGG_PEND};')();
 }
 
 // --- generator danych ---
@@ -164,6 +164,34 @@ function suite(label, A) {
     ok(indep(r.c) === indep(s), 'wpis z tytułem null i brakującym c nie psuje sum');
     const bad = clone(s); bad.tasks = null; const b = A.aggTry(bad, TD, 3);
     ok(b.ok === false && typeof b.err === 'string', 'uszkodzony stan: aggTry zwraca ok:false zamiast wyjątku');
+  }
+
+  // 7b. sprinty: stare wpisy wchodzą do tygodniowych sum, bilans minut się nie zmienia
+  {
+    const s = gen({ days: 90, seed: 31 });
+    let k = 0; const mkS = (date, area, m, c = 1) => ({ id: 's' + (++k), t: 'tx', a: area, n: 'Zadanie', d: date, m, c });
+    s.spr = [];
+    for (let d = 80; d >= 1; d -= 3) s.spr.push(mkS(addDays(TD, -d), d % 2 ? 'a1' : 'a2', 10 + (d % 4) * 5, d % 5 ? 1 : 0));
+    s.spr.push({ id: 'nd', t: 'x', a: 'a1', m: 5, c: 1 }, { id: 'na', t: 'x', d: addDays(TD, -70), m: 5, c: 1 }); // bez daty / bez listy: zostają
+    const total = (o, area, from) => A.aggSpr(o, area, from);
+    const from = A.aMon(addDays(TD, -85));
+    const b1 = total(s, 'a1', from), b2 = total(s, 'a2', from);
+    const r = A.aggTry(s, TD, 3);
+    ok(r.ok && !r.none && r.spr > 10, `sprinty starsze niż okno trafiają do tygodni (${r.spr} wpisów)`, JSON.stringify([r.ok, r.none, r.spr]));
+    const c1 = total(r.c, 'a1', from), c2 = total(r.c, 'a2', from);
+    ok(JSON.stringify([b1, b2]) === JSON.stringify([c1, c2]), 'liczba i minuty sprintów w okresie identyczne przed i po porządkowaniu', JSON.stringify([b1, b2, c1, c2]));
+    const cut = A.aMon(TD, 2);
+    ok(r.c.spr.every(e => !e.d || !e.a || e.d >= cut), 'w S.spr zostają tylko wpisy z okna szczegółów (i uszkodzone bez daty lub listy)');
+    ok(r.c.spr.some(e => e.id === 'nd') && r.c.spr.some(e => e.id === 'na'), 'wpisy bez daty lub bez listy nie są gubione');
+    ok(A.aggTotals(r.c) === A.aggTotals(s), 'kontrola spójności (aggTotals) uwzględnia sprinty i przechodzi');
+    const r2 = A.aggTry(r.c, TD, 3);
+    ok(r2.ok && r2.none, 'drugie uruchomienie nic nie zmienia (idempotencja także dla sprintów)');
+    // tylko sprinty do zagregowania (bez starych zadań i wpisów) też uruchamia porządkowanie
+    const only = { areas: [{ id: 'a1' }], tasks: [], log: [], wk: {}, spr: [mkS(addDays(TD, -60), 'a1', 25)] };
+    const ro = A.aggTry(only, TD, 2);
+    ok(ro.ok && !ro.none && ro.spr === 1 && ro.c.spr.length === 0 && A.aggSpr(ro.c, 'a1', A.aMon(addDays(TD, -70))).m === 25, 'sam stary sprint wystarcza, żeby porządkowanie zadziałało (none=false)');
+    // inna lista i okres: sumy rozdzielone poprawnie
+    ok(A.aggSpr(r.c, 'a2', A.aMon(addDays(TD, -10))).n === A.aggSpr(s, 'a2', A.aMon(addDays(TD, -10))).n, 'sumy po liście i krótszym okresie zgadzają się');
   }
 
   // 8. pomiar rozmiaru i czasu

@@ -787,5 +787,187 @@ try {
   ok(!/normalny poziom/.test(tx) && tx.length > 20, 'tekst nie twierdzi, że 3 to „normalny poziom”', tx);
 } catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
 
+// ---------- formularz zadania i sprint ----------
+const sprState = (extraTasks = [], extra = {}) => mkState([...extraTasks], { created: D(-30), ...extra });
+const ov = a => a.d.getElementById('spov');
+const pickSel = (a, id, v) => { const e = a.d.getElementById(id); e.value = v; e.dispatchEvent(new a.w.Event('change', { bubbles: true })); e.dispatchEvent(new a.w.Event('input', { bubbles: true })); };
+
+console.log('\n[37] Formularz zadania: grupy, data i godzina obok siebie, pola sprintu');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': sprState() } });
+  a.ev("tab='todo';ideas=false;render();form()");
+  const dl = a.d.getElementById('dlg');
+  ok(dl.hasAttribute('open'), 'formularz nowego zadania się otwiera');
+  const heads = [...dl.querySelectorAll('.fg')].map(x => x.textContent.trim());
+  ok(heads.join('|') === 'Treść|Lista i ważność|Termin i powtarzanie|Liczenie|Sprint', 'grupy pól w logicznej kolejności', heads.join('|'));
+  const sameRow = (x, y) => { const ex = a.d.getElementById(x), ey = a.d.getElementById(y); return !!ex && !!ey && ex.closest('.frow') && ex.closest('.frow') === ey.closest('.frow'); };
+  ok(sameRow('fat', 'fm'), 'data („Pokaż w Dzisiaj od dnia”) i godzina są obok siebie');
+  ok(sameRow('fa', 'fi2'), 'lista i „Ważne” są obok siebie');
+  ok(sameRow('fsp', 'fbr'), 'długość sprintu i przerwa są obok siebie');
+  const order = ['ft', 'fd', 'fk', 'fa', 'fat', 'fr', 'fc', 'fe', 'fsp', 'fbr'].map(id => a.d.getElementById(id));
+  ok(order.every(Boolean), 'wszystkie pola formularza istnieją (stare identyfikatory zachowane)');
+  const pos = el => { let n = 0, x = el; const all = [...dl.querySelectorAll('*')]; return all.indexOf(el); };
+  const idx = order.map(pos);
+  ok(idx.every((v, i) => i === 0 || v > idx[i - 1]), 'pola idą po kolei: treść → lista → termin → powtarzanie → liczenie → sprint', idx.join());
+  ok(a.d.getElementById('fsp').value === '' && a.d.getElementById('fbr').value === '5', 'domyślnie: brak sprintu, przerwa 5 minut');
+  // zapis
+  a.d.getElementById('ft').value = 'Porządki w pokoju'; a.d.getElementById('fsp').value = '15'; a.d.getElementById('fbr').value = '7';
+  a.d.getElementById('fs').click();
+  const t1 = a.ev("S.tasks.find(x=>x.t==='Porządki w pokoju')");
+  ok(t1 && t1.sp === 15 && t1.br === 7, 'zapisuje długość sprintu (15) i przerwę (7)', JSON.stringify(t1 && [t1.sp, t1.br]));
+  a.ev("tab='todo';ideas=false;form()");
+  a.d.getElementById('ft').value = 'Bez sprintu'; a.d.getElementById('fbr').value = ''; a.d.getElementById('fs').click();
+  const t2 = a.ev("S.tasks.find(x=>x.t==='Bez sprintu')");
+  ok(t2 && t2.sp === undefined && t2.br === undefined, 'puste pola: brak sprintu, przerwa domyślna (nie zapisana)');
+  a.ev("tab='todo';ideas=false;form()");
+  a.d.getElementById('ft').value = 'Granice'; a.d.getElementById('fsp').value = '999'; a.d.getElementById('fbr').value = '999'; a.d.getElementById('fs').click();
+  const t3 = a.ev("S.tasks.find(x=>x.t==='Granice')");
+  ok(t3 && t3.sp === 240 && t3.br === 60, 'wartości są ograniczone: sprint do 240, przerwa do 60 minut');
+  a.ev("tab='todo';ideas=false;form()");
+  a.d.getElementById('ft').value = 'Zero przerwy'; a.d.getElementById('fsp').value = '10'; a.d.getElementById('fbr').value = '0'; a.d.getElementById('fs').click();
+  ok(a.ev("S.tasks.find(x=>x.t==='Zero przerwy').br") === 0, 'przerwa 0 jest dozwolona i zapamiętana jako 0 (nie wraca do 5)');
+  // edycja: pola pokazują zapisane wartości
+  a.ev(`form(S.tasks.find(x=>x.t==='Porządki w pokoju'))`);
+  ok(a.d.getElementById('fsp').value === '15' && a.d.getElementById('fbr').value === '7', 'edycja pokazuje zapisany sprint i przerwę');
+  a.d.getElementById('fx').click();
+  a.ev(`form(S.tasks.find(x=>x.t==='Zero przerwy'))`);
+  ok(a.d.getElementById('fbr').value === '0', 'edycja pokazuje przerwę 0 (a nie domyślne 5)');
+  a.d.getElementById('fx').click();
+  // powtarzalne: sprint dziedziczy instancja
+  a.ev("tab='todo';ideas=false;form()");
+  a.d.getElementById('ft').value = 'Pomodoro'; pickSel(a, 'fr', 'daily'); a.d.getElementById('fc').value = '4'; a.d.getElementById('fsp').value = '50'; a.d.getElementById('fbr').value = '5';
+  ok(a.d.getElementById('fatl').style.display === 'none' || a.d.getElementById('fatl').hidden || a.d.getElementById('fatl').offsetParent === null || /none/.test(a.d.getElementById('fatl').getAttribute('style') || ''), 'przy powtarzaniu pole daty chowa się, a godzina zostaje');
+  a.d.getElementById('fs').click();
+  const tpl = a.ev("S.tasks.find(x=>x.t==='Pomodoro')");
+  ok(tpl && tpl.sp === 50 && tpl.cnt === 4 && tpl.rep.k === 'daily', 'zadanie powtarzalne z licznikiem 4 i sprintem 50 zapisane');
+  a.ev(`toDay(S.tasks.find(x=>x.t==='Pomodoro'&&!x.tpl))`);
+  const inst = a.ev("S.tasks.find(x=>x.tpl&&x.t==='Pomodoro')");
+  ok(inst && inst.sp === 50 && inst.br === 5 && inst.cnt === 4, 'dzienna kopia dziedziczy długość sprintu, przerwę i licznik');
+  ok(a.errors.length === 0, 'brak błędów skryptu', a.errors.join(' | '));
+  // angielski
+  const e = await boot('test', { ls: { 'kanban-lang': 'en', 'kanban-v1': sprState() } });
+  e.ev("tab='todo';ideas=false;render();form()");
+  const eh = [...e.d.querySelectorAll('#dlg .fg')].map(x => x.textContent.trim()).join('|');
+  ok(eh === 'Content|List and importance|Date and repeating|Counting|Sprint' && /Sprint length \(minutes\)/.test(e.d.getElementById('dlg').textContent), 'po angielsku nagłówki i etykiety', eh);
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[38] Sprint: odliczanie, koniec, informacja o przerwie, postęp licznika');
+try {
+  const tasks = [mkTask({ id: 'sp1', t: 'Porządki w pokoju', st: 'prog', sp: 10, br: 5, ord: 0 }), mkTask({ id: 'sp2', t: 'Pomodoro', st: 'prog', cnt: 3, n: 0, sp: 25, br: 3, ord: 1 }), mkTask({ id: 'sp3', t: 'Bez sprintu', st: 'prog', ord: 2 })];
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': sprState(tasks) } });
+  a.ev("tab='prog';open='sp1';render()");
+  const sb = a.d.querySelector('[data-a=spr]'); ok(!!sb && /Sprint 10 min/.test(sb.textContent), 'w menu zadania jest przycisk „Sprint 10 min”');
+  a.ev("open='sp3';render()"); ok(/^Sprint$/.test(a.d.querySelector('[data-a=spr]').textContent.trim()), 'zadanie bez długości ma po prostu „Sprint”');
+  a.ev("open='sp1';render()"); a.d.querySelector('[data-a=spr]').click();
+  ok(!!ov(a) && /^10:00$/.test(ov(a).querySelector('#spt').textContent), 'start: ekran sprintu z licznikiem 10:00', ov(a) && ov(a).querySelector('#spt').textContent);
+  ok(/Porządki w pokoju/.test(ov(a).textContent) && !!a.d.getElementById('spx'), 'widać nazwę zadania i przycisk „Przerwij”');
+  ok(/Ekran może zgasnąć/.test(ov(a).textContent), 'bez wake locka aplikacja uczciwie ostrzega, że dźwięk zadzwoni dopiero po powrocie');
+  const s0 = a.ev('S.sprint'); ok(s0 && s0.m === 10 && s0.br === 5 && s0.tid === 'sp1' && s0.end - s0.start === 600000, 'aktywny sprint zapisany w stanie (koniec = start + 10 min)', JSON.stringify(s0));
+  ok(!!JSON.parse(a.w.localStorage.getItem('kanban-v1-test')).sprint, 'stan sprintu jest w pamięci trwałej (przeżyje przeładowanie)');
+  a.ev("sprintAsk(S.tasks.find(x=>x.id==='sp3'))"); ok(!a.d.getElementById('dlg').hasAttribute('open'), 'drugi sprint w trakcie pierwszego się nie uruchamia');
+  // koniec sprintu
+  a.ev('S.sprint.end=Date.now()-1;sprintTick()');
+  ok(/Sprint skończony!/.test(ov(a).textContent) && /Należy Ci się przerwa: 5 minut\./.test(ov(a).textContent), 'koniec: „Sprint skończony!” i „Należy Ci się przerwa: 5 minut.” (bez odliczania przerwy)', ov(a).textContent.slice(0, 120));
+  ok(a.ev('S.sprint') === undefined || a.ev('S.sprint') === null, 'sprint nie jest już aktywny');
+  const sp = a.ev('S.spr'); ok(sp.length === 1 && sp[0].m === 10 && sp[0].c === 1 && sp[0].a === 'a1' && sp[0].t === 'sp1' && sp[0].d === D(0), 'sesja zapisana: 10 min, ukończona, lista, zadanie, dzisiejsza data', JSON.stringify(sp));
+  ok(a.ev("S.tasks.find(x=>x.id==='sp1').st") === 'prog', 'zwykłe zadanie nie zamyka się samo po sprincie');
+  ok(!!a.d.getElementById('spd') && !!a.d.getElementById('spn2') && !!a.d.getElementById('spc'), 'przyciski: „Zadanie zrobione”, „Kolejny sprint”, „Zamknij”');
+  a.d.getElementById('spd').click();
+  ok(!ov(a) && ['done', 'closed'].includes(a.ev("S.tasks.find(x=>x.id==='sp1').st")), '„Zadanie zrobione” zamyka ekran i oznacza zadanie jako zrobione');
+  // licznik: trzy sprinty = trzy kroki, przerwa 3 minuty
+  a.ev("tab='prog';open='sp2';render()"); a.d.querySelector('[data-a=spr]').click();
+  a.ev('S.sprint.end=Date.now()-1;sprintTick()');
+  ok(/Postęp: 1\/3/.test(ov(a).textContent) && /przerwa: 3 minuty\./.test(ov(a).textContent) && !a.d.getElementById('spd') && !!a.d.getElementById('spn2'), 'zadanie z licznikiem: postęp 1/3, przerwa „3 minuty”, bez „Zadanie zrobione”');
+  ok(a.ev("S.tasks.find(x=>x.id==='sp2').n") === 1, 'licznik zadania wzrósł o 1');
+  a.d.getElementById('spn2').click(); ok(!!ov(a) && a.ev('S.sprint.m') === 25, '„Kolejny sprint” startuje od razu z tą samą długością (25)');
+  a.ev('S.sprint.end=Date.now()-1;sprintTick()'); a.d.getElementById('spn2').click();
+  a.ev('S.sprint.end=Date.now()-1;sprintTick()');
+  ok(/Postęp: 3\/3/.test(ov(a).textContent) && !a.d.getElementById('spn2'), 'trzeci sprint domyka licznik (3/3) i nie proponuje kolejnego');
+  ok(['done', 'closed'].includes(a.ev("S.tasks.find(x=>x.id==='sp2').st")), 'zadanie z licznikiem zostało zrobione');
+  a.d.getElementById('spc').click(); ok(!ov(a), '„Zamknij” zamyka ekran');
+  ok(a.ev('S.spr.length') === 4 && a.ev('S.spr.every(e=>e.c===1)'), 'zapisano cztery ukończone sprinty');
+  ok(a.errors.length === 0, 'brak błędów skryptu (bez AudioContext, wibracji i wake locka w środowisku testowym)', a.errors.join(' | '));
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[39] Sprint: przerwanie, odmiana „minut”, wybór długości, wznowienie, start z „Do zrobienia”');
+try {
+  const mk = (br) => [mkTask({ id: 'b1', t: 'Zad', st: 'prog', sp: 10, br, ord: 0 })];
+  const brText = async (br, lang = 'pl') => { const a = await boot('test', { ls: { 'kanban-lang': lang, 'kanban-v1': sprState(mk(br)) } }); a.ev("tab='prog';open='b1';render()"); a.d.querySelector('[data-a=spr]').click(); a.ev('S.sprint.end=Date.now()-1;sprintTick()'); const m = ov(a).querySelector('.spm'); return m ? m.textContent : '(brak)'; };
+  const r = [];
+  for (const n of [1, 2, 5, 12, 22, 0]) r.push(await brText(n));
+  ok(r[0] === 'Należy Ci się przerwa: 1 minuta.' && r[1] === 'Należy Ci się przerwa: 2 minuty.' && r[2] === 'Należy Ci się przerwa: 5 minut.' && r[3] === 'Należy Ci się przerwa: 12 minut.' && r[4] === 'Należy Ci się przerwa: 22 minuty.', 'polska odmiana: 1 minuta, 2 minuty, 5 minut, 12 minut, 22 minuty', r.join(' | '));
+  ok(r[5] === '(brak)', 'przerwa 0: bez linii o przerwie');
+  ok((await brText(1, 'en')) === 'You are owed a break: 1 minute.' && (await brText(5, 'en')) === 'You are owed a break: 5 minutes.', 'po angielsku: 1 minute, 5 minutes');
+  // przerwanie
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': sprState(mk(5)) } });
+  a.ev("tab='prog';open='b1';render()"); a.d.querySelector('[data-a=spr]').click();
+  a.d.getElementById('spx').click(); ok(/Przerwać sprint\?/.test(a.d.getElementById('dlg').textContent) && !!ov(a), 'przerwanie pyta o potwierdzenie, a sprint trwa dalej do czasu potwierdzenia');
+  a.d.querySelector('#dlg [data-o="0"]').click();
+  ok(!ov(a) && !a.ev('S.sprint') && a.ev('S.spr.length') === 0, 'przerwanie przed upływem minuty: nic nie jest zapisane i nie ma kary');
+  a.d.getElementById('dlg').close();
+  a.ev("tab='prog';open='b1';render()"); a.d.querySelector('[data-a=spr]').click();
+  a.ev('S.sprint.start=Date.now()-3*60000-500;'); a.d.getElementById('spx').click(); a.d.querySelector('#dlg [data-o="0"]').click();
+  const part = a.ev('S.spr'); ok(part.length === 1 && part[0].m === 3 && part[0].c === 0, 'przerwanie po 3 minutach: zapisane 3 minuty jako nieukończony sprint', JSON.stringify(part));
+  ok(a.ev('S.coins') === 0 && a.ev('S.log.length') === 0, 'przerwany sprint nie rusza monet ani dziennika porażek');
+  // wybór długości dla zadania bez sprintu
+  const b = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': sprState([mkTask({ id: 'n1', t: 'Bez długości', st: 'prog', ord: 0 })]) } });
+  b.ev("tab='prog';open='n1';render()"); b.d.querySelector('[data-a=spr]').click();
+  const dl = b.d.getElementById('dlg'); ok(dl.hasAttribute('open') && [...dl.querySelectorAll('[data-m]')].map(x => x.dataset.m).join() === '10,15,25,50' && /Przerwa po sprincie: 5 minut\./.test(dl.textContent), 'zadanie bez długości: okno z wyborem 10/15/25/50 i własną wartością, z informacją o przerwie');
+  dl.querySelector('[data-m="25"]').click(); ok(b.ev('S.sprint.m') === 25 && !!ov(b), 'wybór 25 startuje sprint 25 minut');
+  const c = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': sprState([mkTask({ id: 'n1', t: 'Bez długości', st: 'prog', ord: 0 })]) } });
+  c.ev("tab='prog';open='n1';render()"); c.d.querySelector('[data-a=spr]').click();
+  c.d.getElementById('spc2').value = '0'; c.d.getElementById('sps').click(); ok(!c.ev('S.sprint'), 'własna długość 0 nie startuje sprintu');
+  c.d.getElementById('spc2').value = '7'; c.d.getElementById('sps').click(); ok(c.ev('S.sprint.m') === 7, 'własna długość 7 startuje sprint 7 minut');
+  // wznowienie po zamknięciu aplikacji
+  const nowTs = Date.now();
+  const r1 = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': sprState(mk(5), { sprint: { tid: 'b1', a: 'a1', n: 'Zad', start: nowTs - 60000, end: nowTs + 5 * 60000, m: 6, br: 5 }, dd: { on: true } }) } });
+  await sleep(700);
+  ok(!!ov(r1) && /0[45]:\d\d/.test(ov(r1).querySelector('#spt').textContent), 'po ponownym otwarciu trwający sprint wraca na ekran z pozostałym czasem (ok. 5 min)', ov(r1) && ov(r1).querySelector('#spt') && ov(r1).querySelector('#spt').textContent);
+  ok(!r1.d.getElementById('dlg').hasAttribute('open'), 'w trakcie sprintu doodle się nie wyświetla');
+  const r2 = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': sprState(mk(5), { sprint: { tid: 'b1', a: 'a1', n: 'Zad', start: nowTs - 12 * 60000, end: nowTs - 2 * 60000, m: 10, br: 5 } }) } });
+  await sleep(700);
+  ok(!!ov(r2) && /Sprint skończył się o \d\d:\d\d/.test(ov(r2).textContent) && /przerwa: 5 minut/.test(ov(r2).textContent), 'sprint, który skończył się pod nieobecność: „Sprint skończył się o …” i informacja o przerwie');
+  ok(r2.ev('S.spr.length') === 1 && r2.ev('S.spr[0].m') === 10 && !r2.ev('S.sprint'), 'taki sprint jest zapisany jako ukończony');
+  // start z „Do zrobienia”
+  const d = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': sprState([mkTask({ id: 'td1', t: 'Z backlogu', st: 'todo', sp: 10, br: 5, po: 0 }), mkTask({ id: 'tp1', t: 'Szablon', st: 'todo', rep: { k: 'daily', days: [] }, sp: 20, br: 4, date: undefined, po: 1 })]) } });
+  d.ev("tab='todo';ideas=false;open='td1';render()"); d.d.querySelector('[data-a=spr]').click();
+  ok(d.ev("S.tasks.find(x=>x.id==='td1').st") === 'prog' && d.ev('S.sprint.tid') === 'td1', 'sprint na zadaniu z „Do zrobienia” przenosi je do „Dzisiaj” i startuje');
+  d.ev('sprClose();S.sprint=null;save()');
+  d.ev("tab='todo';ideas=false;open='tp1';render()"); d.d.querySelector('[data-a=spr]').click();
+  const instId = d.ev("(S.tasks.find(x=>x.tpl==='tp1'&&x.st==='prog')||{}).id");
+  ok(!!instId && d.ev('S.sprint.tid') === instId && d.ev('S.sprint.m') === 20, 'dla szablonu cyklicznego sprint działa na dzisiejszej kopii (z długością 20)');
+  d.ev('sprClose()');
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[40] Statystyki: „Często odkładane” i sprinty; usuwanie listy czyści sprinty');
+try {
+  const log = []; let n = 0;
+  const fail = (area, title, off, k = 'p') => log.push({ id: 'f' + (++n), tid: 'ft' + n, area, tpl: null, title, date: D(off), res: 'fail', k, c: 0, reason: null, dec: k === 'p' ? 'todo' : 'cancel' });
+  for (let i = 0; i < 4; i++) fail('a1', i % 2 ? 'Porządki' : 'porządki ', -2 - i);
+  for (let i = 0; i < 2; i++) fail('a1', 'Rzadkie', -3 - i); fail('a1', 'Porażki nie liczą się', -2, 'f'); fail('a1', 'Porażki nie liczą się', -3, 'f'); fail('a1', 'Porażki nie liczą się', -4, 'f');
+  for (let i = 0; i < 5; i++) fail('a2', 'Inna lista', -2 - i);
+  const spr = [{ id: 's1', t: 'x', a: 'a1', n: 'x', d: D(-2), m: 25, c: 1 }, { id: 's2', t: 'x', a: 'a1', n: 'x', d: D(-3), m: 10, c: 0 }, { id: 's3', t: 'x', a: 'a2', n: 'x', d: D(-2), m: 99, c: 1 }];
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': mkState([], { log, spr, created: D(-30), reasons: [] }) } });
+  a.ev("tab='stat';per=4;render()");
+  const tx = mainText(a);
+  ok(/Często odkładane/.test(tx) && /porządki/i.test(tx) && /odłożone 4×/.test(tx) && !/porządki /.test(tx), '„Często odkładane”: zadanie odłożone 4× (wielkość liter i spacje nie dzielą grupy)', tx.slice(0, 200));
+  ok(!/Rzadkie/.test(tx) && !/Porażki nie liczą się/.test(tx) && !/Inna lista/.test(tx), 'nie pokazuje zadań odłożonych poniżej 3×, porażek (nie odłożeń) ani innej listy');
+  ok(/Co może pomóc przy opornym zadaniu/.test(tx) && /bez presji/.test(tx), 'jest spokojna podpowiedź, bez presji');
+  ok(/Sprinty w tym okresie: 2, razem 35 min\./.test(tx), 'liczy sprinty tylko z wybranej listy (2 sprinty, 35 min), także przerwany', (tx.match(/Sprinty w tym okresie[^.]*\./) || [''])[0]);
+  const e = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': mkState([], { created: D(-30) }) } });
+  e.ev("tab='stat';per=4;render()"); ok(!/Często odkładane/.test(mainText(e)) && !/Sprinty w tym okresie/.test(mainText(e)), 'bez danych sekcje się nie pokazują');
+  const en = await boot('test', { ls: { 'kanban-lang': 'en', 'kanban-v1': mkState([], { log, spr, created: D(-30), reasons: [] }) } });
+  en.ev("tab='stat';per=4;render()"); ok(/Often postponed/.test(mainText(en)) && /postponed 4×/.test(mainText(en)) && /Sprints in this period: 2, 35 min in total\./.test(mainText(en)), 'po angielsku');
+  // usunięcie listy czyści jej sprinty
+  a.ev("A.adel(null,{dataset:{id:'a2'}})"); a.d.getElementById('ad').click();
+  ok(a.ev("S.spr.every(e=>e.a!=='a2')") && a.ev('S.spr.length') === 2, 'usunięcie listy usuwa też jej sprinty');
+  // porządkowanie danych w aplikacji obejmuje stare sprinty
+  const old = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': mkState([], { created: D(-100), spr: [{ id: 'o1', t: 'x', a: 'a1', n: 'x', d: D(-60), m: 30, c: 1 }, { id: 'o2', t: 'x', a: 'a1', n: 'x', d: D(-1), m: 10, c: 1 }] }) } });
+  const before = old.ev("aggSpr(S,'a1',aMon(addDays(today(),-70)))".replace('addDays', 'aAdd'));
+  old.ev("(()=>{const r=aggTry(S,today(),3);S=r.c;S.keep=3;save()})()");
+  const after = old.ev("aggSpr(S,'a1',aMon(aAdd(today(),-70)))");
+  ok(JSON.stringify(before) === JSON.stringify(after) && old.ev('S.spr.length') === 1 && old.ev("Object.values(S.wk.a1||{}).some(w=>w.sm===30)"), 'porządkowanie w aplikacji zamienia stary sprint w sumę tygodniową i nie zmienia bilansu minut', JSON.stringify([before, after]));
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
 console.log(`\nWynik: ${pass} ok, ${fail} błędów`);
 process.exit(fail ? 1 : 0);
