@@ -13,7 +13,7 @@ function load(file) {
   const src = fs.readFileSync(path.join(ROOT, file), 'utf8');
   const m = src.match(/\/\* AGG-BEGIN[\s\S]*?\/\* AGG-END \*\//);
   if (!m) return null;
-  return new Function(m[0] + '\nreturn{aMon,aggAdd,aggTotals,aggCompact,aggTry,aggPeek,aggFails,aggReasonCounts,aggMergeReason,aggCountArea,aggWeeks,wkGet,aggSpr:typeof aggSpr==='undefined'?undefined:aggSpr,AGG_PEND};')();
+  return new Function(m[0] + '\nreturn{aMon,aggAdd,aggTotals,aggCompact,aggTry,aggPeek,aggFails,aggReasonCounts,aggMergeReason,aggCountArea,aggWeeks,wkGet,aggSpr:typeof aggSpr==="undefined"?undefined:aggSpr,AGG_PEND};')();
 }
 
 // --- generator danych ---

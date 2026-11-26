@@ -107,6 +107,19 @@ def check_dir(d):
             err('test: kod zapisuje lub usuwa klucz PRODUKCYJNY (kanban-v1)')
         else: ok('kod testowy nie zapisuje do klucza produkcyjnego')
 
+# skrypty testowe: składnia (uszkodzony test nie może przejść niezauważony)
+print('\n== tools/*.mjs ==')
+import glob
+bad = []
+for f in sorted(glob.glob(os.path.join(ROOT, 'tools', '*.mjs'))):
+    try:
+        r = subprocess.run(['node', '--check', f], capture_output=True, text=True)
+        if r.returncode: bad.append(os.path.basename(f) + ': ' + (r.stderr.strip().splitlines() or ['?'])[-1][:100])
+    except FileNotFoundError:
+        warn('brak node: pomijam sprawdzanie składni testów'); break
+if bad: [err('składnia skryptu testowego: ' + b) for b in bad]
+else: ok('składnia wszystkich skryptów w tools/*.mjs')
+
 for d in ['', 'test']: check_dir(d)
 
 print(f'\nWynik: {len(errors)} błędów, {len(warns)} uwag')
