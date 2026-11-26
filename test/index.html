@@ -78,7 +78,7 @@ label{display:block;margin:10px 0 0;font-size:14px;color:var(--mu)}label.ck{disp
 dialog{width:min(440px,94vw);border:1px solid var(--ln);border-radius:var(--r-dlg);background:var(--bg);color:var(--fg);padding:16px}dialog::backdrop{background:#0008}
 .ddw{text-align:center}.ddc{border-radius:14px;overflow:hidden;line-height:0}.ddc svg{width:100%;height:auto;max-height:230px;display:block;margin:0 auto}.ddt{font-size:17px;font-weight:600;margin:12px 4px 4px;line-height:1.35}.ddn{margin:0 0 6px;font-size:13px}.ddlab{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin-top:10px;text-align:left}.ddlab .row{grid-column:1/-1}
 .fg{margin:16px 0 2px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mu)}.fg:first-of-type{margin-top:6px}.frow{display:flex;gap:10px;flex-wrap:wrap}.frow>label{flex:1 1 150px;min-width:0}
-.spov{position:fixed;inset:0;z-index:900;background:#000;color:#9ca3af;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;padding-top:max(24px,env(safe-area-inset-top));padding-bottom:max(24px,env(safe-area-inset-bottom))}.spin{max-width:420px;width:100%}.spn{font-size:18px;color:#d1d5db;margin-bottom:18px;word-break:break-word}.spt{font-size:clamp(48px,20vw,112px);font-weight:300;color:#e5e7eb;font-variant-numeric:tabular-nums;letter-spacing:2px;line-height:1.1}.spu{margin-top:4px}.sph{font-size:14px;margin:18px 0}.spm{font-size:20px;color:#fde68a;margin:18px 0}.spov button{background:#1f2937;color:#e5e7eb;border:1px solid #374151}.spov button.pri{background:#2563eb;color:#fff;border-color:#2563eb}.spov .row{justify-content:center;flex-wrap:wrap}
+.spr-ov{position:fixed;inset:0;z-index:900;background:#000;color:#9ca3af;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;padding-top:max(24px,env(safe-area-inset-top));padding-bottom:max(24px,env(safe-area-inset-bottom))}.spr-in{max-width:420px;width:100%}.spr-n{font-size:18px;color:#d1d5db;margin-bottom:18px;word-break:break-word}.spr-t{font-size:clamp(48px,20vw,112px);font-weight:300;color:#e5e7eb;font-variant-numeric:tabular-nums;letter-spacing:2px;line-height:1.1}.spr-u{margin-top:4px}.spr-h{font-size:14px;margin:18px 0}.spr-m{font-size:20px;color:#fde68a;margin:18px 0}.spr-ov button{background:#1f2937;color:#e5e7eb;border:1px solid #374151}.spr-ov button.pri{background:#2563eb;color:#fff;border-color:#2563eb}.spr-ov .row{justify-content:center;flex-wrap:wrap}.tm.sprc{background:#2563eb;color:#fff;cursor:pointer}
 .sg{margin:0 0 8px}.sg>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--cd);border:1px solid var(--ln);border-radius:var(--r-card);padding:12px 14px}.sg>summary::-webkit-details-marker{display:none}.sg>summary::after{content:'›';margin-left:auto;color:var(--mu);font-size:20px;transition:transform .15s}.sg[open]>summary::after{transform:rotate(90deg)}.sg[open]>summary{margin-bottom:10px}.sgt{display:flex;flex-direction:column;gap:2px;min-width:0}.sgt small{color:var(--mu);font-size:13px;font-weight:400}.sgb{padding:0 2px 8px}.sgb>h3:first-child{margin-top:4px}
 .balbar{display:flex;gap:2px;border-radius:8px;overflow:hidden;height:30px;margin-top:8px}.balseg{display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:12px;font-weight:600;padding:0 6px}.balchips{margin-top:6px}.balchip{display:inline-block;background:var(--ln);color:var(--mu);border-radius:10px;padding:2px 8px;margin:2px 4px 2px 0;font-size:12px}
 .row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.row .sm{flex:1}
@@ -121,7 +121,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 .th-prev{margin-top:10px;padding-top:10px;border-top:1px solid var(--div)}
 .th-prev-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
 </style></head><body data-tab="prog">
-<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.23.0</div></div></div>
+<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.23.1</div></div></div>
 <script>(function(){var l;try{l=localStorage.getItem('kanban-lang')}catch(e){}if(!l)l=/^en/i.test(navigator.language||'')?'en':'pl';document.getElementById('spl').textContent=l==='en'?'Loading…':'Wczytywanie…';setTimeout(function(){var s=document.getElementById('splash');if(s)s.remove()},4000)})()</script>
 <header><div id="ab"></div><nav class="tabs"><button class="tab" data-a="tab" data-tab="todo">Do zrobienia</button><button class="tab" data-a="tab" data-tab="prog">Dzisiaj</button><button class="tab" data-a="tab" data-tab="done">Zrobione</button><button class="tab" data-a="tab" data-tab="stat">Statystyki</button><span id="test-badge" class="test-pill" style="display:none">TEST</span><button class="gear" data-a="tab" data-tab="set" aria-label="Ustawienia">⚙</button></nav></header>
 <main id="main"></main><div id="bar"></div><div id="mis"></div>
@@ -132,7 +132,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 <script>
 const IS_TEST=!!window.__IS_TEST;
 if(IS_TEST){const tb=document.getElementById('test-badge');if(tb)tb.style.display='inline-flex';}
-const V='1.23.0',SPLASH_MS=1000,SCHEMA=3,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
+const V='1.23.1',SPLASH_MS=1000,SCHEMA=3,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
 /* --- Dane testowe: jednokierunkowa kopia produkcja -> test --- */
 const PK='kanban-v1',TK='kanban-v1-test',TMK='kanban-v1-test-meta';
 const tmeta=()=>{try{return JSON.parse(localStorage.getItem(TMK))}catch(e){return null}};
@@ -547,7 +547,7 @@ function balCard(){if((S.areas||[]).length<2)return'';
  const prel=sm.ok.some(x=>x.prelim)?`<div class=mu style="margin-top:4px">${tr('Wstępnie: historia jest jeszcze krótka, wynik się ustabilizuje.')}</div>`:'';
  return `<div class=c style="margin-bottom:14px"><div class=ti>${tr('Bilans list')}</div>${sm.k==='none'?'':`<div class=balbar role=img aria-label="${txt.replace(/"/g,'&quot;')}">${seg}</div>`}<div style="margin-top:6px">${txt}</div>${chips?`<div class=balchips>${chips}</div>`:''}${prel}<div class=mu style="margin-top:4px">${tr('Ostatnie 7 dni względem zwykłego tempa każdej listy.')}</div></div>`}
 /* --- sprint: minutnik pracy; po zakończeniu informacja, ile przerwy się należy (bez odliczania przerwy) --- */
-const SPR={ac:null,lock:null,iv:null};
+const SPR={ac:null,lock:null,iv:null,min:false};
 const sprBreak=x=>Number.isFinite(x&&x.br)?x.br:5;
 const minU=n=>LANG==='pl'?(n===1?'minuta':(n%10>=2&&n%10<=4&&!(n%100>=12&&n%100<=14))?'minuty':'minut'):(n===1?'minute':'minutes');
 const clk=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
@@ -555,14 +555,15 @@ const hm=ts=>new Date(ts).toLocaleTimeString(LOC(),{hour:'2-digit',minute:'2-dig
 function sprAudio(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;SPR.ac=SPR.ac||new AC();if(SPR.ac.state==='suspended')SPR.ac.resume()}catch(e){}}
 function sprBeep(){try{const c=SPR.ac;if(!c)return;[0,.45,.9].forEach((d,i)=>{const o=c.createOscillator(),g=c.createGain(),t0=c.currentTime+d;o.type='sine';o.frequency.value=i===2?1040:880;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(.35,t0+.03);g.gain.linearRampToValueAtTime(0,t0+.32);o.connect(g);g.connect(c.destination);o.start(t0);o.stop(t0+.35)})}catch(e){}}
 async function sprLock(on){try{if(on){if(navigator.wakeLock&&!SPR.lock){SPR.lock=await navigator.wakeLock.request('screen');if(SPR.lock&&SPR.lock.addEventListener)SPR.lock.addEventListener('release',()=>{SPR.lock=null})}}else if(SPR.lock){const l=SPR.lock;SPR.lock=null;await l.release()}}catch(e){SPR.lock=null}}
-function sprPanel(h){let el=$('spov');if(!el){el=document.createElement('div');el.id='spov';el.className='spov';el.setAttribute('role','dialog');el.setAttribute('aria-live','polite');document.body.appendChild(el)}el.innerHTML=h;return el}
-function sprClose(){clearInterval(SPR.iv);SPR.iv=null;sprLock(false);const el=$('spov');if(el)el.remove();render()}
+function sprPanel(h){let el=$('spov');if(!el){el=document.createElement('div');el.id='spov';el.className='spr-ov';el.setAttribute('role','dialog');el.setAttribute('aria-live','polite');document.body.appendChild(el)}el.innerHTML=h;return el}
+function sprClose(){clearInterval(SPR.iv);SPR.iv=null;SPR.min=false;sprLock(false);const el=$('spov');if(el)el.remove();render()}
 const sprHint=()=>tr(SPR.lock?'Ekran zostaje włączony na czas sprintu.':'Ekran może zgasnąć: dźwięk zadzwoni dopiero po powrocie do aplikacji.');
 function sprintRun(){const s=S.sprint;if(!s)return;
- sprPanel(`<div class=spin><div class=spn>${esc(s.n)}</div><div class=spt id=spt>${clk(s.end-Date.now())}</div><div class=spu>${tr('do {h}',{h:hm(s.end)})}</div><p class=sph id=sph>${sprHint()}</p><button class=sm id=spx>${tr('Przerwij')}</button></div>`);
+ sprPanel(`<div class=spr-in><div class=spr-n>${esc(s.n)}</div><div class=spr-t id=spt>${clk(s.end-Date.now())}</div><div class=spr-u>${tr('do {h}',{h:hm(s.end)})}</div><p class=spr-h id=sph>${sprHint()}</p><div class=row><button class=sm id=sprh>${tr('Ukryj')}</button><button class=sm id=spx>${tr('Przerwij')}</button></div></div>`);
+ $('sprh').onclick=()=>{SPR.min=true;const el=$('spov');if(el)el.remove();render()};SPR.min=false;
  $('spx').onclick=sprintStop;clearInterval(SPR.iv);SPR.iv=setInterval(sprintTick,500);
  sprLock(true).then(()=>{const h=$('sph');if(h)h.textContent=sprHint()})}
-function sprintTick(){const s=S.sprint;if(!s){clearInterval(SPR.iv);SPR.iv=null;return}const left=s.end-Date.now(),el=$('spt');if(el)el.textContent=clk(left);if(left<=0)sprintDone(false)}
+function sprintTick(){const s=S.sprint;if(!s){clearInterval(SPR.iv);SPR.iv=null;return}const left=s.end-Date.now(),el=$('spt');if(el)el.textContent=clk(left);document.querySelectorAll('[data-sprt]').forEach(e=>{e.textContent='⏱ '+clk(left)});if(left<=0)sprintDone(false)}
 function sprintDone(late){const s=S.sprint;if(!s)return;clearInterval(SPR.iv);SPR.iv=null;sprLock(false);
  const x=S.tasks.find(q=>q.id===s.tid);
  S.spr.push({id:uid(),t:s.tid,a:s.a,n:s.n,d:ds(new Date(s.end)),m:s.m,c:1});S.sprint=null;
@@ -570,7 +571,7 @@ function sprintDone(late){const s=S.sprint;if(!s)return;clearInterval(SPR.iv);SP
  if(x&&x.st==='prog'&&x.cnt>1){x.n=(x.n||0)+1;if(x.n>=x.cnt){const id=done(x);fin=true;doneToast(x,id)}prog=tr('Postęp: {n}/{m}',{n:Math.min(x.n,x.cnt),m:x.cnt})}
  save();if(!late){sprBeep();vib([300,150,300,150,600])}
  const br=s.br,canDone=!!x&&x.st==='prog'&&!(x.cnt>1);
- sprPanel(`<div class=spin><div class=spn>${esc(s.n)}</div><div class=spt>${late?tr('Sprint skończył się o {h}',{h:hm(s.end)}):tr('Sprint skończony!')}</div>${prog?`<p class=sph>${prog}</p>`:''}${br>0?`<p class=spm>${tr('Należy Ci się przerwa: {n} {u}.',{n:br,u:minU(br)})}</p>`:''}<div class=row>${canDone?`<button class="sm pri" id=spd>${tr('Zadanie zrobione')}</button>`:''}${x&&!fin?`<button class=sm id=spn2>${tr('Kolejny sprint')}</button>`:''}<button class=sm id=spc>${tr('Zamknij')}</button></div></div>`);
+ SPR.min=false;sprPanel(`<div class=spr-in><div class=spr-n>${esc(s.n)}</div><div class=spr-t>${late?tr('Sprint skończył się o {h}',{h:hm(s.end)}):tr('Sprint skończony!')}</div>${prog?`<p class=spr-h>${prog}</p>`:''}${br>0?`<p class=spr-m>${tr('Należy Ci się przerwa: {n} {u}.',{n:br,u:minU(br)})}</p>`:''}<div class=row>${canDone?`<button class="sm pri" id=spd>${tr('Zadanie zrobione')}</button>`:''}${x&&!fin?`<button class=sm id=spn2>${tr('Kolejny sprint')}</button>`:''}<button class=sm id=spc>${tr('Zamknij')}</button></div></div>`);
  if($('spd'))$('spd').onclick=()=>{sprClose();A.ok(x)};
  if($('spn2'))$('spn2').onclick=()=>{sprClose();sprintStart(x,s.m)};
  $('spc').onclick=sprClose;render()}
@@ -583,7 +584,7 @@ function sprintAsk(x){if(S.sprint||$('spov'))return;let t=x;
  sheet(`<h3>${tr('Sprint: {n}',{n:esc(t.t)})}</h3><div class=row>${[10,15,25,50].map(m=>`<button class=sm data-m=${m}>${m} ${tr('min')}</button>`).join('')}</div><label>${tr('Własna długość (minuty)')}<input id=spc2 type=number min=1 max=240 value=10></label><p class=mu>${tr('Przerwa po sprincie: {n} {u}.',{n:sprBreak(t),u:minU(sprBreak(t))})}</p><div class=row><button class=sm id=spq>${tr('Anuluj')}</button><button class="sm pri" id=sps>${tr('Start')}</button></div>`);
  const dl=$('dlg');dl.onclick=null;dl.querySelectorAll('[data-m]').forEach(b=>{b.onclick=()=>{dl.close();sprintStart(t,+b.dataset.m)}});
  $('spq').onclick=()=>{dl.close();save();render()};$('sps').onclick=()=>{const m=Math.floor(+$('spc2').value);if(!(m>0))return $('spc2').focus();dl.close();sprintStart(t,m)}}
-function sprintResume(){const s=S.sprint;if(!s)return;if(s.end<=Date.now())sprintDone(true);else if(!SPR.iv||!$('spov'))sprintRun()}
+function sprintResume(){const s=S.sprint;if(!s)return;if(s.end<=Date.now())sprintDone(true);else if(!SPR.min&&(!SPR.iv||!$('spov')))sprintRun();else if(!SPR.iv)SPR.iv=setInterval(sprintTick,500)}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S&&S.sprint){sprintResume();sprLock(true)}});
 function statExtra(f,from){const pc={};f.forEach(l=>{if(aKind(l)==='p'){const t0=String(l.title||'').trim(),k=t0.toLowerCase(),g=pc[k]=pc[k]||{t:t0,n:0,d:''};g.n++;if((l.date||'')>=g.d){g.d=l.date||'';g.t=t0}}});
  const often=Object.values(pc).filter(g=>g.n>=3).sort((a,b)=>b.n-a.n||String(a.t).localeCompare(String(b.t),LANG)).slice(0,5),sp=aggSpr(S,S.area,from);let h='';
@@ -618,7 +619,7 @@ function vProg(){
  const seg=`<div class=seg><button class="${pfilter==='all'?'on':''}" data-a=pseg data-id=all>${tr('Wszystkie zadania')} ${all.length}</button><button class="${pfilter==='time'?'on':''}" data-a=pseg data-id=time>${tr('Z godziną')} ${nT}</button></div>`;
  const l=pfilter==='time'?all.filter(x=>x.time):all;
  if(!l.length){const dn=S.log.some(y=>y.res==='done'&&y.area===S.area&&y.date===today());return ban+seg+(pfilter==='time'?`<p class=empty>${tr('Brak zadań z godziną na dziś.')}</p>`:`<p class=empty>${dn?tr('Wszystko zrobione na dziś. Brawo!'):tr('Na dziś nic nie zaplanowano. Wpisz zadanie na dole albo weź coś z listy.')}</p><div class=row><button class="sm pri" data-a=tab data-tab=todo>${tr('Weź coś z „Do zrobienia”')}</button></div>`)}
- return ban+seg+l.map((x,i)=>`<div class=c><div class=r><div class=ti data-a=tg data-id="${x.id}">${badge(x)}${esc(x.t)}${x.cnt>1?` ${x.n||0}/${x.cnt}`:''}${sch(x)}${tm(x,1)}${x.date<today()?`<span class=tm>${tr('od {d}',{d:dm(x.date)})}</span>`:''}${x.late?`<span class="tm late">${tr('po terminie · {d}',{d:dm(x.late)})}</span>`:''}</div><div class=bt>`+
+ return ban+seg+l.map((x,i)=>`<div class=c><div class=r><div class=ti data-a=tg data-id="${x.id}">${badge(x)}${esc(x.t)}${x.cnt>1?` ${x.n||0}/${x.cnt}`:''}${sch(x)}${tm(x,1)}${x.date<today()?`<span class=tm>${tr('od {d}',{d:dm(x.date)})}</span>`:''}${x.late?`<span class="tm late">${tr('po terminie · {d}',{d:dm(x.late)})}</span>`:''}${S.sprint&&S.sprint.tid===x.id?`<span class="tm sprc" data-a=sprshow data-id=${x.id} data-sprt>⏱ ${clk(S.sprint.end-Date.now())}</span>`:''}</div><div class=bt>`+
  (sort?b('up',x.id,'▲<small>'+tr('wyżej')+'</small>','',i?'':'disabled')+b('dn',x.id,'▼<small>'+tr('niżej')+'</small>')+b('top',x.id,'⤒<small>'+tr('na górę')+'</small>'):(x.cnt>1?b('pl',x.id,'+1','ok'):b('ok',x.id,'✓<small>'+tr('zrobione')+'</small>','ok')))+
  `</div></div>${x.cnt>1?`<div style="height:6px;border-radius:3px;background:var(--ln);margin-top:6px"><div style="height:100%;width:${Math.round(100*(x.n||0)/x.cnt)}%;background:var(--ac);border-radius:3px"></div></div>`:''}${x.steps&&x.steps.length&&x.rep.k==='none'?`<div style="height:6px;border-radius:3px;background:var(--ln);margin-top:6px"><div style="height:100%;width:${Math.round(100*x.steps.filter(q=>q.d).length/x.steps.length)}%;background:var(--ac);border-radius:3px"></div></div>`:''}${open===x.id?desc(x,b('spr',x.id,tr(x.sp?'Sprint {m} min':'Sprint',{m:x.sp}),'sm')+(x.cnt>1?b('mn',x.id,'−1','sm'):'')+b('fl',x.id,tr('Porażka'),'sm')+b('no',x.id,tr('Odłóż do „Do zrobienia”'),'sm')+b('edit',x.id,tr('Edytuj'),'sm')):''}</div>`).join('')}
 function vTodo(){const q=tsort?'':(($('q')||{}).value||'');const st=ideas?'idea':'todo';
@@ -737,7 +738,7 @@ const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=nul
  gotest:()=>enterTestMode(),
  exittest:()=>exitTestMode(),
  refreshtest:()=>refreshTestData(),
- ddreplay:()=>ddShow(true),spr:x=>sprintAsk(x),ddlab:()=>ddLab(),
+ ddreplay:()=>ddShow(true),spr:x=>sprintAsk(x),sprshow:()=>{SPR.min=false;sprintRun()},ddlab:()=>ddLab(),
  pznew:()=>pauseSheet(null),pzedit:(x,el)=>pauseSheet(el.dataset.id),pzend:(x,el)=>endPause(el.dataset.id),pzdel:(x,el)=>{S.pauses=S.pauses.filter(q=>q.id!==el.dataset.id);save();render()},
  dchk:()=>{runCheck()},
  dinst:()=>{navigator.serviceWorker.getRegistration().then(r=>{if(r&&r.waiting){pendingSW=r.waiting;log('i','install-now','skip-waiting requested');r.waiting.postMessage('skip')}}).catch(()=>{})},

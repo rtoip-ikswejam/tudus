@@ -414,5 +414,6 @@
 "odłożone {n}×": "postponed {n}×",
 "Co może pomóc przy opornym zadaniu: rozbić je na małe kroki, ustawić sprint na 10 minut, wyznaczyć konkretną godzinę albo świadomie je odpuścić. To tylko podpowiedź, bez presji.": "What may help with a stubborn task: split it into small steps, set a 10-minute sprint, pick a concrete time, or let it go on purpose. This is only a suggestion, no pressure.",
 "Sprinty": "Sprints",
-"Sprinty w tym okresie: {n}, razem {m} min.": "Sprints in this period: {n}, {m} min in total."
+"Sprinty w tym okresie: {n}, razem {m} min.": "Sprints in this period: {n}, {m} min in total.",
+"Ukryj": "Hide"
 };

@@ -892,7 +892,7 @@ try {
 console.log('\n[39] Sprint: przerwanie, odmiana „minut”, wybór długości, wznowienie, start z „Do zrobienia”');
 try {
   const mk = (br) => [mkTask({ id: 'b1', t: 'Zad', st: 'prog', sp: 10, br, ord: 0 })];
-  const brText = async (br, lang = 'pl') => { const a = await boot('test', { ls: { 'kanban-lang': lang, 'kanban-v1': sprState(mk(br)) } }); a.ev("tab='prog';open='b1';render()"); a.d.querySelector('[data-a=spr]').click(); a.ev('S.sprint.end=Date.now()-1;sprintTick()'); const m = ov(a).querySelector('.spm'); return m ? m.textContent : '(brak)'; };
+  const brText = async (br, lang = 'pl') => { const a = await boot('test', { ls: { 'kanban-lang': lang, 'kanban-v1': sprState(mk(br)) } }); a.ev("tab='prog';open='b1';render()"); a.d.querySelector('[data-a=spr]').click(); a.ev('S.sprint.end=Date.now()-1;sprintTick()'); const m = ov(a).querySelector('.spr-m'); return m ? m.textContent : '(brak)'; };
   const r = [];
   for (const n of [1, 2, 5, 12, 22, 0]) r.push(await brText(n));
   ok(r[0] === 'Należy Ci się przerwa: 1 minuta.' && r[1] === 'Należy Ci się przerwa: 2 minuty.' && r[2] === 'Należy Ci się przerwa: 5 minut.' && r[3] === 'Należy Ci się przerwa: 12 minut.' && r[4] === 'Należy Ci się przerwa: 22 minuty.', 'polska odmiana: 1 minuta, 2 minuty, 5 minut, 12 minut, 22 minuty', r.join(' | '));
@@ -967,6 +967,55 @@ try {
   old.ev("(()=>{const r=aggTry(S,today(),3);S=r.c;S.keep=3;save()})()");
   const after = old.ev("aggSpr(S,'a1',aMon(aAdd(today(),-70)))");
   ok(JSON.stringify(before) === JSON.stringify(after) && old.ev('S.spr.length') === 1 && old.ev("Object.values(S.wk.a1||{}).some(w=>w.sm===30)"), 'porządkowanie w aplikacji zamienia stary sprint w sumę tygodniową i nie zmienia bilansu minut', JSON.stringify([before, after]));
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+// ---------- kolizje CSS: żadna nowa treść nie może dziedziczyć animacji ----------
+const animRules = (a, root) => {
+  const bad = [], els = [root, ...root.querySelectorAll('*')];
+  const walk = rules => { for (const r of rules) { if (r.cssRules && !r.selectorText) { walk(r.cssRules); continue; } if (!r.selectorText) continue; if (!/animation(-name)?\s*:\s*(?!none)/.test(r.cssText)) continue; for (const el of els) { let m = false; try { m = el.matches(r.selectorText); } catch {} if (m) bad.push(r.selectorText + ' → <' + el.tagName.toLowerCase() + ' class="' + el.className + '">'); } } };
+  for (const ss of a.d.styleSheets) { try { walk(ss.cssRules); } catch {} }
+  return [...new Set(bad)];
+};
+
+console.log('\n[41] Ekran sprintu: bez animacji z innych reguł, ukrywanie i licznik na liście');
+try {
+  const tasks = [mkTask({ id: 'v1', t: 'Porządki w pokoju z długim opisem zadania w kilku linijkach tekstu', st: 'prog', sp: 10, br: 5, ord: 0 }), mkTask({ id: 'v2', t: 'Drugie', st: 'prog', ord: 1 })];
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': sprState(tasks) } });
+  // kontrola samego detektora: znana klasa z animacją musi zostać wykryta
+  const probe = a.d.createElement('div'); probe.className = 'spin'; a.d.body.appendChild(probe);
+  ok(animRules(a, probe).some(x => /\.spin/.test(x)), 'detektor działa: wykrywa istniejącą klasę .spin (kółko ładowania z animacją obrotu)');
+  probe.remove();
+  a.ev("tab='prog';open='v1';render()"); a.d.querySelector('[data-a=spr]').click();
+  const bad1 = animRules(a, ov(a));
+  ok(bad1.length === 0, 'ekran odliczania sprintu: żaden element nie dostaje animacji z reguł CSS (kolizja z .spin była przyczyną wirowania)', bad1.join(' ; '));
+  ok(ov(a).querySelector('.spr-in') && !ov(a).querySelector('.spin'), 'ekran nie używa już nazwy klasy .spin');
+  a.ev('S.sprint.end=Date.now()-1;sprintTick()');
+  ok(animRules(a, ov(a)).length === 0, 'ekran zakończenia sprintu: też bez animacji z reguł CSS');
+  a.d.getElementById('spc').click();
+  // pozostałe nowe ekrany
+  a.ev("tab='set';render()"); ok(animRules(a, a.d.getElementById('main')).length === 0, 'Ustawienia (grupy): bez animacji z reguł CSS', animRules(a, a.d.getElementById('main')).join(' ; '));
+  a.ev("tab='todo';ideas=false;render();form()"); ok(animRules(a, a.d.getElementById('dlg')).length === 0, 'formularz zadania: bez animacji z reguł CSS', animRules(a, a.d.getElementById('dlg')).join(' ; '));
+  a.d.getElementById('fx').click();
+  a.ev("tab='stat';per=4;render()"); ok(animRules(a, a.d.getElementById('main')).length === 0, 'Statystyki: bez animacji z reguł CSS');
+  const b = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': balState() } });
+  b.ev("tab='done';render()"); ok(animRules(b, b.d.getElementById('main')).length === 0, 'Zrobione z kartą bilansu: bez animacji z reguł CSS', animRules(b, b.d.getElementById('main')).join(' ; '));
+  // licznik na liście i ukrywanie
+  const c = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': sprState(tasks) } });
+  c.ev("tab='prog';open='v1';render()"); c.d.querySelector('[data-a=spr]').click();
+  ok(!!c.d.getElementById('sprh'), 'ekran sprintu ma przycisk „Ukryj”');
+  c.d.getElementById('sprh').click();
+  ok(!ov(c) && !!c.ev('S.sprint'), '„Ukryj” zamyka ekran, ale sprint trwa dalej');
+  const chip = () => c.d.querySelector('#main [data-sprt]');
+  ok(!!chip() && /^⏱ \d\d:\d\d$/.test(chip().textContent.trim()), 'na pozycji zadania w „Dzisiaj” widać licznik czasu', chip() && chip().textContent);
+  ok(c.d.querySelectorAll('#main [data-sprt]').length === 1 && chip().getAttribute('data-id') === 'v1', 'licznik jest tylko przy zadaniu ze sprintem (jeden, z id v1)');
+  c.ev('S.sprint.end=Date.now()+125000;sprintTick()'); ok(/^⏱ 0[2-3]:\d\d$/.test(chip().textContent.trim()), 'licznik na liście odlicza (po przesunięciu końca: ok. 2 minuty)', chip().textContent);
+  c.d.dispatchEvent(new c.w.Event('visibilitychange')); ok(!ov(c), 'powrót do aplikacji nie otwiera ekranu, jeśli został ukryty');
+  chip().click(); ok(!!ov(c) && /\d\d:\d\d/.test(ov(c).querySelector('#spt').textContent), 'stuknięcie licznika na liście wraca do ekranu sprintu');
+  c.d.getElementById('sprh').click();
+  c.ev('S.sprint.end=Date.now()-1;sprintTick()');
+  ok(!!ov(c) && /Sprint skończony!/.test(ov(c).textContent) && c.ev('S.spr.length') === 1, 'koniec sprintu przy schowanym ekranie: pojawia się informacja o przerwie, sesja zapisana');
+  c.d.getElementById('spc').click(); ok(!c.d.querySelector('#main [data-sprt]'), 'po zakończeniu licznik na liście znika');
+  ok(c.errors.length === 0, 'brak błędów skryptu', c.errors.join(' | '));
 } catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
 
 console.log(`\nWynik: ${pass} ok, ${fail} błędów`);

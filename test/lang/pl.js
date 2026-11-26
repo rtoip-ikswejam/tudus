@@ -414,5 +414,6 @@
 "odłożone {n}×": "odłożone {n}×",
 "Co może pomóc przy opornym zadaniu: rozbić je na małe kroki, ustawić sprint na 10 minut, wyznaczyć konkretną godzinę albo świadomie je odpuścić. To tylko podpowiedź, bez presji.": "Co może pomóc przy opornym zadaniu: rozbić je na małe kroki, ustawić sprint na 10 minut, wyznaczyć konkretną godzinę albo świadomie je odpuścić. To tylko podpowiedź, bez presji.",
 "Sprinty": "Sprinty",
-"Sprinty w tym okresie: {n}, razem {m} min.": "Sprinty w tym okresie: {n}, razem {m} min."
+"Sprinty w tym okresie: {n}, razem {m} min.": "Sprinty w tym okresie: {n}, razem {m} min.",
+"Ukryj": "Ukryj"
 };

@@ -13,7 +13,7 @@ function load(file) {
   const src = fs.readFileSync(path.join(ROOT, file), 'utf8');
   const m = src.match(/\/\* AGG-BEGIN[\s\S]*?\/\* AGG-END \*\//);
   if (!m) return null;
-  return new Function(m[0] + '\nreturn{aMon,aggAdd,aggTotals,aggCompact,aggTry,aggPeek,aggFails,aggReasonCounts,aggMergeReason,aggCountArea,aggWeeks,wkGet,aggSpr,AGG_PEND};')();
+  return new Function(m[0] + '\nreturn{aMon,aggAdd,aggTotals,aggCompact,aggTry,aggPeek,aggFails,aggReasonCounts,aggMergeReason,aggCountArea,aggWeeks,wkGet,aggSpr:typeof aggSpr==='undefined'?undefined:aggSpr,AGG_PEND};')();
 }
 
 // --- generator danych ---
@@ -166,8 +166,8 @@ function suite(label, A) {
     ok(b.ok === false && typeof b.err === 'string', 'uszkodzony stan: aggTry zwraca ok:false zamiast wyjątku');
   }
 
-  // 7b. sprinty: stare wpisy wchodzą do tygodniowych sum, bilans minut się nie zmienia
-  {
+  // 7b. sprinty: stare wpisy wchodzą do tygodniowych sum, bilans minut się nie zmienia (pomijane w wersji bez sprintów)
+  if (A.aggSpr) {
     const s = gen({ days: 90, seed: 31 });
     let k = 0; const mkS = (date, area, m, c = 1) => ({ id: 's' + (++k), t: 'tx', a: area, n: 'Zadanie', d: date, m, c });
     s.spr = [];
