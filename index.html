@@ -77,6 +77,8 @@ input,textarea,select{width:100%;font:inherit;padding:10px;border-radius:var(--r
 label{display:block;margin:10px 0 0;font-size:14px;color:var(--mu)}label.ck{display:inline-flex;align-items:center;gap:4px;margin-right:8px}label.ck input{width:auto}
 dialog{width:min(440px,94vw);border:1px solid var(--ln);border-radius:var(--r-dlg);background:var(--bg);color:var(--fg);padding:16px}dialog::backdrop{background:#0008}
 .ddw{text-align:center}.ddc{border-radius:14px;overflow:hidden;line-height:0}.ddc svg{width:100%;height:auto;max-height:230px;display:block;margin:0 auto}.ddt{font-size:17px;font-weight:600;margin:12px 4px 4px;line-height:1.35}.ddn{margin:0 0 6px;font-size:13px}.ddlab{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin-top:10px;text-align:left}.ddlab .row{grid-column:1/-1}
+.fg{margin:16px 0 2px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mu)}.fg:first-of-type{margin-top:6px}.frow{display:flex;gap:10px;flex-wrap:wrap}.frow>label{flex:1 1 150px;min-width:0}
+.spr-ov{position:fixed;inset:0;z-index:900;background:#000;color:#9ca3af;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;padding-top:max(24px,env(safe-area-inset-top));padding-bottom:max(24px,env(safe-area-inset-bottom))}.spr-in{max-width:420px;width:100%}.spr-n{font-size:18px;color:#d1d5db;margin-bottom:18px;word-break:break-word}.spr-t{font-size:clamp(48px,20vw,112px);font-weight:300;color:#e5e7eb;font-variant-numeric:tabular-nums;letter-spacing:2px;line-height:1.1}.spr-u{margin-top:4px}.spr-h{font-size:14px;margin:18px 0}.spr-m{font-size:20px;color:#fde68a;margin:18px 0}.spr-ov button{background:#1f2937;color:#e5e7eb;border:1px solid #374151}.spr-ov button.pri{background:#2563eb;color:#fff;border-color:#2563eb}.spr-ov .row{justify-content:center;flex-wrap:wrap}.tm.sprc{background:#2563eb;color:#fff;cursor:pointer}
 .sg{margin:0 0 8px}.sg>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--cd);border:1px solid var(--ln);border-radius:var(--r-card);padding:12px 14px}.sg>summary::-webkit-details-marker{display:none}.sg>summary::after{content:'›';margin-left:auto;color:var(--mu);font-size:20px;transition:transform .15s}.sg[open]>summary::after{transform:rotate(90deg)}.sg[open]>summary{margin-bottom:10px}.sgt{display:flex;flex-direction:column;gap:2px;min-width:0}.sgt small{color:var(--mu);font-size:13px;font-weight:400}.sgb{padding:0 2px 8px}.sgb>h3:first-child{margin-top:4px}
 .balbar{display:flex;gap:2px;border-radius:8px;overflow:hidden;height:30px;margin-top:8px}.balseg{display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:12px;font-weight:600;padding:0 6px}.balchips{margin-top:6px}.balchip{display:inline-block;background:var(--ln);color:var(--mu);border-radius:10px;padding:2px 8px;margin:2px 4px 2px 0;font-size:12px}
 .row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.row .sm{flex:1}
@@ -119,7 +121,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 .th-prev{margin-top:10px;padding-top:10px;border-top:1px solid var(--div)}
 .th-prev-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
 </style></head><body data-tab="prog">
-<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.22.2</div></div></div>
+<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.23.1</div></div></div>
 <script>(function(){var l;try{l=localStorage.getItem('kanban-lang')}catch(e){}if(!l)l=/^en/i.test(navigator.language||'')?'en':'pl';document.getElementById('spl').textContent=l==='en'?'Loading…':'Wczytywanie…';setTimeout(function(){var s=document.getElementById('splash');if(s)s.remove()},4000)})()</script>
 <header><div id="ab"></div><nav class="tabs"><button class="tab" data-a="tab" data-tab="todo">Do zrobienia</button><button class="tab" data-a="tab" data-tab="prog">Dzisiaj</button><button class="tab" data-a="tab" data-tab="done">Zrobione</button><button class="tab" data-a="tab" data-tab="stat">Statystyki</button><span id="test-badge" class="test-pill" style="display:none">TEST</span><button class="gear" data-a="tab" data-tab="set" aria-label="Ustawienia">⚙</button></nav></header>
 <main id="main"></main><div id="bar"></div><div id="mis"></div>
@@ -130,7 +132,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 <script>
 const IS_TEST=!!window.__IS_TEST;
 if(IS_TEST){const tb=document.getElementById('test-badge');if(tb)tb.style.display='inline-flex';}
-const V='1.22.2',SPLASH_MS=1000,SCHEMA=3,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
+const V='1.23.1',SPLASH_MS=1000,SCHEMA=3,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
 /* --- Dane testowe: jednokierunkowa kopia produkcja -> test --- */
 const PK='kanban-v1',TK='kanban-v1-test',TMK='kanban-v1-test-meta';
 const tmeta=()=>{try{return JSON.parse(localStorage.getItem(TMK))}catch(e){return null}};
@@ -170,7 +172,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function load(){try{const s=JSON.parse(localStorage.getItem(K));if(s&&s.tasks)return migrate(s)}catch(e){}
 return migrate({schema:SCHEMA,tasks:[],log:[],last:'',reasons:SEEDR.map((n,i)=>({id:'r'+i,name:tr(n)}))})}
-function migrate(s){if(!s.areas||!s.areas.length)s.areas=[{id:'a1',name:tr('Prywatna')},{id:'a2',name:tr('Zawodowa')}];if(!s.areas.some(a=>a.id===s.area))s.area=s.areas[0].id;const d=s.areas[0].id;(s.tasks||[]).forEach(x=>{if(!x.area)x.area=d});(s.log||[]).forEach(x=>{if(!x.area)x.area=d});s.areas.forEach((a,i)=>{if(!a.color)a.color=PAL[i%PAL.length]});if(!s.ro){const m={};(s.log||[]).forEach(l=>{if(l.reason)m[l.reason]=(m[l.reason]||0)+1});(s.reasons=s.reasons||[]).sort((a,b)=>(m[b.id]||0)-(m[a.id]||0)||a.name.localeCompare(b.name,LANG));s.ro=1}if(!s.pm){(s.areas||[]).forEach(a=>{const l=(s.tasks||[]).filter(x=>x.area===a.id&&!x.tpl&&x.st==='todo').reverse(),z=x=>x.rep&&x.rep.k!=='none'||x.at;[...l.filter(x=>!z(x)),...l.filter(z)].forEach((x,i)=>x.po=i)});s.pm=1}if(typeof s.coins!=='number')s.coins=0;if(!s.wk||typeof s.wk!=='object'||Array.isArray(s.wk))s.wk={};if(![0,2,3,4].includes(s.keep))s.keep=0;if(!Array.isArray(s.pauses))s.pauses=[];if(!s.dd||typeof s.dd!=='object'||Array.isArray(s.dd))s.dd={};if(typeof s.dd.on!=='boolean')s.dd.on=true;if(typeof s.dd.speed!=='number'||!(s.dd.speed>=0&&s.dd.speed<=5))s.dd.speed=1.6;s.rate=s.rate||{d:2,f:1};s.shop=s.shop||[];s.buys=s.buys||[];s.recap=s.recap||[];s.schema=SCHEMA;return s}
+function migrate(s){if(!s.areas||!s.areas.length)s.areas=[{id:'a1',name:tr('Prywatna')},{id:'a2',name:tr('Zawodowa')}];if(!s.areas.some(a=>a.id===s.area))s.area=s.areas[0].id;const d=s.areas[0].id;(s.tasks||[]).forEach(x=>{if(!x.area)x.area=d});(s.log||[]).forEach(x=>{if(!x.area)x.area=d});s.areas.forEach((a,i)=>{if(!a.color)a.color=PAL[i%PAL.length]});if(!s.ro){const m={};(s.log||[]).forEach(l=>{if(l.reason)m[l.reason]=(m[l.reason]||0)+1});(s.reasons=s.reasons||[]).sort((a,b)=>(m[b.id]||0)-(m[a.id]||0)||a.name.localeCompare(b.name,LANG));s.ro=1}if(!s.pm){(s.areas||[]).forEach(a=>{const l=(s.tasks||[]).filter(x=>x.area===a.id&&!x.tpl&&x.st==='todo').reverse(),z=x=>x.rep&&x.rep.k!=='none'||x.at;[...l.filter(x=>!z(x)),...l.filter(z)].forEach((x,i)=>x.po=i)});s.pm=1}if(typeof s.coins!=='number')s.coins=0;if(!s.wk||typeof s.wk!=='object'||Array.isArray(s.wk))s.wk={};if(![0,2,3,4].includes(s.keep))s.keep=0;if(!Array.isArray(s.pauses))s.pauses=[];if(!Array.isArray(s.spr))s.spr=[];if(s.sprint&&(typeof s.sprint.end!=='number'||!s.sprint.tid||!(s.sprint.m>0)))delete s.sprint;if(!s.dd||typeof s.dd!=='object'||Array.isArray(s.dd))s.dd={};if(typeof s.dd.on!=='boolean')s.dd.on=true;if(typeof s.dd.speed!=='number'||!(s.dd.speed>=0&&s.dd.speed<=5))s.dd.speed=1.6;s.rate=s.rate||{d:2,f:1};s.shop=s.shop||[];s.buys=s.buys||[];s.recap=s.recap||[];s.schema=SCHEMA;return s}
 let S=load();
 const NEEDLANG=(()=>{try{if(localStorage.getItem('kanban-lang')!==null)return false}catch(e){return false}return S.tasks.length===0&&S.log.length===0})();
 const LNAME={pl:'Polski',en:'English'};
@@ -264,7 +266,7 @@ function seedWarn(){
   sheet(`<h3>${msg}</h3><div class=row><button class=sm id=sw1>${tr('Zostań w teście')}</button><button class="sm pri" id=sw2>${tr('← Wróć do wersji produkcyjnej')}</button></div>`);
   $('sw1').onclick=()=>$('dlg').close();$('sw2').onclick=()=>exitTestMode();
 }
-function afterSplash(){if(IS_TEST&&SEED&&!SEED.ok)seedWarn();else showRecap()}
+function afterSplash(){if(IS_TEST&&SEED&&!SEED.ok)seedWarn();else{showRecap();sprintResume()}}
 function vDiag(){const sw=DGST.sw||{},off=DGST.offV,srv=DGST.srvV,st=dgStatus(),idx=DGST.srvIdx;
  const col={g:'var(--done)',w:'var(--prog)',r:'var(--bad)'}[st],txt={g:'Wszystko działa.',w:'Są drobne uwagi.',r:'Wykryto problem.'}[st];
  const ck=v=>v?(v===V?' ✓':' ✗'):'';
@@ -312,7 +314,7 @@ const tdl=(a,st='todo')=>S.tasks.filter(x=>x.area===a&&!x.tpl&&x.st===st).sort((
 function place(t,where){const l=tdl(t.area,t.st==='idea'?'idea':'todo').filter(x=>x!==t);if(where==='auto'){const r=initRank(t);const j=l.findIndex(x=>initRank(x)>r);if(j>=0)l.splice(j,0,t);else l.push(t)}else if(where==='top')l.unshift(t);else l.push(t);l.forEach((x,i)=>x.po=i)}
 const mvt=(x,d)=>{const l=tdl(x.area,x.st==='idea'?'idea':'todo'),i=l.indexOf(x),j=d===-99?0:Math.max(0,Math.min(l.length-1,i+d));if(i<0||j===i)return;l.splice(i,1);l.splice(j,0,x);l.forEach((y,k)=>y.po=k)};
 function toDay(t){if(t.rep.k!=='none'){if(S.tasks.some(x=>x.tpl===t.id&&x.st==='prog'))return toast(tr('To zadanie jest już w Dzisiaj'));
- const i={id:uid(),area:t.area,tpl:t.id,t:t.t,d:t.d,time:t.time,imp:t.imp,cnt:t.cnt||1,exp:t.exp,n:0,rep:{k:'none',days:[]},st:'prog',date:today(),...(t.steps?{steps:t.steps.map(q=>({id:uid(),t:q.t,d:0}))}:{})};S.tasks.push(i);put(i)}
+ const i={id:uid(),area:t.area,tpl:t.id,t:t.t,d:t.d,time:t.time,imp:t.imp,cnt:t.cnt||1,exp:t.exp,sp:t.sp,br:t.br,n:0,rep:{k:'none',days:[]},st:'prog',date:today(),...(t.steps?{steps:t.steps.map(q=>({id:uid(),t:q.t,d:0}))}:{})};S.tasks.push(i);put(i)}
  else{delete t.at;delete t.late;t.st='prog';t.date=today();t.n=0;put(t)}}
 function fail(x,date,kind){S.log.push({k:kind||'p',c:kind==='f'?coin(-S.rate.f):0,id:uid(),tid:x.id,area:x.area,tpl:x.tpl||null,title:x.t,date,res:'fail',reason:null,dec:'todo',...prg(x)});x.st=x.tpl?'closed':'todo';if(!x.tpl)place(x,'top')}
 const prg=x=>x.cnt>1?{n:x.n||0,cnt:x.cnt}:x.steps&&x.steps.length?{n:x.steps.filter(q=>q.d).length,cnt:x.steps.length}:{};
@@ -353,18 +355,21 @@ function aggAdd(s,l){const wk=aMon(l.date),A=s.wk[l.area]=s.wk[l.area]||{},w=A[w
  const k=aKind(l);w[k]++;if(l.c<0)w.cl-=l.c;
  const rk=l.reason||'_',R=w.r[rk]=w.r[rk]||{},tk=String(l.title||'').trim().toLowerCase(),g=R[tk]=R[tk]||{t:l.title||'',p:0,f:0,l:''};
  g[k]++;if(l.date>=g.l){g.l=l.date;g.t=l.title||''}}
-function aggTotals(s){const t={wk:JSON.parse(JSON.stringify(s.wk||{}))};(s.log||[]).forEach(l=>{if(l.date)aggAdd(t,l)});const o=[];
- Object.keys(t.wk).sort().forEach(a=>Object.keys(t.wk[a]).sort().forEach(w=>{const x=t.wk[a][w];o.push([a,w,x.d,x.f,x.p,x.ce,x.cl].join('|'));
+function aggAddSpr(s,e){const wk=aMon(e.d),A=s.wk[e.a]=s.wk[e.a]||{},w=A[wk]=A[wk]||{d:0,f:0,p:0,ce:0,cl:0,r:{}};w.sm=(w.sm||0)+e.m;w.sn=(w.sn||0)+1;if(e.c)w.sc=(w.sc||0)+1}
+const aggSpr=(s,area,from)=>{let n=0,m=0;(s.spr||[]).forEach(e=>{if(e.a===area&&e.d>=from){n++;m+=e.m}});const A=(s.wk||{})[area]||{};Object.keys(A).forEach(w=>{if(w>=from){n+=A[w].sn||0;m+=A[w].sm||0}});return{n,m}};
+function aggTotals(s){const t={wk:JSON.parse(JSON.stringify(s.wk||{}))};(s.log||[]).forEach(l=>{if(l.date)aggAdd(t,l)});(s.spr||[]).forEach(e=>{if(e.d&&e.a)aggAddSpr(t,e)});const o=[];
+ Object.keys(t.wk).sort().forEach(a=>Object.keys(t.wk[a]).sort().forEach(w=>{const x=t.wk[a][w];o.push([a,w,x.d,x.f,x.p,x.ce,x.cl,x.sm||0,x.sn||0,x.sc||0].join('|'));
   Object.keys(x.r).sort().forEach(rk=>Object.keys(x.r[rk]).sort().forEach(tk=>{const g=x.r[rk][tk];o.push(['r',a,w,rk,tk,g.p,g.f,g.l].join('|'))}))}));return o.join('\n')}
 function aggCompact(s,td,keep){s.wk=s.wk||{};const cut=aMon(td,keep-1),pcut=aMon(td,AGG_PEND),mv=[],rest=[];
  (s.log||[]).forEach(l=>(aElig(l,cut,pcut)?mv:rest).push(l));mv.forEach(l=>aggAdd(s,l));s.log=rest;
  const ref=new Set(rest.map(l=>l.tid)),n0=s.tasks.length;
  s.tasks=s.tasks.filter(t=>!((t.st==='closed'||t.st==='done')&&t.date&&t.date<cut&&!ref.has(t.id)));
- return{ent:mv.length,tasks:n0-s.tasks.length,weeks:new Set(mv.map(l=>aMon(l.date))).size,cut}}
+ const smv=[],srest=[];(s.spr||[]).forEach(e=>(e.d&&e.a&&e.d<cut?smv:srest).push(e));smv.forEach(e=>aggAddSpr(s,e));if(s.spr)s.spr=srest;
+ return{ent:mv.length,spr:smv.length,tasks:n0-s.tasks.length,weeks:new Set(mv.map(l=>aMon(l.date))).size,cut}}
 function aggTry(s,td,keep){try{const c=JSON.parse(JSON.stringify(s)),r=aggCompact(c,td,keep);
- if(!r.ent&&!r.tasks)return{ok:true,none:true,ent:0,tasks:0,weeks:0,saved:0,c:s};
+ if(!r.ent&&!r.tasks&&!r.spr)return{ok:true,none:true,ent:0,tasks:0,weeks:0,saved:0,c:s};
  if(aggTotals(s)!==aggTotals(c))return{ok:false,err:'verify'};
- return{ok:true,none:false,ent:r.ent,tasks:r.tasks,weeks:r.weeks,saved:JSON.stringify(s).length-JSON.stringify(c).length,c}}
+ return{ok:true,none:false,ent:r.ent,spr:r.spr,tasks:r.tasks,weeks:r.weeks,saved:JSON.stringify(s).length-JSON.stringify(c).length,c}}
  catch(e){return{ok:false,err:String(e&&e.message||e).slice(0,80)}}}
 const aggPeek=(s,td,keep)=>{const cut=aMon(td,keep-1),pcut=aMon(td,AGG_PEND);return(s.log||[]).filter(l=>aElig(l,cut,pcut)).length};
 function aggFails(s,area,from){const o=[],A=(s.wk||{})[area]||{};Object.keys(A).forEach(w=>{if(w<from)return;const R=A[w].r;
@@ -513,7 +518,7 @@ async function ddShow(replay){if(DD.busy)return;DD.busy=true;
   let tm=null;const fin=()=>{clearTimeout(tm);dl.onclick=null;dl.removeEventListener('close',fin)};dl.onclick=()=>dl.close();dl.addEventListener('close',fin);
   if(!replay)tm=setTimeout(()=>{if(dl.open&&dl.querySelector('.ddw'))dl.close()},7000);
  }finally{DD.busy=false}}
-function ddMaybeShow(){if(!S.dd.on||S.dd.shown===today()||DD.busy||$('dlg').open)return;ddShow(false)}
+function ddMaybeShow(){if(!S.dd.on||S.dd.shown===today()||DD.busy||$('dlg').open||S.sprint||$('spov'))return;ddShow(false)}
 const DDS=[[0,'Statycznie'],[2.4,'Wolno'],[1.6,'Normalnie'],[1,'Szybko']];
 function ddBox(){const sp=S.dd.speed,cust=!DDS.some(o=>o[0]===sp);
  return `<h3>${tr('Doodle dnia')}</h3><p class=mu>${tr('Raz dziennie krótka scena z postacią przy pracy i zdanie motywujące, oparte o Twoje wyniki.')}</p><div><label class=ck><input type=checkbox id=ddon ${S.dd.on?'checked':''}>${tr('Pokazuj raz dziennie')}</label></div>`
@@ -541,6 +546,51 @@ function balCard(){if((S.areas||[]).length<2)return'';
  const chips=st.filter(x=>x.st!=='ok').map(x=>`<span class=balchip>${esc(x.name)}: ${x.st==='pause'?tr('pauza'):x.why==='hist'?tr('za mało historii (dni sprzed ostatniego tygodnia: {d}, potrzeba {m})',{d:x.days,m:BAL_DAYS}):tr('za mało zadań w zwykłym tygodniu ({x} zamiast co najmniej {m})',{x:(Math.round(x.norm*10)/10).toString().replace('.',LANG==='pl'?',':'.'),m:BAL_MIN})}</span>`).join('');
  const prel=sm.ok.some(x=>x.prelim)?`<div class=mu style="margin-top:4px">${tr('Wstępnie: historia jest jeszcze krótka, wynik się ustabilizuje.')}</div>`:'';
  return `<div class=c style="margin-bottom:14px"><div class=ti>${tr('Bilans list')}</div>${sm.k==='none'?'':`<div class=balbar role=img aria-label="${txt.replace(/"/g,'&quot;')}">${seg}</div>`}<div style="margin-top:6px">${txt}</div>${chips?`<div class=balchips>${chips}</div>`:''}${prel}<div class=mu style="margin-top:4px">${tr('Ostatnie 7 dni względem zwykłego tempa każdej listy.')}</div></div>`}
+/* --- sprint: minutnik pracy; po zakończeniu informacja, ile przerwy się należy (bez odliczania przerwy) --- */
+const SPR={ac:null,lock:null,iv:null,min:false};
+const sprBreak=x=>Number.isFinite(x&&x.br)?x.br:5;
+const minU=n=>LANG==='pl'?(n===1?'minuta':(n%10>=2&&n%10<=4&&!(n%100>=12&&n%100<=14))?'minuty':'minut'):(n===1?'minute':'minutes');
+const clk=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+const hm=ts=>new Date(ts).toLocaleTimeString(LOC(),{hour:'2-digit',minute:'2-digit'});
+function sprAudio(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;SPR.ac=SPR.ac||new AC();if(SPR.ac.state==='suspended')SPR.ac.resume()}catch(e){}}
+function sprBeep(){try{const c=SPR.ac;if(!c)return;[0,.45,.9].forEach((d,i)=>{const o=c.createOscillator(),g=c.createGain(),t0=c.currentTime+d;o.type='sine';o.frequency.value=i===2?1040:880;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(.35,t0+.03);g.gain.linearRampToValueAtTime(0,t0+.32);o.connect(g);g.connect(c.destination);o.start(t0);o.stop(t0+.35)})}catch(e){}}
+async function sprLock(on){try{if(on){if(navigator.wakeLock&&!SPR.lock){SPR.lock=await navigator.wakeLock.request('screen');if(SPR.lock&&SPR.lock.addEventListener)SPR.lock.addEventListener('release',()=>{SPR.lock=null})}}else if(SPR.lock){const l=SPR.lock;SPR.lock=null;await l.release()}}catch(e){SPR.lock=null}}
+function sprPanel(h){let el=$('spov');if(!el){el=document.createElement('div');el.id='spov';el.className='spr-ov';el.setAttribute('role','dialog');el.setAttribute('aria-live','polite');document.body.appendChild(el)}el.innerHTML=h;return el}
+function sprClose(){clearInterval(SPR.iv);SPR.iv=null;SPR.min=false;sprLock(false);const el=$('spov');if(el)el.remove();render()}
+const sprHint=()=>tr(SPR.lock?'Ekran zostaje włączony na czas sprintu.':'Ekran może zgasnąć: dźwięk zadzwoni dopiero po powrocie do aplikacji.');
+function sprintRun(){const s=S.sprint;if(!s)return;
+ sprPanel(`<div class=spr-in><div class=spr-n>${esc(s.n)}</div><div class=spr-t id=spt>${clk(s.end-Date.now())}</div><div class=spr-u>${tr('do {h}',{h:hm(s.end)})}</div><p class=spr-h id=sph>${sprHint()}</p><div class=row><button class=sm id=sprh>${tr('Ukryj')}</button><button class=sm id=spx>${tr('Przerwij')}</button></div></div>`);
+ $('sprh').onclick=()=>{SPR.min=true;const el=$('spov');if(el)el.remove();render()};SPR.min=false;
+ $('spx').onclick=sprintStop;clearInterval(SPR.iv);SPR.iv=setInterval(sprintTick,500);
+ sprLock(true).then(()=>{const h=$('sph');if(h)h.textContent=sprHint()})}
+function sprintTick(){const s=S.sprint;if(!s){clearInterval(SPR.iv);SPR.iv=null;return}const left=s.end-Date.now(),el=$('spt');if(el)el.textContent=clk(left);document.querySelectorAll('[data-sprt]').forEach(e=>{e.textContent='⏱ '+clk(left)});if(left<=0)sprintDone(false)}
+function sprintDone(late){const s=S.sprint;if(!s)return;clearInterval(SPR.iv);SPR.iv=null;sprLock(false);
+ const x=S.tasks.find(q=>q.id===s.tid);
+ S.spr.push({id:uid(),t:s.tid,a:s.a,n:s.n,d:ds(new Date(s.end)),m:s.m,c:1});S.sprint=null;
+ let prog='',fin=false;
+ if(x&&x.st==='prog'&&x.cnt>1){x.n=(x.n||0)+1;if(x.n>=x.cnt){const id=done(x);fin=true;doneToast(x,id)}prog=tr('Postęp: {n}/{m}',{n:Math.min(x.n,x.cnt),m:x.cnt})}
+ save();if(!late){sprBeep();vib([300,150,300,150,600])}
+ const br=s.br,canDone=!!x&&x.st==='prog'&&!(x.cnt>1);
+ SPR.min=false;sprPanel(`<div class=spr-in><div class=spr-n>${esc(s.n)}</div><div class=spr-t>${late?tr('Sprint skończył się o {h}',{h:hm(s.end)}):tr('Sprint skończony!')}</div>${prog?`<p class=spr-h>${prog}</p>`:''}${br>0?`<p class=spr-m>${tr('Należy Ci się przerwa: {n} {u}.',{n:br,u:minU(br)})}</p>`:''}<div class=row>${canDone?`<button class="sm pri" id=spd>${tr('Zadanie zrobione')}</button>`:''}${x&&!fin?`<button class=sm id=spn2>${tr('Kolejny sprint')}</button>`:''}<button class=sm id=spc>${tr('Zamknij')}</button></div></div>`);
+ if($('spd'))$('spd').onclick=()=>{sprClose();A.ok(x)};
+ if($('spn2'))$('spn2').onclick=()=>{sprClose();sprintStart(x,s.m)};
+ $('spc').onclick=sprClose;render()}
+function sprintStart(x,m){if(S.sprint)return toast(tr('Sprint już trwa'));m=Math.min(240,Math.max(1,Math.floor(+m)||0));if(!m)return;
+ const now=Date.now();S.sprint={tid:x.id,a:x.area,n:String(x.t).slice(0,60),start:now,end:now+m*60000,m,br:sprBreak(x)};open=null;save();sprAudio();sprintRun()}
+function sprintStop(){ask(tr('Przerwać sprint?'),[[tr('Przerwij sprint'),'y']],()=>{const s=S.sprint;if(!s)return;const el=Math.floor((Date.now()-s.start)/60000);if(el>=1)S.spr.push({id:uid(),t:s.tid,a:s.a,n:s.n,d:today(),m:Math.min(el,s.m),c:0});S.sprint=null;save();sprClose()})}
+function sprintAsk(x){if(S.sprint||$('spov'))return;let t=x;
+ if(x.st==='todo'){if(x.rep.k!=='none'){toDay(x);t=S.tasks.find(i=>i.tpl===x.id&&i.st==='prog')||x}else toDay(x)}
+ if(t.sp)return sprintStart(t,t.sp);
+ sheet(`<h3>${tr('Sprint: {n}',{n:esc(t.t)})}</h3><div class=row>${[10,15,25,50].map(m=>`<button class=sm data-m=${m}>${m} ${tr('min')}</button>`).join('')}</div><label>${tr('Własna długość (minuty)')}<input id=spc2 type=number min=1 max=240 value=10></label><p class=mu>${tr('Przerwa po sprincie: {n} {u}.',{n:sprBreak(t),u:minU(sprBreak(t))})}</p><div class=row><button class=sm id=spq>${tr('Anuluj')}</button><button class="sm pri" id=sps>${tr('Start')}</button></div>`);
+ const dl=$('dlg');dl.onclick=null;dl.querySelectorAll('[data-m]').forEach(b=>{b.onclick=()=>{dl.close();sprintStart(t,+b.dataset.m)}});
+ $('spq').onclick=()=>{dl.close();save();render()};$('sps').onclick=()=>{const m=Math.floor(+$('spc2').value);if(!(m>0))return $('spc2').focus();dl.close();sprintStart(t,m)}}
+function sprintResume(){const s=S.sprint;if(!s)return;if(s.end<=Date.now())sprintDone(true);else if(!SPR.min&&(!SPR.iv||!$('spov')))sprintRun();else if(!SPR.iv)SPR.iv=setInterval(sprintTick,500)}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S&&S.sprint){sprintResume();sprLock(true)}});
+function statExtra(f,from){const pc={};f.forEach(l=>{if(aKind(l)==='p'){const t0=String(l.title||'').trim(),k=t0.toLowerCase(),g=pc[k]=pc[k]||{t:t0,n:0,d:''};g.n++;if((l.date||'')>=g.d){g.d=l.date||'';g.t=t0}}});
+ const often=Object.values(pc).filter(g=>g.n>=3).sort((a,b)=>b.n-a.n||String(a.t).localeCompare(String(b.t),LANG)).slice(0,5),sp=aggSpr(S,S.area,from);let h='';
+ if(often.length)h+=`<h3>${tr('Często odkładane')}</h3>${often.map(g=>`<div class=c><div class=r><div class=ti>${esc(g.t)}</div><span class=tm>${tr('odłożone {n}×',{n:g.n})}</span></div></div>`).join('')}<p class=mu>${tr('Co może pomóc przy opornym zadaniu: rozbić je na małe kroki, ustawić sprint na 10 minut, wyznaczyć konkretną godzinę albo świadomie je odpuścić. To tylko podpowiedź, bez presji.')}</p>`;
+ if(sp.n)h+=`<h3>${tr('Sprinty')}</h3><p class=mu>${tr('Sprinty w tym okresie: {n}, razem {m} min.',{n:sp.n,m:sp.m})}</p>`;
+ return h}
 /* --- tygodnie --- */
 const wd0=()=>(new Date().getDay()+6)%7;
 const wstart=o=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate()-wd0()-7*o)};
@@ -569,15 +619,15 @@ function vProg(){
  const seg=`<div class=seg><button class="${pfilter==='all'?'on':''}" data-a=pseg data-id=all>${tr('Wszystkie zadania')} ${all.length}</button><button class="${pfilter==='time'?'on':''}" data-a=pseg data-id=time>${tr('Z godziną')} ${nT}</button></div>`;
  const l=pfilter==='time'?all.filter(x=>x.time):all;
  if(!l.length){const dn=S.log.some(y=>y.res==='done'&&y.area===S.area&&y.date===today());return ban+seg+(pfilter==='time'?`<p class=empty>${tr('Brak zadań z godziną na dziś.')}</p>`:`<p class=empty>${dn?tr('Wszystko zrobione na dziś. Brawo!'):tr('Na dziś nic nie zaplanowano. Wpisz zadanie na dole albo weź coś z listy.')}</p><div class=row><button class="sm pri" data-a=tab data-tab=todo>${tr('Weź coś z „Do zrobienia”')}</button></div>`)}
- return ban+seg+l.map((x,i)=>`<div class=c><div class=r><div class=ti data-a=tg data-id="${x.id}">${badge(x)}${esc(x.t)}${x.cnt>1?` ${x.n||0}/${x.cnt}`:''}${sch(x)}${tm(x,1)}${x.date<today()?`<span class=tm>${tr('od {d}',{d:dm(x.date)})}</span>`:''}${x.late?`<span class="tm late">${tr('po terminie · {d}',{d:dm(x.late)})}</span>`:''}</div><div class=bt>`+
+ return ban+seg+l.map((x,i)=>`<div class=c><div class=r><div class=ti data-a=tg data-id="${x.id}">${badge(x)}${esc(x.t)}${x.cnt>1?` ${x.n||0}/${x.cnt}`:''}${sch(x)}${tm(x,1)}${x.date<today()?`<span class=tm>${tr('od {d}',{d:dm(x.date)})}</span>`:''}${x.late?`<span class="tm late">${tr('po terminie · {d}',{d:dm(x.late)})}</span>`:''}${S.sprint&&S.sprint.tid===x.id?`<span class="tm sprc" data-a=sprshow data-id=${x.id} data-sprt>⏱ ${clk(S.sprint.end-Date.now())}</span>`:''}</div><div class=bt>`+
  (sort?b('up',x.id,'▲<small>'+tr('wyżej')+'</small>','',i?'':'disabled')+b('dn',x.id,'▼<small>'+tr('niżej')+'</small>')+b('top',x.id,'⤒<small>'+tr('na górę')+'</small>'):(x.cnt>1?b('pl',x.id,'+1','ok'):b('ok',x.id,'✓<small>'+tr('zrobione')+'</small>','ok')))+
- `</div></div>${x.cnt>1?`<div style="height:6px;border-radius:3px;background:var(--ln);margin-top:6px"><div style="height:100%;width:${Math.round(100*(x.n||0)/x.cnt)}%;background:var(--ac);border-radius:3px"></div></div>`:''}${x.steps&&x.steps.length&&x.rep.k==='none'?`<div style="height:6px;border-radius:3px;background:var(--ln);margin-top:6px"><div style="height:100%;width:${Math.round(100*x.steps.filter(q=>q.d).length/x.steps.length)}%;background:var(--ac);border-radius:3px"></div></div>`:''}${open===x.id?desc(x,(x.cnt>1?b('mn',x.id,'−1','sm'):'')+b('fl',x.id,tr('Porażka'),'sm')+b('no',x.id,tr('Odłóż do „Do zrobienia”'),'sm')+b('edit',x.id,tr('Edytuj'),'sm')):''}</div>`).join('')}
+ `</div></div>${x.cnt>1?`<div style="height:6px;border-radius:3px;background:var(--ln);margin-top:6px"><div style="height:100%;width:${Math.round(100*(x.n||0)/x.cnt)}%;background:var(--ac);border-radius:3px"></div></div>`:''}${x.steps&&x.steps.length&&x.rep.k==='none'?`<div style="height:6px;border-radius:3px;background:var(--ln);margin-top:6px"><div style="height:100%;width:${Math.round(100*x.steps.filter(q=>q.d).length/x.steps.length)}%;background:var(--ac);border-radius:3px"></div></div>`:''}${open===x.id?desc(x,b('spr',x.id,tr(x.sp?'Sprint {m} min':'Sprint',{m:x.sp}),'sm')+(x.cnt>1?b('mn',x.id,'−1','sm'):'')+b('fl',x.id,tr('Porażka'),'sm')+b('no',x.id,tr('Odłóż do „Do zrobienia”'),'sm')+b('edit',x.id,tr('Edytuj'),'sm')):''}</div>`).join('')}
 function vTodo(){const q=tsort?'':(($('q')||{}).value||'');const st=ideas?'idea':'todo';
  const l=tdl(S.area,st).filter(x=>x.t.toLowerCase().includes(q.toLowerCase()));
  const seg=`<div class=seg><button class="${ideas?'':'on'}" data-a=seg data-id=t>${tr('Zadania')} ${tdl(S.area,'todo').length}</button><button class="${ideas?'on':''}" data-a=seg data-id=i>${tr('Pomysły')} ${tdl(S.area,'idea').length}</button></div>`;
  const ch=x=>`${badge(x)}${esc(x.t)}${x.cnt>1?`<span class=tm>${tr('×{n} dziennie',{n:x.cnt})}</span>`:''}${sch(x)}${tm(x)}${x.at?`<span class=tm>${tr('w Dzisiaj od {d}',{d:dm(x.at)})}</span>`:''}`;
  if(tsort)return seg+l.map((x,i)=>`<div class=c><div class=r><div class=ti>${ch(x)}</div><div class=bt>${b('tup',x.id,'▲<small>'+tr('wyżej')+'</small>','',i?'':'disabled')}${b('tdn',x.id,'▼<small>'+tr('niżej')+'</small>','',i<l.length-1?'':'disabled')}${b('ttop',x.id,'⤒<small>'+tr('na górę')+'</small>','',i?'':'disabled')}</div></div></div>`).join('');
- return seg+`<input id=q placeholder="${tr(ideas?'Szukaj pomysłów':'Szukaj zadań')}" value="${esc(q)}" data-a=srch style="margin-bottom:10px">`+(l.length?l.map(x=>`<div class=c><div class=r><div class=ti data-a=tg data-id="${x.id}">${ch(x)}</div>${ideas?b('toTodo',x.id,tr('Do zrobienia'),'sm pri'):b('go',x.id,tr('Do dzisiaj'),'sm pri')}</div>${open===x.id?desc(x,b('edit',x.id,tr('Edytuj'),'sm')+(ideas?'':b('toIdea',x.id,tr('Do pomysłów'),'sm'))+b('cx',x.id,tr('Anuluj (do archiwum)'),'sm')):''}</div>`).join(''):'<p class=empty>'+tr(ideas?'Brak pomysłów. Dodaj pierwszy polem na dole.':'Brak zadań. Dodaj pierwsze przyciskiem +.')+'</p>')}
+ return seg+`<input id=q placeholder="${tr(ideas?'Szukaj pomysłów':'Szukaj zadań')}" value="${esc(q)}" data-a=srch style="margin-bottom:10px">`+(l.length?l.map(x=>`<div class=c><div class=r><div class=ti data-a=tg data-id="${x.id}">${ch(x)}</div>${ideas?b('toTodo',x.id,tr('Do zrobienia'),'sm pri'):b('go',x.id,tr('Do dzisiaj'),'sm pri')}</div>${open===x.id?desc(x,(ideas?'':b('spr',x.id,tr(x.sp?'Sprint {m} min':'Sprint',{m:x.sp}),'sm'))+b('edit',x.id,tr('Edytuj'),'sm')+(ideas?'':b('toIdea',x.id,tr('Do pomysłów'),'sm'))+b('cx',x.id,tr('Anuluj (do archiwum)'),'sm')):''}</div>`).join(''):'<p class=empty>'+tr(ideas?'Brak pomysłów. Dodaj pierwszy polem na dole.':'Brak zadań. Dodaj pierwsze przyciskiem +.')+'</p>')}
 function vDone(){const c0=cnt(0,1),c1=cnt(1,1),f0=cnt(0,1,'fail'),d=c0-c1,p=c0+f0?Math.round(100*c0/(c0+f0))+'%':'–';
  const w=[];for(let o=7;o>=0;o--)w.push(cnt(o,o===0));const mx=Math.max(1,...w);
  const pzs=w.map((_,i)=>pauseWeekDays(S,S.area,ds(wstart(7-i)))>0),pzCmp=pauseWeekDays(S,S.area,ds(wstart(0)))+pauseWeekDays(S,S.area,ds(wstart(1)))>0;
@@ -599,7 +649,7 @@ function vStat(){const from=ds(wstart(per-1)),f=S.log.filter(l=>l.res==='fail'&&
  const mx=Math.max(1,...Object.values(by).map(a=>a.length));
  const detail=(k,a)=>{const g=groups(a),all=smore===k,sh=all?g:g.slice(0,8);return`<div class=ds><div class=mu>↩ ${tr('odłożone')} · ✗ ${tr('porażki')}</div>`+sh.map(x=>`<div style="margin:8px 0"><div>${esc(x.t)}</div><div class=mu>×${x.n} (${[x.p?'↩'+x.p:'',x.f?'✗'+x.f:''].filter(Boolean).join(' ')}) · ${tr('ostatnio {d}',{d:dm(x.last)})}</div></div>`).join('')+(g.length>8&&!all?`<div class=acts>${b('smore',k,tr('Pokaż więcej ({n})',{n:g.length-8}),'sm')}</div>`:'')+'</div>'};
  const row=(k,name)=>`<div class=c><div class=r><div class=ti data-a=tgs data-id="${k}">${esc(name)}</div><b>${by[k].length}</b></div><div style="height:8px;border-radius:4px;background:var(--stat);width:${Math.max(4,Math.round(100*by[k].length/mx))}%;margin-top:2px"></div>${open===k?detail(k,by[k]):''}</div>`;
- return`<label style="margin-top:0">${tr('Okres')}<select id=per>${[[4,'4 tygodnie'],[13,'13 tygodni'],[52,'Rok']].map(([v,t])=>`<option value=${v} ${per===v?'selected':''}>${tr(t)}</option>`).join('')}</select></label><h3>${tr('Najczęstsze powody porażek')}</h3><p class=mu>${tr('Porażki i odłożenia: {n}',{n:f.length})}</p>`+(f.length?rows.map(k=>row(k,rname(k))).join('')+(by._?row('_',tr('Bez wybranej przyczyny'))+`<p class=mu>${tr('Możesz je uzupełnić w Ustawieniach (⚙).')}</p>`:''):'<p class=mu>'+tr('Brak danych. Pojawią się, gdy przy nieudanych zadaniach wybierzesz przyczynę.')+'</p>')}
+ return`<label style="margin-top:0">${tr('Okres')}<select id=per>${[[4,'4 tygodnie'],[13,'13 tygodni'],[52,'Rok']].map(([v,t])=>`<option value=${v} ${per===v?'selected':''}>${tr(t)}</option>`).join('')}</select></label><h3>${tr('Najczęstsze powody porażek')}</h3><p class=mu>${tr('Porażki i odłożenia: {n}',{n:f.length})}</p>`+(f.length?rows.map(k=>row(k,rname(k))).join('')+(by._?row('_',tr('Bez wybranej przyczyny'))+`<p class=mu>${tr('Możesz je uzupełnić w Ustawieniach (⚙).')}</p>`:''):'<p class=mu>'+tr('Brak danych. Pojawią się, gdy przy nieudanych zadaniach wybierzesz przyczynę.')+'</p>')+statExtra(f,from)}
 const SGO={};
 const sg=(g,title,sub,body,extra='')=>`<details class=sg data-g=${g}${SGO[g]?' open':''}><summary><span class=sgt><b>${title}${extra}</b><small>${sub}</small></span></summary><div class=sgb>${body}</div></details>`;
 document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.classList&&d.classList.contains('sg'))SGO[d.dataset.g]=d.open},true);
@@ -646,13 +696,30 @@ function render(){i18n();pos[document.body.dataset.tab]=scrollY;document.body.da
  document.body.style.setProperty('--area',(S.areas.find(a=>a.id===S.area)||S.areas[0]).color);$('main').innerHTML=({todo:vTodo,prog:vProg,done:vDone,stat:vStat,set:vSet,diag:vDiag})[tab]();bar();ab();inks()}
 /* --- formularz --- */
 function form(x){const n=!x;x=x||{t:'',d:'',time:'',rep:{k:'none',days:[]},imp:false};
- sheet(`<h3>${tr(n?(tab==='todo'&&ideas?'Nowy pomysł':'Nowe zadanie'):(x.st==='idea'?'Edycja pomysłu':'Edycja zadania'))}</h3><label>${tr('Krótki opis (do wyświetlania na liście)')}<input id=ft value="${esc(x.t)}"></label><label>${tr('Lista')}<select id=fa>${S.areas.map(a=>`<option value="${a.id}" ${a.id===(x.area||S.area)?'selected':''}>${esc(a.name)}</option>`).join('')}</select></label><label>${tr('Długi opis (pokaże się po rozwinięciu zadania)')}<textarea id=fd rows=3>${esc(x.d)}</textarea></label><label class=ck style="margin-top:12px"><input type=checkbox id=fk ${x.steps?'checked':''}>${tr('Kroki / zakupy')}</label><label id=fkl>${tr('Kroki (jeden w wierszu)')}<textarea id=fkt rows=4></textarea></label><p id=fkh class=mu style="display:none">${tr('Kroki edytujesz w rozwiniętej karcie zadania.')}</p><label>${tr('Godzina (opcjonalnie)')}<input id=fm type=time value="${x.time||''}"></label><label>${tr('Powtarzanie')}<select id=fr><option value=none>${tr('nie powtarza się')}</option><option value=daily>${tr('codziennie')}</option><option value=days>${tr('wybrane dni tygodnia')}</option></select></label><div id=fdays style="margin-top:8px">${[1,2,3,4,5,6,0].map(d=>`<label class=ck><input type=checkbox value=${d} ${(x.rep.days||[]).includes(d)?'checked':''}>${DN(d)}</label>`).join('')}</div><label id=fatl>${tr('Pokaż w Dzisiaj od dnia (opcjonalnie)')}<input id=fat type=date value="${x.at||''}"></label><label>${tr('Ile razy dziennie (np. 8 szklanek wody; 1 = zwykłe zadanie)')}<input id=fc type=number min=1 max=99 value="${x.cnt||1}"></label><label class=ck style="margin-top:12px"><input type=checkbox id=fe ${x.exp?'':'checked'}>${tr('Zostaje na liście, jeśli nie zrobione danego dnia')}</label><br><label class=ck style="margin-top:8px"><input type=checkbox id=fi2 ${x.imp?'checked':''}>${tr('Ważne ★ więc wskoczy do górnej części listy zadań dziennych')}</label><div class=row><button class=sm id=fx>${tr('Anuluj')}</button><button class="sm pri" id=fs>${tr('Zapisz')}</button></div>`);
+ sheet(`<h3>${tr(n?(tab==='todo'&&ideas?'Nowy pomysł':'Nowe zadanie'):(x.st==='idea'?'Edycja pomysłu':'Edycja zadania'))}</h3>
+  <div class=fg>${tr('Treść')}</div>
+  <label>${tr('Krótki opis (do wyświetlania na liście)')}<input id=ft value="${esc(x.t)}"></label>
+  <label>${tr('Długi opis (pokaże się po rozwinięciu zadania)')}<textarea id=fd rows=3>${esc(x.d)}</textarea></label>
+  <label class=ck style="margin-top:12px"><input type=checkbox id=fk ${x.steps?'checked':''}>${tr('Kroki / zakupy')}</label><label id=fkl>${tr('Kroki (jeden w wierszu)')}<textarea id=fkt rows=4></textarea></label><p id=fkh class=mu style="display:none">${tr('Kroki edytujesz w rozwiniętej karcie zadania.')}</p>
+  <div class=fg>${tr('Lista i ważność')}</div>
+  <div class=frow><label>${tr('Lista')}<select id=fa>${S.areas.map(a=>`<option value="${a.id}" ${a.id===(x.area||S.area)?'selected':''}>${esc(a.name)}</option>`).join('')}</select></label><label class=ck style="align-self:flex-end;margin-bottom:10px"><input type=checkbox id=fi2 ${x.imp?'checked':''}>${tr('Ważne ★')}</label></div>
+  <p class=mu style="margin:0">${tr('Ważne zadania wskakują do górnej części listy zadań dziennych.')}</p>
+  <div class=fg>${tr('Termin i powtarzanie')}</div>
+  <div class=frow><label id=fatl>${tr('Pokaż w Dzisiaj od dnia')}<input id=fat type=date value="${x.at||''}"></label><label>${tr('Godzina')}<input id=fm type=time value="${x.time||''}"></label></div>
+  <label>${tr('Powtarzanie')}<select id=fr><option value=none>${tr('nie powtarza się')}</option><option value=daily>${tr('codziennie')}</option><option value=days>${tr('wybrane dni tygodnia')}</option></select></label><div id=fdays style="margin-top:8px">${[1,2,3,4,5,6,0].map(d=>`<label class=ck><input type=checkbox value=${d} ${(x.rep.days||[]).includes(d)?'checked':''}>${DN(d)}</label>`).join('')}</div>
+  <div class=fg>${tr('Liczenie')}</div>
+  <label>${tr('Ile razy dziennie (np. 8 szklanek wody; 1 = zwykłe zadanie)')}<input id=fc type=number min=1 max=99 value="${x.cnt||1}"></label>
+  <label class=ck style="margin-top:12px"><input type=checkbox id=fe ${x.exp?'':'checked'}>${tr('Zostaje na liście, jeśli nie zrobione danego dnia')}</label>
+  <div class=fg>${tr('Sprint')}</div>
+  <div class=frow><label>${tr('Długość sprintu (minuty)')}<input id=fsp type=number min=1 max=240 placeholder="${tr('bez sprintu')}" value="${x.sp||''}"></label><label>${tr('Przerwa po sprincie (minuty)')}<input id=fbr type=number min=0 max=60 value="${Number.isFinite(x.br)?x.br:5}"></label></div>
+  <p class=mu style="margin:0">${tr('Przycisk „Sprint” w menu zadania odlicza ten czas. Po zakończeniu aplikacja przypomni, ile przerwy Ci się należy.')}</p>
+  <div class=row><button class=sm id=fx>${tr('Anuluj')}</button><button class="sm pri" id=fs>${tr('Zapisz')}</button></div>`);
  $('fr').value=x.rep.k;setTimeout(()=>{const f=$('ft');if(f)f.focus()},60);const lock=!!(x.steps&&x.steps.length),sc=()=>{const m=+$('fc').value>1;if(m){$('fe').checked=false;$('fk').checked=false}$('fe').disabled=m;$('fk').disabled=m||lock};
  const sk=()=>{const on=$('fk').checked;$('fkl').style.display=on&&!x.steps?'':'none';$('fkh').style.display=on&&x.steps?'':'none';$('fc').disabled=on;if(on)$('fc').value=1;sc()};$('fc').oninput=sc;$('fk').onchange=sk;sk();
  const sr=()=>{$('fatl').style.display=$('fr').value==='none'?'':'none'};$('fr').onchange=sr;sr();
  $('fx').onclick=()=>$('dlg').close();$('dlg').onclick=null;
  $('fs').onclick=()=>{const tt=$('ft').value.trim();if(!tt)return $('ft').focus();const k=$('fr').value,days=[...$('dlg').querySelectorAll('#fdays input:checked')].map(i=>+i.value),rk=k==='days'&&!days.length?'none':k;
-  const c=Math.min(99,Math.max(1,Math.floor(+$('fc').value)||1)),f={area:$('fa').value,cnt:c,exp:!$('fe').checked||c>1,t:tt,d:$('fd').value,time:$('fm').value,imp:$('fi2').checked,rep:{k:rk,days},at:rk==='none'?($('fat').value||undefined):undefined};
+  const c=Math.min(99,Math.max(1,Math.floor(+$('fc').value)||1)),f={area:$('fa').value,cnt:c,exp:!$('fe').checked||c>1,t:tt,d:$('fd').value,time:$('fm').value,imp:$('fi2').checked,rep:{k:rk,days},at:rk==='none'?($('fat').value||undefined):undefined,sp:Math.floor(+$('fsp').value)>0?Math.min(240,Math.floor(+$('fsp').value)):undefined,br:$('fbr').value===''?undefined:Math.min(60,Math.max(0,Math.floor(+$('fbr').value)||0))};
   if($('fk').checked){f.steps=x.steps?x.steps:$('fkt').value.split(/\r?\n/).map(q=>q.trim()).filter(Boolean).map(q=>({id:uid(),t:q,d:0}))}else f.steps=undefined;
   if(n){const asIdea=tab==='todo'&&ideas;Object.assign(x,f,{id:uid(),st:asIdea?'idea':'todo'});S.tasks.push(x);place(x,asIdea?'top':'auto');if(tab==='prog'&&!f.at)toDay(x)}else{const oa=x.area,k0=kind(x);if(x.st==='prog'&&!x.tpl&&x.rep.k==='none'&&f.rep.k!=='none'){const tp={...f,id:uid(),st:'todo'};if(f.steps)tp.steps=f.steps.map(q=>({id:uid(),t:q.t,d:0}));S.tasks.push(tp);place(tp,'auto');Object.assign(x,f,{rep:{k:'none',days:[]},tpl:tp.id,at:undefined})}else{Object.assign(x,f);if(x.rep.k!=='none'&&x.steps)x.steps.forEach(q=>q.d=0)}if(x.area!==oa&&x.st==='prog')put(x);if(!x.tpl){if(x.st==='todo'&&(kind(x)!==k0||x.area!==oa))place(x,'auto');else if(x.st==='idea'&&x.area!==oa)place(x,'top')}}
   sched();$('dlg').close();save();render()}}
@@ -671,7 +738,7 @@ const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=nul
  gotest:()=>enterTestMode(),
  exittest:()=>exitTestMode(),
  refreshtest:()=>refreshTestData(),
- ddreplay:()=>ddShow(true),ddlab:()=>ddLab(),
+ ddreplay:()=>ddShow(true),spr:x=>sprintAsk(x),sprshow:()=>{SPR.min=false;sprintRun()},ddlab:()=>ddLab(),
  pznew:()=>pauseSheet(null),pzedit:(x,el)=>pauseSheet(el.dataset.id),pzend:(x,el)=>endPause(el.dataset.id),pzdel:(x,el)=>{S.pauses=S.pauses.filter(q=>q.id!==el.dataset.id);save();render()},
  dchk:()=>{runCheck()},
  dinst:()=>{navigator.serviceWorker.getRegistration().then(r=>{if(r&&r.waiting){pendingSW=r.waiting;log('i','install-now','skip-waiting requested');r.waiting.postMessage('skip')}}).catch(()=>{})},
@@ -720,7 +787,7 @@ const A={area:(x,el)=>{pos[tab]=scrollY;S.area=el.dataset.id;tab='prog';open=nul
  adel:(x,el)=>{const a=S.areas.find(q=>q.id===el.dataset.id);if(!a||S.areas.length<2)return;const ts=S.tasks.filter(t=>t.area===a.id&&!t.tpl&&t.st!=='done'),np=ts.filter(t=>t.st==='prog').length,nr=ts.filter(t=>t.rep.k!=='none').length,nh=S.log.filter(l=>l.area===a.id).length+aggCountArea(S,a.id);
   sheet(`<h3>${tr('Usunąć listę „{n}” razem z danymi?',{n:esc(a.name)})}</h3><p>${tr('Zadania: {t} (w Dzisiaj: {p}, powtarzalne: {r}). Wpisy historii: {h}.',{t:ts.length,p:np,r:nr,h:nh})}</p><p class=mu>${tr('Tego nie da się cofnąć. Kopia danych to jedyny sposób na powrót.')}</p><div class=row><button class=sm id=ax>${tr('Anuluj')}</button><button class=sm id=ab2>${tr('Zapisz kopię teraz')}</button></div><div class=row><button class="sm dng" id=ad>${tr('Usuń listę i dane')}</button></div>`);
   $('dlg').onclick=null;$('ax').onclick=()=>$('dlg').close();$('ab2').onclick=()=>A.exp();
-  $('ad').onclick=()=>{S.tasks=S.tasks.filter(t=>t.area!==a.id);S.log=S.log.filter(l=>l.area!==a.id);delete S.wk[a.id];S.areas=S.areas.filter(q=>q.id!==a.id);S.pauses=(S.pauses||[]).map(q=>q.areas?{...q,areas:q.areas.filter(x=>x!==a.id)}:q).filter(pauseOk);if(S.area===a.id){S.area=S.areas[0].id;tab='prog'}open=null;ssort=null;$('dlg').close();save();render();toast(tr('Lista usunięta'))}},
+  $('ad').onclick=()=>{S.tasks=S.tasks.filter(t=>t.area!==a.id);S.log=S.log.filter(l=>l.area!==a.id);delete S.wk[a.id];S.spr=(S.spr||[]).filter(e=>e.a!==a.id);S.areas=S.areas.filter(q=>q.id!==a.id);S.pauses=(S.pauses||[]).map(q=>q.areas?{...q,areas:q.areas.filter(x=>x!==a.id)}:q).filter(pauseOk);if(S.area===a.id){S.area=S.areas[0].id;tab='prog'}open=null;ssort=null;$('dlg').close();save();render();toast(tr('Lista usunięta'))}},
  tgs:(x,el)=>{open=open===el.dataset.id?null:el.dataset.id;render()},
  ssort:(x,el)=>{ssort=ssort===el.dataset.id?null:el.dataset.id;open=null;render()},
  sm:(x,el)=>{const arr=el.dataset.k==='areas'?S.areas:S.reasons,i=arr.findIndex(q=>q.id===el.dataset.id),d=+el.dataset.d,j=d===-99?0:Math.max(0,Math.min(arr.length-1,i+d));if(i<0||j===i)return;const [q]=arr.splice(i,1);arr.splice(j,0,q);save();render()},
