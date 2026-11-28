@@ -62,6 +62,7 @@ main{padding:12px}
 .r{display:flex;align-items:center;gap:8px}.ti{flex:1;min-height:44px;display:flex;align-items:center;flex-wrap:wrap;gap:6px;cursor:pointer}
 .st{color:#e0a800}.rp{color:var(--mu);font-style:normal}
 html.bench,html.bench dialog{filter:grayscale(1)}
+.cmk{color:var(--bad);margin-right:3px}
 .tm{font-size:12px;border:1px solid var(--ln);border-radius:var(--r-pill);padding:1px 8px;color:var(--mu)}.tm.late{color:var(--bi,#fff);background:var(--bad);border-color:var(--bad)}
 .bt{display:flex;gap:6px}button{font:inherit}
 .bt button,.sm{min-width:44px;min-height:44px;border-radius:var(--r-btn);border:1px solid var(--ln);background:var(--bg);color:var(--fg);font-size:18px;cursor:pointer}
@@ -122,7 +123,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 .th-prev{margin-top:10px;padding-top:10px;border-top:1px solid var(--div)}
 .th-prev-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
 </style></head><body data-tab="prog">
-<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.24.0</div></div></div>
+<div id="splash" role="status"><img src="icon-512.png" alt=""><div class="tg">plan, do, done.</div><div class="ld"><div class="spin"></div><div id="spl">Wczytywanie…</div><div class="vr" id="spv">v1.24.1</div></div></div>
 <script>(function(){var l;try{l=localStorage.getItem('kanban-lang')}catch(e){}if(!l)l=/^en/i.test(navigator.language||'')?'en':'pl';document.getElementById('spl').textContent=l==='en'?'Loading…':'Wczytywanie…';setTimeout(function(){var s=document.getElementById('splash');if(s)s.remove()},4000)})()</script>
 <header><div id="ab"></div><nav class="tabs"><button class="tab" data-a="tab" data-tab="todo">Do zrobienia</button><button class="tab" data-a="tab" data-tab="prog">Dzisiaj</button><button class="tab" data-a="tab" data-tab="done">Zrobione</button><button class="tab" data-a="tab" data-tab="stat">Statystyki</button><span id="test-badge" class="test-pill" style="display:none">TEST</span><button class="gear" data-a="tab" data-tab="set" aria-label="Ustawienia">⚙</button></nav></header>
 <main id="main"></main><div id="bar"></div><div id="mis"></div>
@@ -133,7 +134,7 @@ body[data-tab=diag]{--ac:var(--mu)}
 <script>
 const IS_TEST=!!window.__IS_TEST;
 if(IS_TEST){const tb=document.getElementById('test-badge');if(tb)tb.style.display='inline-flex';}
-const V='1.24.0',SPLASH_MS=1000,SCHEMA=3,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
+const V='1.24.1',SPLASH_MS=1000,SCHEMA=3,PAL=['#2a9d8f','#da6887','#3976be','#e08a2e','#8565b4','#6b9a2f','#c9a227','#878c9b'],PICK=PAL.concat(['#ffffff','#1f2430']),K=IS_TEST?'kanban-v1-test':'kanban-v1',$=id=>document.getElementById(id);
 /* --- Dane testowe: jednokierunkowa kopia produkcja -> test --- */
 const PK='kanban-v1',TK='kanban-v1-test',TMK='kanban-v1-test-meta';
 const tmeta=()=>{try{return JSON.parse(localStorage.getItem(TMK))}catch(e){return null}};
@@ -692,7 +693,7 @@ const cnt=(o,part,r='done')=>{const a=ds(wstart(o)),b=ds(wend(o,part));let n=S.l
 const nowT=()=>{const n=new Date();return pad(n.getHours())+':'+pad(n.getMinutes())};
 const rt=x=>x.rep.k==='daily'?tr('codziennie'):x.rep.k==='days'?[1,2,3,4,5,6,0].filter(d=>x.rep.days.includes(d)).map(d=>DN(d)).join(', '):'';
 const badge=x=>{const o=x.tpl?(S.tasks.find(q=>q.id===x.tpl)||x):x;return(x.imp?'<b class=st>★</b>':'')+(x.rep.k!=='none'||x.tpl?'<i class=rp>↻'+(rt(o)?' '+rt(o):'')+'</i>':'')+penBadge(x)};
-const penBadge=x=>{const e=S.cm&&S.cm[x.tpl||x.id];return e&&e.n?'<i class=rp>'+['','🟨','🟨🟨','🟥'][Math.min(3,e.n)]+'</i>':''};
+const penBadge=x=>{const e=S.cm&&S.cm[x.tpl||x.id];return e?'<b class=cmk title="'+esc(tr('Zobowiązanie'))+'">!</b>'+(e.n?'<i class=rp>'+['','🟨','🟨🟨','🟥'][Math.min(3,e.n)]+'</i>':''):''};
 const tm=(x,p)=>x.time?`<span class="tm${p&&x.time<nowT()?' late':''}">${x.time}</span>`:'';
 const b=(a,id,t,c='',at)=>`<button class="${c}" ${at} data-a="${a}" data-id="${id}">${t}</button>`;
 function stmv(x,sid,d){const arr=x.steps||[],q=arr.find(z=>z.id===sid);if(!q||q.d)return;const un=arr.filter(z=>!z.d),i=un.indexOf(q),j=d===-99?0:i+d;if(j<0||j>=un.length||j===i)return;const t=un[j];arr.splice(arr.indexOf(q),1);const ti=arr.indexOf(t);arr.splice(d>0?ti+1:ti,0,q)}

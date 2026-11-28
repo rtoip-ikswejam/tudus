@@ -1,4 +1,4 @@
-# Tuduś: przekazanie do nowej rozmowy (stan: produkcja 1.23.1, test 1.24.0 (system kar))
+# Tuduś: przekazanie do nowej rozmowy (stan: produkcja 1.23.1, test 1.24.1 (system kar))
 
 ## Czym jest
 Prywatna aplikacja do zadań (PWA) na GitHub Pages. Jeden plik `index.html` (cała logika), dane w `localStorage`, bez serwera. Interfejs po polsku, tłumaczenia EN w `lang/*.js` (funkcja `tr('polski tekst')`, każdy nowy tekst musi mieć wpis w `lang/pl.js` i `lang/en.js`; `tools/check.py` pilnuje).
@@ -34,4 +34,4 @@ Porządkowanie danych (agregacja do tygodni, transakcyjnie z weryfikacją sum), 
 - Dane testowe z długą historią ukrywają błędy; prawdziwe dane są krótsze i nieregularne.
 
 ## Do zrobienia (lista zaległości)
-Liczby osobiste w „Zrobione” (rekord tygodnia, seria, kamienie milowe), warianty kolorystyczne postaci, jednorożec, galeria odkrytych postaci, alarm w tle przez ntfy (opcjonalnie), eksport podsumowania do wklejenia asystentowi, układ repozytorium `main`/`dev`, ~~system kar~~ (wdrożony w `test/` 1.24.0, czeka na test na telefonie i zgodę na produkcję; patrz `SYSTEM-KAR.md`).
+Liczby osobiste w „Zrobione” (rekord tygodnia, seria, kamienie milowe), warianty kolorystyczne postaci, jednorożec, galeria odkrytych postaci, alarm w tle przez ntfy (opcjonalnie), eksport podsumowania do wklejenia asystentowi, układ repozytorium `main`/`dev`, ~~system kar~~ (wdrożony w `test/` 1.24.1, czeka na test na telefonie i zgodę na produkcję; patrz `SYSTEM-KAR.md`).

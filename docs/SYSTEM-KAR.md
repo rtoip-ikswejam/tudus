@@ -1,4 +1,4 @@
-# System kar: zasady ustalone z użytkownikiem (wdrożone w 1.24.0, tylko w `test/`)
+# System kar: zasady ustalone z użytkownikiem (wdrożone w 1.24.0, poprawki w 1.24.1, tylko w `test/`)
 
 Terminologia z futbolu: **żółta kartka**, **druga żółta (ostatnie ostrzeżenie)**, **czerwona kartka**, **karna ławka**. Zero wyjątków kalendarzowych poza **Pauzą**. Opt-in, bez autoironii. Kary pisze użytkownik; w kodzie nie ma żadnej stałej kary.
 

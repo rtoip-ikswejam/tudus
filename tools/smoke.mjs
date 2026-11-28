@@ -1177,6 +1177,9 @@ try {
   ok(a.ev('penOut(S,"2000-01-01").tplA[today()]') === 4, 'rdzeń widzi dzień jako samo odłożenie');
   const bk = JSON.parse(a.ev('JSON.stringify(S)'));
   ok(!!bk.cm && !!bk.pn && !!bk.pen, 'dane kar są w eksporcie kopii zapasowej');
+  a.ev("S.tasks.find(t=>t.tpl==='tplA').st='closed';toDay(S.tasks.find(t=>t.id==='tplA'));tab='prog';render()"); ok(a.d.querySelectorAll('#main .cmk').length === 1, 'zadanie ze zobowiązaniem w „Dzisiaj” ma wykrzyknik (bez żadnej kartki)');
+  a.ev("tab='todo';ideas=false;render()"); ok(a.d.querySelectorAll('#main .cmk').length === 1, 'szablon ze zobowiązaniem w „Do zrobienia” ma wykrzyknik');
+  ok(animRules(a, a.d.getElementById('main')).length === 0, 'wykrzyknik: bez animacji z reguł CSS');
 } catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
 
 console.log(`\nWynik: ${pass} ok, ${fail} błędów`);
