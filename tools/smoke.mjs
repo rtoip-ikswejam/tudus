@@ -694,10 +694,10 @@ try {
   const groups = () => [...a.d.querySelectorAll('#main details.sg')];
   const g = k => a.d.querySelector(`#main details.sg[data-g=${k}]`);
   const inG = (k, sel) => !!(g(k) && g(k).querySelector(sel));
-  ok(groups().map(x => x.dataset.g).join() === 'lists,coins,pause,look,data,app', 'kolejność grup: listy, monety, pauza, wygląd i język, dane, aplikacja');
+  ok(groups().map(x => x.dataset.g).join() === 'lists,coins,pause,pen,look,data,app', 'kolejność grup: listy, monety, pauza, karna ławka, wygląd i język, dane, aplikacja');
   ok(groups().every(x => !x.open), 'domyślnie wszystkie grupy są zwinięte (widać spis sześciu pozycji)');
   const titles = groups().map(x => x.querySelector('summary b').textContent.trim());
-  ok(titles.join('|') === 'Listy i przyczyny|Monety i sklepik|Pauza|Wygląd i język|Dane|Aplikacja i diagnostyka', 'tytuły grup', titles.join('|'));
+  ok(titles.join('|') === 'Listy i przyczyny|Monety i sklepik|Pauza|Karna ławka|Wygląd i język|Dane|Aplikacja i diagnostyka', 'tytuły grup', titles.join('|'));
   const subs = Object.fromEntries(groups().map(x => [x.dataset.g, x.querySelector('summary small').textContent.trim()]));
   ok(/Listy: 2 · przyczyny: \d+/.test(subs.lists) && /^\+\d+ \/ −\d+ · nagrody: \d+$/.test(subs.coins) && subs.pause === 'brak' && /Polski · doodle: (wł|wył)\./.test(subs.look) && subs.data === 'Kopii jeszcze nie robiono' && /^v1\.\d+\.\d+ \[TEST\]$/.test(subs.app), 'podtytuły streszczają stan każdej grupy bez otwierania', JSON.stringify(subs));
   // zawartość: wszystko, co dotyczy wyglądu, razem; wszystko, co dotyczy danych, razem
@@ -737,7 +737,7 @@ try {
   const e = await boot('test', { ls: { 'kanban-lang': 'en', 'kanban-v1': mkState([mkTask({ t: 'x' })], { created: D(-200) }) } });
   e.ev("tab='set';render()");
   const et = [...e.d.querySelectorAll('#main details.sg summary b')].map(x => x.textContent.trim()).join('|');
-  ok(et === 'Lists and reasons|Coins and shop|Pause|Appearance and language|Data|App and diagnostics', 'po angielsku tytuły grup', et);
+  ok(et === 'Lists and reasons|Coins and shop|Pause|Penalty box|Appearance and language|Data|App and diagnostics', 'po angielsku tytuły grup', et);
   // wersja główna (po promocji): wyrzutnia testu wewnątrz grupy aplikacji, nie na wierzchu
   if (fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').includes('class=sgt')) {
     const r = await boot('', { ls: { 'kanban-lang': 'pl', 'kanban-v1': mkState([mkTask({ t: 'x' })], { created: D(-200) }) } });
@@ -799,7 +799,7 @@ try {
   const dl = a.d.getElementById('dlg');
   ok(dl.hasAttribute('open'), 'formularz nowego zadania się otwiera');
   const heads = [...dl.querySelectorAll('.fg')].map(x => x.textContent.trim());
-  ok(heads.join('|') === 'Treść|Lista i ważność|Termin i powtarzanie|Liczenie|Sprint', 'grupy pól w logicznej kolejności', heads.join('|'));
+  ok(heads.join('|') === 'Treść|Lista i ważność|Termin i powtarzanie|Liczenie|Zobowiązanie|Sprint', 'grupy pól w logicznej kolejności', heads.join('|'));
   const sameRow = (x, y) => { const ex = a.d.getElementById(x), ey = a.d.getElementById(y); return !!ex && !!ey && ex.closest('.frow') && ex.closest('.frow') === ey.closest('.frow'); };
   ok(sameRow('fat', 'fm'), 'data („Pokaż w Dzisiaj od dnia”) i godzina są obok siebie');
   ok(sameRow('fa', 'fi2'), 'lista i „Ważne” są obok siebie');
@@ -848,7 +848,7 @@ try {
   const e = await boot('test', { ls: { 'kanban-lang': 'en', 'kanban-v1': sprState() } });
   e.ev("tab='todo';ideas=false;render();form()");
   const eh = [...e.d.querySelectorAll('#dlg .fg')].map(x => x.textContent.trim()).join('|');
-  ok(eh === 'Content|List and importance|Date and repeating|Counting|Sprint' && /Sprint length \(minutes\)/.test(e.d.getElementById('dlg').textContent), 'po angielsku nagłówki i etykiety', eh);
+  ok(eh === 'Content|List and importance|Date and repeating|Counting|Commitment|Sprint' && /Sprint length \(minutes\)/.test(e.d.getElementById('dlg').textContent), 'po angielsku nagłówki i etykiety', eh);
 } catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
 
 console.log('\n[38] Sprint: odliczanie, koniec, informacja o przerwie, postęp licznika');
@@ -1016,6 +1016,167 @@ try {
   ok(!!ov(c) && /Sprint skończony!/.test(ov(c).textContent) && c.ev('S.spr.length') === 1, 'koniec sprintu przy schowanym ekranie: pojawia się informacja o przerwie, sesja zapisana');
   c.d.getElementById('spc').click(); ok(!c.d.querySelector('#main [data-sprt]'), 'po zakończeniu licznik na liście znika');
   ok(c.errors.length === 0, 'brak błędów skryptu', c.errors.join(' | '));
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+// ---------- system kar: kartki, karna ławka, zobowiązania ----------
+const PN2 = () => [{ id: 'p1', t: '50 pompek', u: 0 }, { id: 'p2', t: '5 zł do skarbonki', u: 0 }];
+const penState = (tasks, extra = {}) => mkState(tasks, { pn: PN2(), ...extra });
+const toastText = a => { const t = a.d.querySelector('.toast'); return t ? t.textContent : ''; };
+const dlgOpen = a => a.ev("document.getElementById('dlg').hasAttribute('open')");
+const dlgText = a => a.d.getElementById('dlg').textContent;
+const benchCls = a => a.ev("document.documentElement.classList.contains('bench')");
+const fire = (id = 'tplA') => penState([tpl(id)], { last: D(-1), dd: { on: true }, cm: { [id]: { from: D(-3), n: 0, rc: null } }, pen: { b: null, lf: null, ba: null, h: [], ev: [], chk: D(-4) } });
+
+console.log('\n[P1] Start bez zobowiązań i kar: bez błędów, brak szarości, grupa w Ustawieniach');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': mkState([mkTask({ t: 'Zwykłe' })]) } });
+  ok(a.errors.length === 0, 'brak błędów skryptu', a.errors.join(' | '));
+  ok(a.ev('Object.keys(S.cm).length') === 0 && a.ev('S.pn.length') === 0 && a.ev('S.pen.b') === null, 'dane kar domyślnie puste (żadnych kar w kodzie)');
+  ok(!benchCls(a), 'brak szarości');
+  a.ev("tab='set';render()");
+  ok(/Karna ławka/.test(mainText(a)) && /Lista jest pusta/.test(mainText(a)) && /nie są bolesne ani szkodliwe/.test(mainText(a)), 'Ustawienia: grupa „Karna ławka” z ostrzeżeniem o szkodliwych karach');
+  ok(a.ev("document.querySelectorAll('[data-a=pnex]').length") === 3, 'trzy przykłady kar (tylko podpowiedzi)');
+  a.d.querySelector('[data-a=pnex]').click();
+  ok(a.ev("document.getElementById('pni').value") === '50 pompek' && a.ev('S.pn.length') === 0, 'przykład wpisuje tekst w pole, ale niczego nie dodaje');
+  a.d.querySelector('[data-a=pnadd]').click();
+  ok(a.ev('S.pn.length') === 1 && a.ev('S.pn[0].t') === '50 pompek', 'dodanie kary z pola');
+  for (let i = 2; i <= 6; i++) { a.ev(`document.getElementById('pni').value='kara ${i}'`); a.d.querySelector('[data-a=pnadd]').click(); }
+  ok(a.ev('S.pn.length') === 6 && !a.d.getElementById('pni'), 'sześć kar: pole dodawania znika');
+  const id2 = a.ev('S.pn[1].id');
+  a.d.querySelector(`[data-a=pned][data-id="${id2}"]`).click();
+  a.ev("document.getElementById('pnt').value='zmieniona'"); a.d.getElementById('as').click();
+  ok(a.ev('S.pn[1].t') === 'zmieniona', 'edycja kary');
+  a.d.querySelector(`[data-a=pndel][data-id="${id2}"]`).click(); a.d.querySelector('#dlg [data-o="0"]').click();
+  ok(a.ev('S.pn.length') === 5, 'usunięcie kary (po potwierdzeniu)');
+  ok(JSON.parse(a.w.localStorage.getItem('kanban-v1-test')).pn.length === 5, 'zapisane w pamięci');
+  ok(animRules(a, a.d.getElementById('main')).length === 0, 'ekran kar: bez animacji z reguł CSS', animRules(a, a.d.getElementById('main')).join(' ; '));
+  const e = await boot('test', { ls: { 'kanban-lang': 'en', 'kanban-v1': mkState([mkTask({ t: 'x' })]) } });
+  e.ev("tab='set';render()"); ok(/Penalty box/.test(mainText(e)) && /Your penalties/.test(mainText(e)), 'interfejs EN');
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[P2] Formularz: zobowiązanie tylko dla zadań cyklicznych, wymaga kary');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': penState([tpl('tplN'), mkTask({ id: 'one', t: 'Jednorazowe', st: 'todo' })]) } });
+  a.ev("tab='todo';ideas=false;render();form(S.tasks.find(t=>t.id==='one'))");
+  ok(a.ev("document.getElementById('fcl').style.display") === 'none', 'zadanie bez powtarzania: pole zobowiązania ukryte');
+  a.ev("document.getElementById('fr').value='daily';document.getElementById('fr').dispatchEvent(new Event('change'))");
+  ok(a.ev("document.getElementById('fcl').style.display") === '', 'po wybraniu powtarzania pole się pokazuje');
+  a.d.getElementById('fx').click();
+  a.ev("form(S.tasks.find(t=>t.id==='tplN'))");
+  ok(a.ev("document.getElementById('fcm').disabled") === false && !a.ev("document.getElementById('fcm').checked"), 'szablon bez zobowiązania: pole aktywne, odznaczone');
+  a.ev("document.getElementById('fcm').checked=true"); a.d.getElementById('fs').click();
+  ok(a.ev("!!S.cm.tplN")  && a.ev('S.cm.tplN.from') === D(1) && a.ev('S.cm.tplN.n') === 0, 'włączone zobowiązanie liczy się od jutra');
+  a.ev("toDay(S.tasks.find(t=>t.id==='tplN'))");
+  const inst = a.ev("S.tasks.find(t=>t.tpl==='tplN'&&t.st==='prog').id");
+  a.ev(`form(S.tasks.find(t=>t.id==='${inst}'))`);
+  ok(a.ev("document.getElementById('fcl').style.display") === 'none', 'edycja dziennej kopii: pole ukryte (zobowiązanie należy do szablonu)');
+  a.d.getElementById('fx').click();
+  // wyłączanie przy liczniku 0
+  a.ev("form(S.tasks.find(t=>t.id==='tplN'))");
+  ok(a.ev("document.getElementById('fcm').checked") && a.ev("document.getElementById('fcm').disabled") === false, 'licznik 0: zobowiązanie można wyłączyć');
+  a.ev("document.getElementById('fcm').checked=false"); a.d.getElementById('fs').click();
+  ok(a.ev('S.cm.tplN') === undefined, 'wyłączone przy liczniku 0');
+  // zablokowane przy kartce
+  a.ev("S.cm.tplN={from:today(),n:1,rc:null};save();form(S.tasks.find(t=>t.id==='tplN'))");
+  ok(a.ev("document.getElementById('fcm').disabled") && a.ev("document.getElementById('fcm').checked") && /licznik porażek wynosi 0/.test(dlgText(a)), 'przy żółtej kartce pole zablokowane z wyjaśnieniem');
+  a.ev("document.getElementById('fr').value='none';document.getElementById('fr').dispatchEvent(new Event('change'))"); a.d.getElementById('fs').click();
+  ok(/musi się powtarzać/.test(toastText(a)) && a.ev("S.tasks.find(t=>t.id==='tplN').rep.k") === 'daily', 'nie da się wyłączyć powtarzania zadania ze zobowiązaniem');
+  a.ev("document.getElementById('dlg').close()");
+  // bez kar
+  const b = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': mkState([tpl('tplN')]) } });
+  b.ev("tab='todo';ideas=false;render();form(S.tasks.find(t=>t.id==='tplN'))");
+  ok(b.ev("document.getElementById('fcm').disabled") && /Najpierw dodaj co najmniej jedną karę/.test(dlgText(b)), 'bez kar: zobowiązanie zablokowane z podpowiedzią');
+  ok(animRules(b, b.d.getElementById('dlg')).length === 0, 'formularz z polem zobowiązania: bez animacji z reguł CSS');
+  ok(a.errors.length === 0 && b.errors.length === 0, 'brak błędów skryptu', a.errors.concat(b.errors).join(' | '));
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[P3] Czerwona kartka rano, ławka, szarość, wykonanie, cofnięcie');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': fire() } });
+  ok(a.errors.length === 0, 'brak błędów skryptu', a.errors.join(' | '));
+  ok(a.ev('S.cm.tplA.n') === 3 && !!a.ev('S.pen.b') && a.ev('S.pen.b.from') === a.ev('today()') && a.ev('S.pen.b.tpl') === 'tplA', 'trzy dni bez wykonania (D-3…D-1): ławka od dziś');
+  ok(dlgOpen(a) && /Czerwona kartka/.test(dlgText(a)) && /pompek|skarbonki/.test(dlgText(a)), 'po starcie okno z czerwoną kartką i wylosowaną karą');
+  ok(!a.d.querySelector('.ddw'), 'doodle nie pojawia się na ławce (mimo włączonego)');
+  a.d.getElementById('pok').click();
+  ok(!dlgOpen(a) && a.ev('S.pen.ev.length') === 0, 'OK zamyka okno i czyści komunikaty');
+  ok(benchCls(a), 'szarość włączona (klasa na html)');
+  ok(a.ev("(S.pn.filter(p=>p.u).length)") === 1, 'wylosowana kara zablokowana do wyczerpania puli');
+  a.ev("tab='prog';render()");
+  ok(!!a.d.querySelector('[data-a=penshow]') && /Karna ławka/.test(mainText(a)), 'w „Dzisiaj” baner karnej ławki');
+  ok(/🟥/.test(mainText(a)), 'przy zadaniu czerwona kartka (znaczek)');
+  a.d.querySelector('[data-a=penshow]').click();
+  ok(/Kara na dziś/.test(dlgText(a)) && /trzy niewykonania z rzędu/.test(dlgText(a)), 'szczegóły: powód i kara na dziś');
+  a.d.getElementById('pcl').click();
+  ok(!dlgOpen(a), 'szczegóły zamknięte');
+  // ławki nie da się obejść: archiwizacja, wyłączenie, usunięcie kary
+  a.ev("A.cx(S.tasks.find(t=>t.id==='tplA'))");
+  ok(a.ev("S.tasks.find(t=>t.id==='tplA').st") === 'todo' && /ma zobowiązanie/.test(toastText(a)), 'archiwizacja zadania ze zobowiązaniem zablokowana');
+  a.ev("A.adel(null,{dataset:{id:'a1'}})");
+  ok(a.ev('S.areas.length') === 2 && /zobowiązaniem/.test(toastText(a)) && !a.d.getElementById('ad'), 'usunięcie listy z zobowiązaniem zablokowane');
+  a.ev("tab='set';render()");
+  const busy = a.ev('S.pen.b.pid');
+  ok(!a.d.querySelector(`[data-a=pndel][data-id="${busy}"]`) && /trwa teraz/.test(mainText(a)), 'kara, która trwa, nie ma przycisków edycji ani usuwania');
+  a.ev("tab='prog';render()");
+  // wykonanie zdejmuje ławkę
+  const iid = a.ev("S.tasks.find(t=>t.tpl==='tplA'&&t.st==='prog').id");
+  a.ev(`A.ok(S.tasks.find(t=>t.id==='${iid}'))`);
+  ok(a.ev('S.pen.b') === null && a.ev('S.cm.tplA.n') === 0 && a.ev('S.pen.lf') === a.ev('today()') && a.ev('S.pen.h.length') === 1, 'wykonanie zadania: ławka zdjęta, licznik 0, wpis w historii, początek oddechu');
+  ok(!benchCls(a), 'szarość zdjęta od razu');
+  await sleep(1800);
+  ok(/Karna ławka zdjęta/.test(toastText(a)), 'komunikat o zdjęciu ławki');
+  ok(a.ev('penBreath(S,addDays(1))') === 2 && a.ev('penBreath(S,addDays(3))') === 0, 'oddech: jutro 2 dni, za 3 dni koniec');
+  a.ev("tab='set';render()"); ok(/Oddech po ławce/.test(mainText(a)) || a.ev('penBreath(S,today())') === 0, 'Ustawienia pokazują oddech (lub jego brak w dniu zdjęcia)');
+  // cofnięcie
+  const lid = a.ev("S.log.find(l=>l.res==='done'&&l.tpl==='tplA').id");
+  a.ev(`A.ud(null,{dataset:{id:'${lid}'}})`);
+  ok(!!a.ev('S.pen.b') && a.ev('S.cm.tplA.n') === 3 && a.ev('S.pen.h.length') === 0 && a.ev('S.pen.lf') === null && benchCls(a), 'cofnięcie wykonania w ten sam dzień przywraca ławkę i szarość');
+  ok(JSON.parse(a.w.localStorage.getItem('kanban-v1-test')).pen.b.tpl === 'tplA', 'ławka zapisana w pamięci');
+  ok(a.errors.length === 0, 'brak błędów skryptu', a.errors.join(' | '));
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[P4] Wygasanie zobowiązania bez „zostaje na liście”, żółta kartka, zobowiązanie od jutra');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': penState([
+    tpl('tplB'), tpl('tplC'),
+    mkTask({ id: 'iB', t: 'Cykl tplB', tpl: 'tplB', st: 'prog', exp: false, date: D(-1), ord: 0 }),
+    mkTask({ id: 'iC', t: 'Cykl tplC', tpl: 'tplC', st: 'prog', exp: false, date: D(-1), ord: 1 }),
+  ], { last: D(-1), coins: 10, cm: { tplB: { from: D(-1), n: 0, rc: null }, tplC: { from: D(0), n: 0, rc: null } }, pen: { b: null, lf: null, ba: null, h: [], ev: [], chk: D(-2) } }) } });
+  ok(a.errors.length === 0, 'brak błędów skryptu', a.errors.join(' | '));
+  ok(a.ev("S.log.filter(l=>l.tid==='iB'&&l.res==='fail'&&l.k==='f').length") === 1 && a.ev('S.coins') < 10, 'kopia z zobowiązaniem wygasa jak zadanie wygasające (porażka k=f, monety)');
+  ok(a.ev('S.cm.tplB.n') === 1 && !a.ev('S.pen.b'), 'tplB: żółta kartka 1/3, bez kary');
+  ok(a.ev("S.tasks.find(t=>t.id==='iC').st") === 'closed' && a.ev("S.log.filter(l=>l.tid==='iC').length") === 0 && a.ev('S.cm.tplC.n') === 0, 'kopia sprzed początku zobowiązania zamknięta po cichu, bez porażki');
+  ok(dlgOpen(a) && /Żółta kartka/.test(dlgText(a)), 'okno z żółtą kartką');
+  a.d.getElementById('pok').click();
+  await sleep(500);
+  ok(dlgOpen(a) && /Tracisz|Wygasłe/.test(dlgText(a)), 'po kartkach pokazuje się zwykłe podsumowanie wygasłych zadań');
+  a.ev("tab='prog';render()");
+  ok(/🟨/.test(mainText(a)), 'żółta kartka widoczna przy zadaniu');
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[P5] Pauza listy: ławka zostaje, szarość zdjęta; sprzątanie danych');
+try {
+  const base = { last: today(), cm: { tplA: { from: D(-9), n: 3, rc: null } }, pen: { b: { tpl: 'tplA', title: 'Cykl tplA', pt: '50 pompek', pid: 'p1', from: D(-2), area: 'a1' }, lf: null, ba: null, h: [], ev: [], chk: D(-1) }, dd: { on: true } };
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': penState([tpl('tplA')], base) } });
+  ok(!!a.ev('S.pen.b') && benchCls(a), 'bez pauzy: ławka i szarość');
+  const b = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': penState([tpl('tplA')], { ...base, pauses: [PZ(-1, 5)] }) } });
+  ok(!!b.ev('S.pen.b') && !benchCls(b), 'w pauzie listy: ławka zachowana, ale bez szarości');
+  b.ev("tab='prog';render()"); ok(!!b.d.querySelector('[data-a=penshow]'), 'baner ławki nadal dostępny');
+  const c = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': penState([tpl('tplA')], { ...base, cm: { ...base.cm, ghost: { from: D(-1), n: 1, rc: null } } }) } });
+  ok(c.ev('S.cm.ghost') === undefined && !!c.ev('S.cm.tplA'), 'zobowiązanie bez szablonu usunięte przy starcie (kontrola spójności)');
+  const d = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': penState([], { ...base, cm: { tplA: base.cm.tplA } }) } });
+  ok(d.ev('S.cm.tplA') === undefined && d.ev('S.pen.b') === null, 'szablon zniknął: zobowiązanie i ławka znikają (bez zablokowania aplikacji)');
+  ok(a.errors.length + b.errors.length + c.errors.length + d.errors.length === 0, 'brak błędów skryptu', [a, b, c, d].flatMap(x => x.errors).join(' | '));
+} catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
+
+console.log('\n[P6] Odłożenie nie jest porażką, świadoma porażka jest; kopia zapasowa zachowuje dane');
+try {
+  const a = await boot('test', { ls: { 'kanban-lang': 'pl', 'kanban-v1': penState([tpl('tplA')], { last: D(-1), cm: { tplA: { from: D(-1), n: 0, rc: null } }, pen: { b: null, lf: null, ba: null, h: [], ev: [], chk: D(-1) } }) } });
+  const i1 = a.ev("S.tasks.find(t=>t.tpl==='tplA'&&t.st==='prog').id");
+  a.ev(`A.no(S.tasks.find(t=>t.id==='${i1}'))`);
+  ok(a.ev("S.log.some(l=>l.tpl==='tplA'&&l.k==='p')") && !a.ev("S.log.some(l=>l.tpl==='tplA'&&l.k==='f')"), 'odłożenie dziennej kopii: wpis k=p (neutralny)');
+  ok(a.ev('penOut(S,"2000-01-01").tplA[today()]') === 4, 'rdzeń widzi dzień jako samo odłożenie');
+  const bk = JSON.parse(a.ev('JSON.stringify(S)'));
+  ok(!!bk.cm && !!bk.pn && !!bk.pen, 'dane kar są w eksporcie kopii zapasowej');
 } catch (e) { ok(false, 'sekcja przerwana wyjątkiem', String(e.stack || e.message).split('\n').slice(0, 3).join(' / ')); }
 
 console.log(`\nWynik: ${pass} ok, ${fail} błędów`);
