@@ -1,4 +1,4 @@
-const VER = '1.23.1';
+const VER = '1.24.1';
 const IS_TEST = /\/test(\/|$)/.test(self.registration.scope);
 const C = (IS_TEST ? 'kanban-test-' : 'kanban-') + VER;
 const DIAG = IS_TEST ? 'kanban-diag-test' : 'kanban-diag';
